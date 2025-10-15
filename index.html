@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHIS2 Dataset Download</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 100vh !important;
+            overflow-x: hidden !important;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #2c6693 0%, #1f4a6a 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border: 1px solid #e3f2fd;
+            border-radius: 12px;
+            padding: 50px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2c6693, #4a90c4, #1f4a6a);
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+
+        .logo-box {
+            width: 120px;
+            height: 120px;
+            background: #f5f5f5;
+            border: 2px solid #e3f2fd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .logo-box:hover {
+            border-color: #2c6693;
+            background: #e3f2fd;
+            transform: scale(1.05);
+        }
+
+        .logo-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c6693;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            background: #ffffff;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            color: #333;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #2c6693;
+            box-shadow: 0 0 0 3px rgba(44, 102, 147, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px 24px;
+            background: #2c6693;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #1f4a6a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 102, 147, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .main-content.show {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e3f2fd;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2c6693, #4a90c4, #1f4a6a);
+        }
+
+        .header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            color: #2c6693;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 18px;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c6693;
+            border: 1px solid #e3f2fd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn:hover {
+            background: #ffffff;
+            border-color: #2c6693;
+            color: #1f4a6a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 102, 147, 0.3);
+        }
+
+        .download-card {
+            background: #ffffff;
+            border: 1px solid #e3f2fd;
+            border-radius: 12px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+            box-shadow: 0 2px 8px rgba(44, 102, 147, 0.1);
+        }
+
+        .download-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2c6693, #4a90c4, #1f4a6a);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 14px;
+            background: #ffffff;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #2c6693;
+            box-shadow: 0 0 0 3px rgba(44, 102, 147, 0.1);
+        }
+
+        .dataset-checkbox-list, .org-unit-tree {
+            background: #f5f5f5;
+            border: 1px solid #e3f2fd;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .dataset-item, .org-unit-item {
+            padding: 10px 12px;
+            margin: 4px 0;
+            background: #ffffff;
+            border: 1px solid #e3f2fd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dataset-item:hover, .org-unit-item:hover {
+            background: #e3f2fd;
+            border-color: #2c6693;
+            transform: translateX(3px);
+        }
+
+        .dataset-item.selected {
+            background: rgba(44, 102, 147, 0.15);
+            border-color: #2c6693;
+        }
+
+        .dataset-item.parent-selected {
+            background: rgba(46, 160, 67, 0.1);
+            border-color: #2ea043;
+        }
+
+        .org-unit-item.selected {
+            background: rgba(44, 102, 147, 0.2);
+            border-left: 3px solid #2c6693;
+        }
+
+        .dataset-toggle, .org-unit-toggle {
+            display: inline-block;
+            width: 20px;
+            cursor: pointer;
+            color: #2c6693;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .dataset-checkbox, .org-unit-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2c6693;
+            flex-shrink: 0;
+        }
+
+        .dataset-name, .org-unit-label {
+            flex: 1;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .dataset-elements, .org-unit-children {
+            margin-left: 35px;
+            margin-top: 5px;
+            display: none;
+            padding: 10px;
+            background: rgba(44, 102, 147, 0.05);
+            border-left: 2px solid #2c6693;
+            border-radius: 4px;
+        }
+
+        .dataset-elements.expanded, .org-unit-children.expanded {
+            display: block;
+        }
+
+        .dataset-element-item {
+            padding: 8px 10px;
+            margin: 3px 0;
+            font-size: 13px;
+            color: #666;
+            background: #ffffff;
+            border: 1px solid #e3f2fd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dataset-element-item:hover {
+            background: #e3f2fd;
+            border-color: #2c6693;
+            transform: translateX(3px);
+        }
+
+        .dataset-element-item.selected {
+            background: rgba(44, 102, 147, 0.15);
+            border-color: #2c6693;
+        }
+
+        .dataset-element-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #2c6693;
+            flex-shrink: 0;
+        }
+
+        .selection-summary {
+            background: rgba(44, 102, 147, 0.1);
+            border: 1px solid #2c6693;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-top: 10px;
+            color: #2c6693;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .period-selector {
+            background: #f5f5f5;
+            border: 1px solid #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .period-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .period-tab {
+            padding: 10px 20px;
+            background: #ffffff;
+            border: 1px solid #e3f2fd;
+            border-radius: 6px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .period-tab.active {
+            background: #2c6693;
+            color: #ffffff;
+            border-color: #2c6693;
+        }
+
+        .period-tab:hover {
+            border-color: #2c6693;
+        }
+
+        .period-inputs {
+            display: none;
+        }
+
+        .period-inputs.active {
+            display: block;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .control-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 8px 15px;
+            font-size: 12px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        .control-btn.select-all {
+            background: #2ea043;
+        }
+
+        .control-btn.select-all:hover {
+            background: #26843b;
+        }
+
+        .control-btn.clear {
+            background: #6e7681;
+        }
+
+        .control-btn.clear:hover {
+            background: #57606a;
+        }
+
+        .control-btn.expand {
+            background: #2c6693;
+        }
+
+        .control-btn.expand:hover {
+            background: #1f4a6a;
+        }
+
+        .progress-section {
+            background: #f5f5f5;
+            border: 1px solid #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-bar {
+            background: #e3f2fd;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #2c6693, #4a90c4, #1f4a6a);
+            height: 100%;
+            transition: width 0.3s ease;
+            animation: progressPulse 2s ease-in-out infinite;
+        }
+
+        .log-container {
+            background: #ffffff;
+            border: 1px solid #e3f2fd;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #2ea043;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 2px solid #e3f2fd;
+            padding-left: 10px;
+        }
+
+        .log-entry.error {
+            color: #d32f2f;
+            border-left-color: #d32f2f;
+        }
+
+        .log-entry.success {
+            color: #2ea043;
+            border-left-color: #2ea043;
+        }
+
+        .log-entry.info {
+            color: #2c6693;
+            border-left-color: #2c6693;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            border: 1px solid #e3f2fd;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 3000;
+            animation: slideInDown 0.3s ease-out;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        .notification.success {
+            border-left: 4px solid #2ea043;
+        }
+
+        .notification.error {
+            border-left: 4px solid #d32f2f;
+        }
+
+        .notification.info {
+            border-left: 4px solid #2c6693;
+        }
+
+        .required {
+            color: #d32f2f;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        @keyframes progressPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .login-card, .download-card {
+                padding: 25px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .logout-btn {
+                position: static;
+                margin-bottom: 20px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="logo-container">
+                <div class="logo-box">
+                    <img src="NMCP.png" alt="NMCP Logo" class="logo-img" onerror="this.style.display='none'">
+                </div>
+                <div class="logo-box">
+                    <img src="ICF-SL.jpg" alt="ICF-SL Logo" class="logo-img" onerror="this.style.display='none'">
+                </div>
+            </div>
+
+            <div class="login-header">
+                <h1>📋 DHIS2 Dataset Download</h1>
+                <p>Export Dataset Data in Wide CSV Format</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">DHIS2 Instance URL <span class="required">*</span></label>
+                    <input type="url" class="form-input" id="instanceUrl" placeholder="https://your-instance.dhis2.org" required>
+                    <div class="help-text">Full URL including https://</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Username <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password <span class="required">*</span></label>
+                    <input type="password" class="form-input" id="password" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Connect to DHIS2</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+
+        <div class="container">
+            <div class="header">
+                <h1>📋 Dataset Download</h1>
+                <p>Export datasets with data values in Excel-ready wide CSV format</p>
+            </div>
+
+            <div class="download-card">
+                <div class="form-group">
+                    <label class="form-label">Select Datasets <span class="required">*</span></label>
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" class="btn-primary" onclick="loadDatasetsWithElements()" style="width: auto; padding: 10px 20px; font-size: 14px;">
+                            📥 Load Datasets
+                        </button>
+                    </div>
+                    
+                    <input type="text" class="search-box" id="datasetSearch" placeholder="🔍 Search datasets..." onkeyup="filterDatasets()" style="display: none;">
+                    
+                    <div class="dataset-checkbox-list" id="datasetCheckboxList">
+                        <p style="color: #666; text-align: center; padding: 20px;">Click "Load Datasets" to fetch available datasets</p>
+                    </div>
+                    
+                    <div class="selection-summary" id="datasetSelectionSummary" style="display: none;">
+                        <span id="datasetSelectionCount">0 datasets selected</span>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button type="button" class="control-btn select-all" onclick="selectAllDatasets()">✓ Select All</button>
+                        <button type="button" class="control-btn clear" onclick="clearAllDatasets()">✗ Clear All</button>
+                        <button type="button" class="control-btn expand" onclick="expandAllDatasets()">▼ Expand All</button>
+                        <button type="button" class="control-btn clear" onclick="collapseAllDatasets()">▶ Collapse All</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Organisation Units <span class="required">*</span></label>
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" class="btn-primary" onclick="loadOrgUnitsTree()" style="width: auto; padding: 10px 20px; font-size: 14px;">
+                            📥 Load Organisation Units
+                        </button>
+                    </div>
+                    <div class="org-unit-tree" id="orgUnitTree">
+                        <p style="color: #666; text-align: center;">Click "Load Organisation Units" to fetch...</p>
+                    </div>
+                    <div class="control-buttons">
+                        <button type="button" class="control-btn expand" onclick="expandAllOrgUnits()">▼ Expand All</button>
+                        <button type="button" class="control-btn clear" onclick="collapseAllOrgUnits()">▶ Collapse All</button>
+                        <button type="button" class="control-btn select-all" onclick="selectAllOrgUnits()">✓ Select All</button>
+                        <button type="button" class="control-btn clear" onclick="clearAllOrgUnits()">✗ Clear All</button>
+                    </div>
+                </div>
+
+                <div class="period-selector">
+                    <label class="form-label">Select Period Type</label>
+                    <div class="period-type-tabs">
+                        <div class="period-tab active" onclick="selectPeriodType('monthly')">Monthly</div>
+                        <div class="period-tab" onclick="selectPeriodType('range')">Date Range</div>
+                        <div class="period-tab" onclick="selectPeriodType('quarterly')">Quarterly</div>
+                        <div class="period-tab" onclick="selectPeriodType('yearly')">Yearly</div>
+                    </div>
+
+                    <div class="period-inputs active" id="monthly-inputs">
+                        <div class="form-group">
+                            <label class="form-label">Year-Month (e.g., 2025-06)</label>
+                            <input type="month" class="form-input" name="period" required>
+                        </div>
+                    </div>
+
+                    <div class="period-inputs" id="range-inputs">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Start Month</label>
+                                <input type="month" class="form-input" name="periodStart">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">End Month</label>
+                                <input type="month" class="form-input" name="periodEnd">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="period-inputs" id="quarterly-inputs">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Year</label>
+                                <input type="number" class="form-input" name="year" min="2000" max="2030" value="2025">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Quarter</label>
+                                <select class="form-select" name="quarter">
+                                    <option value="Q1">Q1 (Jan-Mar)</option>
+                                    <option value="Q2">Q2 (Apr-Jun)</option>
+                                    <option value="Q3">Q3 (Jul-Sep)</option>
+                                    <option value="Q4">Q4 (Oct-Dec)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="period-inputs" id="yearly-inputs">
+                        <div class="form-group">
+                            <label class="form-label">Year Range</label>
+                            <div class="form-row">
+                                <input type="number" class="form-input" name="startYear" min="2000" max="2030" placeholder="Start Year">
+                                <input type="number" class="form-input" name="endYear" min="2000" max="2030" placeholder="End Year">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-section" id="progressSection">
+                    <h3 style="color: #2c6693; margin-bottom: 15px;">Progress</h3>
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+                
+                <button type="button" class="btn-primary" id="downloadDatasetsBtn" onclick="executeDownloadDatasets()">📥 Download Dataset Data</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const GOOGLE_APPS_SCRIPT_PROXY = 'https://script.google.com/macros/s/AKfycbyRXc68PYSmDSCYPakAS8Gc9R00kRjmsMYoDujPYMItyquXfwMAJUtRqXLiDlNWbSfDQQ/exec';
+        
+        const state = { 
+            config: null, 
+            isLoggedIn: false 
+        };
+        
+        let datasetsData = [];
+        let selectedDataElements = new Set();
+        let orgUnitsData = [];
+        let selectedOrgUnits = new Set();
+
+        function makeProxyRequest(targetUrl, options = {}) {
+            let proxyUrl = `${GOOGLE_APPS_SCRIPT_PROXY}?url=${encodeURIComponent(targetUrl)}`;
+            if (options.headers && options.headers.Authorization) {
+                proxyUrl += `&Authorization=${encodeURIComponent(options.headers.Authorization)}`;
+            }
+            if (!options.method || options.method === 'GET') {
+                return fetch(proxyUrl, { method: 'GET' });
+            }
+            if (options.method === 'POST') {
+                return fetch(proxyUrl, { method: 'POST', body: options.body });
+            }
+            return fetch(proxyUrl);
+        }
+
+        async function fetchWithAuth(url, options = {}) {
+            if (!state.config) throw new Error('Not authenticated');
+            const authHeader = 'Basic ' + btoa(`${state.config.username}:${state.config.password}`);
+            return makeProxyRequest(url, {
+                ...options,
+                headers: { 'Authorization': authHeader, 'Content-Type': 'application/json', ...options.headers }
+            });
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            if (!notification) return;
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            setTimeout(() => notification.classList.remove('show'), 4000);
+        }
+
+        function setProgress(percent) {
+            const progressFill = document.getElementById('progressFill');
+            if (progressFill) progressFill.style.width = percent + '%';
+        }
+
+        function showProgress() {
+            const progressSection = document.getElementById('progressSection');
+            if (progressSection) progressSection.classList.add('show');
+        }
+
+        function log(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            if (!container) return;
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLogs() {
+            const container = document.getElementById('logContainer');
+            if (container) container.innerHTML = '';
+        }
+
+        function selectPeriodType(type) {
+            const tabs = document.querySelectorAll('.period-tab');
+            const inputs = document.querySelectorAll('.period-inputs');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            inputs.forEach(input => input.classList.remove('active'));
+            
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            const targetInput = document.getElementById(`${type}-inputs`);
+            if (targetInput) {
+                targetInput.classList.add('active');
+            }
+        }
+
+        async function loadDatasetsWithElements() {
+            try {
+                log('📋 Fetching datasets from DHIS2...', 'info');
+                showNotification('Loading datasets...', 'info');
+                
+                const url = `${state.config.instanceUrl}/api/dataSets.json?fields=id,displayName,name,periodType,dataSetElements[dataElement[id,displayName,name]]&paging=false`;
+                const response = await fetchWithAuth(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch datasets: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.dataSets || !Array.isArray(data.dataSets)) {
+                    showNotification('No datasets found in response', 'error');
+                    return;
+                }
+                
+                datasetsData = data.dataSets;
+                renderDatasetCheckboxList(datasetsData);
+                
+                document.getElementById('datasetSearch').style.display = 'block';
+                
+                log(`✅ Loaded ${data.dataSets.length} datasets`, 'success');
+                showNotification(`Loaded ${data.dataSets.length} datasets`, 'success');
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                showNotification(`Failed to load datasets: ${error.message}`, 'error');
+            }
+        }
+
+        function renderDatasetCheckboxList(datasets) {
+            const container = document.getElementById('datasetCheckboxList');
+            container.innerHTML = '';
+            
+            if (datasets.length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No datasets match your search</p>';
+                return;
+            }
+            
+            datasets.forEach(ds => {
+                const wrapper = document.createElement('div');
+                
+                const item = document.createElement('div');
+                item.className = 'dataset-item';
+                item.dataset.id = ds.id;
+                
+                const hasSelectedElements = ds.dataSetElements?.some(dse => 
+                    dse.dataElement && selectedDataElements.has(dse.dataElement.id)
+                );
+                const allElementsSelected = ds.dataSetElements?.every(dse => 
+                    dse.dataElement && selectedDataElements.has(dse.dataElement.id)
+                );
+                
+                if (allElementsSelected && ds.dataSetElements?.length > 0) {
+                    item.classList.add('selected');
+                } else if (hasSelectedElements) {
+                    item.classList.add('parent-selected');
+                }
+                
+                const toggle = document.createElement('span');
+                toggle.className = 'dataset-toggle';
+                if (ds.dataSetElements && ds.dataSetElements.length > 0) {
+                    toggle.textContent = '▶';
+                    toggle.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleDatasetElements(ds.id);
+                    };
+                } else {
+                    toggle.textContent = '  ';
+                    toggle.style.cursor = 'default';
+                }
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'dataset-checkbox';
+                checkbox.checked = allElementsSelected && ds.dataSetElements?.length > 0;
+                checkbox.indeterminate = hasSelectedElements && !allElementsSelected;
+                checkbox.dataset.id = ds.id;
+                checkbox.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleDatasetSelection(ds.id, ds.dataSetElements);
+                };
+                
+                const name = document.createElement('span');
+                name.className = 'dataset-name';
+                const periodType = ds.periodType ? ` (${ds.periodType})` : '';
+                const elementCount = ds.dataSetElements ? ` - ${ds.dataSetElements.length} elements` : '';
+                name.textContent = (ds.displayName || ds.name || ds.id) + periodType + elementCount;
+                
+                item.onclick = (e) => {
+                    if (e.target.type === 'checkbox' || e.target.className.includes('toggle')) return;
+                    toggleDatasetElements(ds.id);
+                };
+                
+                item.appendChild(toggle);
+                item.appendChild(checkbox);
+                item.appendChild(name);
+                wrapper.appendChild(item);
+                
+                if (ds.dataSetElements && ds.dataSetElements.length > 0) {
+                    const elementsDiv = document.createElement('div');
+                    elementsDiv.className = 'dataset-elements';
+                    elementsDiv.id = `elements-${ds.id}`;
+                    
+                    ds.dataSetElements.forEach(dse => {
+                        if (dse.dataElement) {
+                            const elItem = document.createElement('div');
+                            elItem.className = 'dataset-element-item';
+                            elItem.dataset.id = dse.dataElement.id;
+                            elItem.dataset.parentId = ds.id;
+                            
+                            if (selectedDataElements.has(dse.dataElement.id)) {
+                                elItem.classList.add('selected');
+                            }
+                            
+                            const elCheckbox = document.createElement('input');
+                            elCheckbox.type = 'checkbox';
+                            elCheckbox.className = 'dataset-element-checkbox';
+                            elCheckbox.checked = selectedDataElements.has(dse.dataElement.id);
+                            elCheckbox.dataset.id = dse.dataElement.id;
+                            elCheckbox.dataset.parentId = ds.id;
+                            elCheckbox.onclick = (e) => {
+                                e.stopPropagation();
+                                toggleDataElementSelection(dse.dataElement.id, ds.id, ds.dataSetElements);
+                            };
+                            
+                            const elName = document.createElement('span');
+                            elName.className = 'dataset-element-name';
+                            elName.textContent = dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id;
+                            
+                            elItem.onclick = (e) => {
+                                if (e.target.type === 'checkbox') return;
+                                elCheckbox.checked = !elCheckbox.checked;
+                                toggleDataElementSelection(dse.dataElement.id, ds.id, ds.dataSetElements);
+                            };
+                            
+                            elItem.appendChild(elCheckbox);
+                            elItem.appendChild(elName);
+                            elementsDiv.appendChild(elItem);
+                        }
+                    });
+                    
+                    wrapper.appendChild(elementsDiv);
+                }
+                
+                container.appendChild(wrapper);
+            });
+            
+            updateDatasetSelectionSummary();
+        }
+
+        function toggleDatasetElements(id) {
+            const elementsDiv = document.getElementById(`elements-${id}`);
+            const toggle = document.querySelector(`.dataset-item[data-id="${id}"] .dataset-toggle`);
+            
+            if (elementsDiv && toggle) {
+                if (elementsDiv.classList.contains('expanded')) {
+                    elementsDiv.classList.remove('expanded');
+                    toggle.textContent = '▶';
+                } else {
+                    elementsDiv.classList.add('expanded');
+                    toggle.textContent = '▼';
+                }
+            }
+        }
+
+        function toggleDatasetSelection(datasetId, dataSetElements) {
+            if (!dataSetElements || dataSetElements.length === 0) return;
+            
+            const allSelected = dataSetElements.every(dse => 
+                dse.dataElement && selectedDataElements.has(dse.dataElement.id)
+            );
+            
+            if (allSelected) {
+                dataSetElements.forEach(dse => {
+                    if (dse.dataElement) {
+                        selectedDataElements.delete(dse.dataElement.id);
+                    }
+                });
+            } else {
+                dataSetElements.forEach(dse => {
+                    if (dse.dataElement) {
+                        selectedDataElements.add(dse.dataElement.id);
+                    }
+                });
+            }
+            
+            renderDatasetCheckboxList(datasetsData);
+        }
+
+        function toggleDataElementSelection(elementId, parentDatasetId, allDataSetElements) {
+            if (selectedDataElements.has(elementId)) {
+                selectedDataElements.delete(elementId);
+            } else {
+                selectedDataElements.add(elementId);
+            }
+            
+            const elItem = document.querySelector(`.dataset-element-item[data-id="${elementId}"]`);
+            const elCheckbox = elItem?.querySelector('.dataset-element-checkbox');
+            
+            if (elItem && elCheckbox) {
+                if (selectedDataElements.has(elementId)) {
+                    elItem.classList.add('selected');
+                    elCheckbox.checked = true;
+                } else {
+                    elItem.classList.remove('selected');
+                    elCheckbox.checked = false;
+                }
+            }
+            
+            const parentItem = document.querySelector(`.dataset-item[data-id="${parentDatasetId}"]`);
+            const parentCheckbox = parentItem?.querySelector('.dataset-checkbox');
+            
+            if (parentItem && parentCheckbox && allDataSetElements) {
+                const selectedCount = allDataSetElements.filter(dse => 
+                    dse.dataElement && selectedDataElements.has(dse.dataElement.id)
+                ).length;
+                
+                const totalCount = allDataSetElements.length;
+                
+                if (selectedCount === 0) {
+                    parentCheckbox.checked = false;
+                    parentCheckbox.indeterminate = false;
+                    parentItem.classList.remove('selected', 'parent-selected');
+                } else if (selectedCount === totalCount) {
+                    parentCheckbox.checked = true;
+                    parentCheckbox.indeterminate = false;
+                    parentItem.classList.remove('parent-selected');
+                    parentItem.classList.add('selected');
+                } else {
+                    parentCheckbox.checked = false;
+                    parentCheckbox.indeterminate = true;
+                    parentItem.classList.remove('selected');
+                    parentItem.classList.add('parent-selected');
+                }
+            }
+            
+            updateDatasetSelectionSummary();
+        }
+
+        function expandAllDatasets() {
+            document.querySelectorAll('.dataset-elements').forEach(div => {
+                div.classList.add('expanded');
+            });
+            document.querySelectorAll('.dataset-toggle').forEach(toggle => {
+                if (toggle.textContent === '▶') {
+                    toggle.textContent = '▼';
+                }
+            });
+        }
+
+        function collapseAllDatasets() {
+            document.querySelectorAll('.dataset-elements').forEach(div => {
+                div.classList.remove('expanded');
+            });
+            document.querySelectorAll('.dataset-toggle').forEach(toggle => {
+                if (toggle.textContent === '▼') {
+                    toggle.textContent = '▶';
+                }
+            });
+        }
+
+        function selectAllDatasets() {
+            datasetsData.forEach(ds => {
+                if (ds.dataSetElements) {
+                    ds.dataSetElements.forEach(dse => {
+                        if (dse.dataElement) {
+                            selectedDataElements.add(dse.dataElement.id);
+                        }
+                    });
+                }
+            });
+            renderDatasetCheckboxList(datasetsData);
+        }
+
+        function clearAllDatasets() {
+            selectedDataElements.clear();
+            renderDatasetCheckboxList(datasetsData);
+        }
+
+        function updateDatasetSelectionSummary() {
+            const summary = document.getElementById('datasetSelectionSummary');
+            const count = document.getElementById('datasetSelectionCount');
+            
+            const numSelected = selectedDataElements.size;
+            
+            if (numSelected > 0) {
+                summary.style.display = 'block';
+                count.textContent = `${numSelected} data element${numSelected === 1 ? '' : 's'} selected`;
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+
+        function filterDatasets() {
+            const searchTerm = document.getElementById('datasetSearch').value.toLowerCase();
+            const items = document.querySelectorAll('.dataset-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.dataset-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    item.parentElement.style.display = 'block';
+                } else {
+                    item.parentElement.style.display = 'none';
+                }
+            });
+        }
+
+        async function loadOrgUnitsTree() {
+            try {
+                log('🏢 Fetching organisation units...', 'info');
+                const url = `${state.config.instanceUrl}/api/organisationUnits.json?fields=id,displayName,level,parent[id],children[id]&paging=false`;
+                const response = await fetchWithAuth(url);
+                
+                if (!response.ok) throw new Error('Failed to fetch organisation units');
+                
+                const data = await response.json();
+                orgUnitsData = data.organisationUnits;
+                
+                const tree = buildOrgUnitTree(orgUnitsData);
+                renderOrgUnitTree(tree);
+                
+                log(`✅ Loaded ${orgUnitsData.length} organisation units`, 'success');
+                showNotification(`Loaded ${orgUnitsData.length} organisation units`, 'success');
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                showNotification('Failed to load organisation units', 'error');
+            }
+        }
+
+        function buildOrgUnitTree(orgUnits) {
+            const orgUnitMap = {};
+            const rootUnits = [];
+            
+            orgUnits.forEach(ou => {
+                orgUnitMap[ou.id] = { ...ou, children: [] };
+            });
+            
+            orgUnits.forEach(ou => {
+                if (ou.parent && orgUnitMap[ou.parent.id]) {
+                    orgUnitMap[ou.parent.id].children.push(orgUnitMap[ou.id]);
+                } else {
+                    rootUnits.push(orgUnitMap[ou.id]);
+                }
+            });
+            
+            return rootUnits;
+        }
+
+        function renderOrgUnitTree(tree) {
+            const container = document.getElementById('orgUnitTree');
+            container.innerHTML = '';
+            tree.forEach(ou => container.appendChild(createOrgUnitNode(ou)));
+        }
+
+        function createOrgUnitNode(orgUnit) {
+            const div = document.createElement('div');
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `org-unit-item`;
+            itemDiv.dataset.id = orgUnit.id;
+            
+            const toggle = document.createElement('span');
+            toggle.className = 'org-unit-toggle';
+            if (orgUnit.children && orgUnit.children.length > 0) {
+                toggle.textContent = '▶';
+                toggle.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleOrgUnit(orgUnit.id);
+                };
+            } else {
+                toggle.textContent = '  ';
+                toggle.style.cursor = 'default';
+            }
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'org-unit-checkbox';
+            checkbox.dataset.id = orgUnit.id;
+            checkbox.checked = selectedOrgUnits.has(orgUnit.id);
+            checkbox.onchange = (e) => {
+                e.stopPropagation();
+                toggleOrgUnitSelection(orgUnit.id, e.target.checked);
+            };
+            
+            const label = document.createElement('span');
+            label.className = 'org-unit-label';
+            label.textContent = orgUnit.displayName;
+            label.onclick = () => {
+                checkbox.checked = !checkbox.checked;
+                toggleOrgUnitSelection(orgUnit.id, checkbox.checked);
+            };
+            
+            itemDiv.appendChild(toggle);
+            itemDiv.appendChild(checkbox);
+            itemDiv.appendChild(label);
+            div.appendChild(itemDiv);
+            
+            if (orgUnit.children && orgUnit.children.length > 0) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'org-unit-children';
+                childrenDiv.id = `children-${orgUnit.id}`;
+                
+                orgUnit.children.forEach(child => {
+                    childrenDiv.appendChild(createOrgUnitNode(child));
+                });
+                
+                div.appendChild(childrenDiv);
+            }
+            
+            return div;
+        }
+
+        function toggleOrgUnit(id) {
+            const childrenDiv = document.getElementById(`children-${id}`);
+            const toggle = document.querySelector(`[data-id="${id}"] .org-unit-toggle`);
+            
+            if (childrenDiv.classList.contains('expanded')) {
+                childrenDiv.classList.remove('expanded');
+                toggle.textContent = '▶';
+            } else {
+                childrenDiv.classList.add('expanded');
+                toggle.textContent = '▼';
+            }
+        }
+
+        function toggleOrgUnitSelection(id, selected) {
+            if (selected) {
+                selectedOrgUnits.add(id);
+            } else {
+                selectedOrgUnits.delete(id);
+            }
+            
+            const item = document.querySelector(`.org-unit-item[data-id="${id}"]`);
+            if (item) {
+                if (selected) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            }
+        }
+
+        function expandAllOrgUnits() {
+            document.querySelectorAll('.org-unit-children').forEach(div => div.classList.add('expanded'));
+            document.querySelectorAll('.org-unit-toggle').forEach(toggle => {
+                if (toggle.textContent === '▶') toggle.textContent = '▼';
+            });
+        }
+
+        function collapseAllOrgUnits() {
+            document.querySelectorAll('.org-unit-children').forEach(div => div.classList.remove('expanded'));
+            document.querySelectorAll('.org-unit-toggle').forEach(toggle => {
+                if (toggle.textContent === '▼') toggle.textContent = '▶';
+            });
+        }
+
+        function selectAllOrgUnits() {
+            document.querySelectorAll('.org-unit-checkbox').forEach(checkbox => {
+                checkbox.checked = true;
+                selectedOrgUnits.add(checkbox.dataset.id);
+            });
+            document.querySelectorAll('.org-unit-item').forEach(item => item.classList.add('selected'));
+        }
+
+        function clearAllOrgUnits() {
+            document.querySelectorAll('.org-unit-checkbox').forEach(checkbox => checkbox.checked = false);
+            selectedOrgUnits.clear();
+            document.querySelectorAll('.org-unit-item').forEach(item => item.classList.remove('selected'));
+        }
+
+        function getPeriodFromForm() {
+            const activeTab = document.querySelector('.period-tab.active');
+            if (!activeTab) return '';
+            
+            const tabText = activeTab.textContent.trim().toLowerCase();
+            
+            if (tabText === 'monthly') {
+                const periodInput = document.querySelector('#monthly-inputs input[name="period"]');
+                const period = periodInput?.value;
+                if (period) return `period=${period.replace('-', '')}`;
+            } else if (tabText === 'date range') {
+                const startInput = document.querySelector('#range-inputs input[name="periodStart"]');
+                const endInput = document.querySelector('#range-inputs input[name="periodEnd"]');
+                const start = startInput?.value;
+                const end = endInput?.value;
+                if (start && end) return `startDate=${start}&endDate=${end}`;
+            } else if (tabText === 'quarterly') {
+                const yearInput = document.querySelector('#quarterly-inputs input[name="year"]');
+                const quarterSelect = document.querySelector('#quarterly-inputs select[name="quarter"]');
+                const year = yearInput?.value;
+                const quarter = quarterSelect?.value;
+                if (year && quarter) return `period=${year}${quarter}`;
+            } else if (tabText === 'yearly') {
+                const startYearInput = document.querySelector('#yearly-inputs input[name="startYear"]');
+                const endYearInput = document.querySelector('#yearly-inputs input[name="endYear"]');
+                const startYear = startYearInput?.value;
+                const endYear = endYearInput?.value;
+                if (startYear && endYear) return `startDate=${startYear}-01-01&endDate=${endYear}-12-31`;
+                else if (startYear) return `period=${startYear}`;
+            }
+            
+            return '';
+        }
+
+        async function executeDownloadDatasets() {
+            const selectedDataElementIds = Array.from(selectedDataElements);
+            const selectedOrgUnitIds = Array.from(selectedOrgUnits);
+            
+            if (selectedDataElementIds.length === 0) {
+                showNotification('Please select at least one data element', 'error');
+                return;
+            }
+            
+            if (selectedOrgUnitIds.length === 0) {
+                showNotification('Please select at least one organisation unit', 'error');
+                return;
+            }
+            
+            const downloadBtn = document.getElementById('downloadDatasetsBtn');
+            if (downloadBtn) {
+                downloadBtn.disabled = true;
+                downloadBtn.textContent = 'Processing...';
+            }
+            
+            showProgress();
+            clearLogs();
+            setProgress(0);
+            
+            try {
+                log(`📋 Processing ${selectedDataElementIds.length} selected data elements...`, 'info');
+                setProgress(20);
+                
+                const dataElementMap = {};
+                datasetsData.forEach(ds => {
+                    if (ds.dataSetElements) {
+                        ds.dataSetElements.forEach(dse => {
+                            if (dse.dataElement && selectedDataElementIds.includes(dse.dataElement.id)) {
+                                dataElementMap[dse.dataElement.id] = dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id;
+                            }
+                        });
+                    }
+                });
+                
+                log(`✅ Prepared ${Object.keys(dataElementMap).length} data elements for export`, 'success');
+                
+                const orgUnitMap = {};
+                const orgUnitHierarchy = {};
+                
+                log('🏢 Building organisation unit hierarchy...', 'info');
+                setProgress(40);
+                
+                orgUnitsData.forEach(ou => {
+                    orgUnitMap[ou.id] = ou.displayName;
+                    orgUnitHierarchy[ou.id] = {
+                        id: ou.id,
+                        name: ou.displayName,
+                        level: ou.level,
+                        parent: ou.parent ? ou.parent.id : null
+                    };
+                });
+                
+                const period = getPeriodFromForm();
+                if (!period) {
+                    showNotification('Please select a period', 'error');
+                    return;
+                }
+                
+                log('📊 Fetching data values...', 'info');
+                log(`  Data Elements: ${selectedDataElementIds.length}`, 'info');
+                log(`  Org Units: ${selectedOrgUnitIds.length}`, 'info');
+                log(`  Period: ${period}`, 'info');
+                setProgress(60);
+                
+                const dataUrl = `${state.config.instanceUrl}/api/dataValueSets.json?dataElement=${selectedDataElementIds.join(',')}&orgUnit=${selectedOrgUnitIds.join(',')}&${period}`;
+                const dataResponse = await fetchWithAuth(dataUrl);
+                
+                if (!dataResponse.ok) throw new Error('Failed to fetch data values');
+                
+                const dataValues = await dataResponse.json();
+                const numValues = dataValues.dataValues?.length || 0;
+                
+                log(`✅ Retrieved ${numValues} data values`, 'success');
+                setProgress(80);
+                
+                if (numValues === 0) {
+                    showNotification('No data values found for selected criteria', 'info');
+                    log('ℹ️  No data found. This could mean:', 'info');
+                    log('   • No data entered for this period', 'info');
+                    log('   • Selected org units have no data', 'info');
+                    log('   • Data elements are not used in this period', 'info');
+                    return;
+                }
+                
+                log('📊 Fetching category option combos...', 'info');
+                const categoryOptionComboMap = {};
+                const cocUrl = `${state.config.instanceUrl}/api/categoryOptionCombos.json?fields=id,displayName,name&paging=false`;
+                const cocResponse = await fetchWithAuth(cocUrl);
+                
+                if (cocResponse.ok) {
+                    const cocData = await cocResponse.json();
+                    cocData.categoryOptionCombos?.forEach(coc => {
+                        categoryOptionComboMap[coc.id] = coc.displayName || coc.name || coc.id;
+                    });
+                    log(`  Found ${Object.keys(categoryOptionComboMap).length} category combos`, 'info');
+                }
+                
+                log('📝 Converting to wide format CSV...', 'info');
+                const csvData = convertToWideFormatCSV(dataValues.dataValues, dataElementMap, orgUnitMap, categoryOptionComboMap, orgUnitHierarchy);
+                
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `dataset-export-${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                
+                setProgress(100);
+                log('\n═══════════════════════════════════════', 'success');
+                log('✅ DOWNLOAD COMPLETE!', 'success');
+                log('═══════════════════════════════════════', 'success');
+                log(`  📊 ${numValues} data values exported`, 'success');
+                log(`  📋 ${selectedDataElementIds.length} data elements`, 'success');
+                log(`  🏢 ${selectedOrgUnitIds.length} organisation units`, 'success');
+                showNotification('Dataset data downloaded successfully!', 'success');
+                
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`, 'error');
+                showNotification(`Error: ${error.message}`, 'error');
+            } finally {
+                if (downloadBtn) {
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = '📥 Download Dataset Data';
+                }
+            }
+        }
+
+        function convertToWideFormatCSV(dataValues, dataElementMap, orgUnitMap, categoryOptionComboMap, orgUnitHierarchy) {
+            log(`Converting ${dataValues.length} data values to wide format...`, 'info');
+            
+            const groupedData = {};
+            
+            dataValues.forEach(dv => {
+                const key = `${dv.orgUnit}|${dv.period}`;
+                if (!groupedData[key]) {
+                    groupedData[key] = {
+                        orgUnit: dv.orgUnit,
+                        period: dv.period,
+                        values: {}
+                    };
+                }
+                
+                const deName = dataElementMap[dv.dataElement] || dv.dataElement;
+                const cocName = categoryOptionComboMap[dv.categoryOptionCombo] || dv.categoryOptionCombo || 'default';
+                
+                let fullKey = deName;
+                if (cocName !== 'default' && cocName !== dv.categoryOptionCombo) {
+                    fullKey = `${deName} (${cocName})`;
+                }
+                
+                groupedData[key].values[fullKey] = dv.value;
+            });
+            
+            const allColumns = new Set();
+            Object.values(groupedData).forEach(row => {
+                Object.keys(row.values).forEach(col => allColumns.add(col));
+            });
+            const sortedColumns = Array.from(allColumns).sort();
+            
+            let maxLevel = 0;
+            Object.values(orgUnitHierarchy).forEach(ou => {
+                if (ou.level > maxLevel) maxLevel = ou.level;
+            });
+            
+            const hierarchyHeaders = [];
+            for (let i = 1; i <= maxLevel; i++) {
+                hierarchyHeaders.push(`Level ${i}`);
+            }
+            const headers = [...hierarchyHeaders, 'Period', ...sortedColumns];
+            let csv = headers.join(',') + '\n';
+            
+            Object.values(groupedData).forEach(row => {
+                const csvRow = [];
+                
+                const hierarchy = getOrgUnitHierarchy(row.orgUnit, orgUnitHierarchy);
+                for (let i = 0; i < maxLevel; i++) {
+                    csvRow.push(escapeCSV(hierarchy[i] || ''));
+                }
+                
+                csvRow.push(escapeCSV(row.period));
+                
+                sortedColumns.forEach(col => {
+                    csvRow.push(escapeCSV(row.values[col] || ''));
+                });
+                
+                csv += csvRow.join(',') + '\n';
+            });
+            
+            log('✅ Wide format CSV conversion complete', 'success');
+            return csv;
+        }
+        
+        function getOrgUnitHierarchy(orgUnitId, orgUnitHierarchy) {
+            const hierarchy = [];
+            let current = orgUnitHierarchy[orgUnitId];
+            
+            while (current) {
+                hierarchy.unshift(current.name);
+                current = current.parent ? orgUnitHierarchy[current.parent] : null;
+            }
+            
+            return hierarchy;
+        }
+
+        function escapeCSV(value) {
+            if (value === null || value === undefined) return '';
+            const stringValue = String(value);
+            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                return '"' + stringValue.replace(/"/g, '""') + '"';
+            }
+            return stringValue;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const instanceUrl = document.getElementById('instanceUrl').value.trim().replace(/\/$/, '');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!instanceUrl.startsWith('http://') && !instanceUrl.startsWith('https://')) {
+                showNotification('URL must start with http:// or https://', 'error');
+                return;
+            }
+            
+            const submitBtn = e.target.querySelector('.btn-primary');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Connecting...';
+            
+            const config = { instanceUrl, username, password };
+            
+            try {
+                showNotification('Connecting via Google Apps Script...', 'info');
+                const testUrl = `${instanceUrl}/api/me`;
+                const authHeader = 'Basic ' + btoa(`${username}:${password}`);
+                const response = await makeProxyRequest(testUrl, { method: 'GET', headers: { 'Authorization': authHeader } });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    state.config = config;
+                    state.isLoggedIn = true;
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainContent').classList.add('show');
+                    
+                    const firstName = userData.firstName || '';
+                    const surname = userData.surname || '';
+                    const fullName = `${firstName} ${surname}`.trim() || 'User';
+                    
+                    showNotification(`✅ Connected successfully! Welcome ${fullName}`, 'success');
+                } else if (response.status === 401) {
+                    showNotification('❌ Invalid username or password', 'error');
+                } else if (response.status === 403) {
+                    showNotification('❌ Access forbidden', 'error');
+                } else {
+                    showNotification(`Authentication failed (${response.status})`, 'error');
+                }
+            } catch (error) {
+                showNotification(`Connection failed: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Connect to DHIS2';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            state.config = null;
+            state.isLoggedIn = false;
+            document.getElementById('mainContent').classList.remove('show');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+        });
+    </script>
+</body>
+</html>
