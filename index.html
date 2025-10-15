@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHIS2 Dataset Download</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="logo-container">
+                <div class="logo-box">
+                    <img src="NMCP.png" alt="NMCP Logo" class="logo-img" onerror="this.style.display='none'">
+                </div>
+                <div class="logo-box">
+                    <img src="ICF-SL.jpg" alt="ICF-SL Logo" class="logo-img" onerror="this.style.display='none'">
+                </div>
+            </div>
+
+            <div class="login-header">
+                <h1>DHIS2 Dataset Download</h1>
+                <p>Export Dataset Data in Wide CSV Format</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">DHIS2 Instance URL <span class="required">*</span></label>
+                    <input type="url" class="form-input" id="instanceUrl" placeholder="https://your-instance.dhis2.org" required>
+                    <div class="help-text">Full URL including https://</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Username <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password <span class="required">*</span></label>
+                    <input type="password" class="form-input" id="password" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Connect to DHIS2</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+
+        <div class="container">
+            <div class="header">
+                <h1>Dataset Download</h1>
+                <p>Export datasets with data values in Excel-ready wide CSV format</p>
+            </div>
+
+            <div class="download-card">
+                <div class="form-group">
+                    <label class="form-label">Select Data Elements <span class="required">*</span></label>
+                    
+                    <div class="dual-panel-container">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title">
+                                    📋 Available Items
+                                    <span class="panel-count" id="availableCount">0 items</span>
+                                </div>
+                            </div>
+                            <button type="button" class="panel-action-btn load-btn" onclick="loadDatasetsWithElements()">
+                                🔄 Load Items
+                            </button>
+                            <input type="text" class="search-box" id="availableSearch" placeholder="🔍 Search available items..." onkeyup="filterAvailableItems()" style="display: none;">
+                            <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="display: none;" id="addAllBtn">
+                                ➡️ Add All
+                            </button>
+                            <div class="panel-content" id="availablePanel"></div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title">
+                                    ✅ Selected to Copy
+                                    <span class="panel-count" id="selectedCount">0 items</span>
+                                </div>
+                            </div>
+                            <input type="text" class="search-box" id="selectedSearch" placeholder="🔍 Search selected items..." onkeyup="filterSelectedItems()">
+                            <button type="button" class="panel-action-btn clear-all-btn" onclick="clearAllItems()">
+                                ❌ Clear All
+                            </button>
+                            <div class="panel-content" id="selectedPanel"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Organisation Units <span class="required">*</span></label>
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" class="btn-primary" onclick="loadOrgUnitsTree()" style="width: auto; padding: 10px 20px; font-size: 14px;">
+                            📥 Load Organisation Units
+                        </button>
+                    </div>
+                    <div class="org-unit-tree" id="orgUnitTree">
+                        <p style="color: #666; text-align: center;">Click "Load Organisation Units" to fetch...</p>
+                    </div>
+                    <div class="control-buttons">
+                        <button type="button" class="control-btn expand" onclick="expandAllOrgUnits()">▼ Expand All</button>
+                        <button type="button" class="control-btn clear" onclick="collapseAllOrgUnits()">▶ Collapse All</button>
+                        <button type="button" class="control-btn select-all" onclick="selectAllOrgUnits()">✓ Select All</button>
+                        <button type="button" class="control-btn clear" onclick="clearAllOrgUnits()">✗ Clear All</button>
+                    </div>
+                </div>
+
+                <div class="period-selector">
+                    <label class="form-label">Select Period Type</label>
+                    <div class="period-type-tabs">
+                        <div class="period-tab active" onclick="selectPeriodType('monthly')">Monthly</div>
+                        <div class="period-tab" onclick="selectPeriodType('range')">Date Range</div>
+                        <div class="period-tab" onclick="selectPeriodType('quarterly')">Quarterly</div>
+                        <div class="period-tab" onclick="selectPeriodType('yearly')">Yearly</div>
+                    </div>
+
+                    <div class="period-inputs active" id="monthly-inputs">
+                        <div class="form-group">
+                            <label class="form-label">Year-Month (e.g., 2025-06)</label>
+                            <input type="month" class="form-input" name="period" required>
+                        </div>
+                    </div>
+
+                    <div class="period-inputs" id="range-inputs">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Start Month</label>
+                                <input type="month" class="form-input" name="periodStart">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">End Month</label>
+                                <input type="month" class="form-input" name="periodEnd">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="period-inputs" id="quarterly-inputs">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Year</label>
+                                <input type="number" class="form-input" name="year" min="2000" max="2030" value="2025">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Quarter</label>
+                                <select class="form-select" name="quarter">
+                                    <option value="Q1">Q1 (Jan-Mar)</option>
+                                    <option value="Q2">Q2 (Apr-Jun)</option>
+                                    <option value="Q3">Q3 (Jul-Sep)</option>
+                                    <option value="Q4">Q4 (Oct-Dec)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="period-inputs" id="yearly-inputs">
+                        <div class="form-group">
+                            <label class="form-label">Year Range</label>
+                            <div class="form-row">
+                                <input type="number" class="form-input" name="startYear" min="2000" max="2030" placeholder="Start Year">
+                                <input type="number" class="form-input" name="endYear" min="2000" max="2030" placeholder="End Year">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-section" id="progressSection">
+                    <h3 style="color: #2c6693; margin-bottom: 15px;">Progress</h3>
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+                
+                <button type="button" class="btn-primary" id="downloadDatasetsBtn" onclick="executeDownloadDatasets()">📥 Download Dataset Data</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
