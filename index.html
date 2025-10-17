@@ -439,30 +439,16 @@
 
         <div class="filters">
             <div class="filter-group">
-                <label class="filter-label">Country</label>
-                <select class="filter-select" id="adm0Filter" onchange="handleAdm0Change()">
-                    <option value="all">All Countries</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Region (Adm1)</label>
+                <label class="filter-label">District</label>
                 <select class="filter-select" id="adm1Filter" onchange="handleAdm1Change()">
-                    <option value="all">All Regions</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">District (Adm2)</label>
-                <select class="filter-select" id="adm2Filter" onchange="handleAdm2Change()">
                     <option value="all">All Districts</option>
                 </select>
             </div>
 
             <div class="filter-group">
-                <label class="filter-label">Sub-District (Adm3)</label>
+                <label class="filter-label">Chiefdom</label>
                 <select class="filter-select" id="adm3Filter" onchange="handleAdm3Change()">
-                    <option value="all">All Sub-Districts</option>
+                    <option value="all">All Chiefdoms</option>
                 </select>
             </div>
 
@@ -608,7 +594,7 @@
                             </div>
                         </div>
                         <div class="chart-card">
-                            <div class="chart-title">Suspected Cases by Region</div>
+                            <div class="chart-title">Suspected Cases by District</div>
                             <div class="chart-container">
                                 <canvas id="suspectedRegionChart"></canvas>
                             </div>
@@ -678,7 +664,7 @@
                             </div>
                         </div>
                         <div class="chart-card">
-                            <div class="chart-title">Confirmed Cases by Region</div>
+                            <div class="chart-title">Confirmed Cases by District</div>
                             <div class="chart-container">
                                 <canvas id="confirmedRegionChart"></canvas>
                             </div>
@@ -742,7 +728,7 @@
                             </div>
                         </div>
                         <div class="chart-card">
-                            <div class="chart-title">Admissions by Region</div>
+                            <div class="chart-title">Admissions by District</div>
                             <div class="chart-container">
                                 <canvas id="admissionsRegionChart"></canvas>
                             </div>
@@ -777,7 +763,7 @@
                             </div>
                         </div>
                         <div class="chart-card">
-                            <div class="chart-title">Deaths by Region</div>
+                            <div class="chart-title">Deaths by District</div>
                             <div class="chart-container">
                                 <canvas id="deathsRegionChart"></canvas>
                             </div>
@@ -792,14 +778,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         // CONFIGURE YOUR GOOGLE APPS SCRIPT URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbBa8BuD5hFYOfZ4kbLv1b-at49Pg0Eb0iGfWhcP63AxnU_lGVqUSJjjNnUnfDJrgE/exec';
+        const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
         
         let rawData = [];
         let filteredData = [];
         let cascadingMaps = {
-            adm0_adm1: {},
-            adm1_adm2: {},
-            adm2_adm3: {},
+            adm1_adm3: {},
             adm3_hf: {}
         };
 
@@ -911,25 +895,13 @@
             const data = calculateSummaries(rawData);
             
             data.forEach(d => {
-                const adm0 = d.orgunitlevel1;
                 const adm1 = d.orgunitlevel2;
-                const adm2 = d.orgunitlevel3;
                 const adm3 = d.orgunitlevel4;
                 const hf = d.organisationunitname;
                 
-                if (adm0 && adm1) {
-                    if (!cascadingMaps.adm0_adm1[adm0]) cascadingMaps.adm0_adm1[adm0] = new Set();
-                    cascadingMaps.adm0_adm1[adm0].add(adm1);
-                }
-                
-                if (adm1 && adm2) {
-                    if (!cascadingMaps.adm1_adm2[adm1]) cascadingMaps.adm1_adm2[adm1] = new Set();
-                    cascadingMaps.adm1_adm2[adm1].add(adm2);
-                }
-                
-                if (adm2 && adm3) {
-                    if (!cascadingMaps.adm2_adm3[adm2]) cascadingMaps.adm2_adm3[adm2] = new Set();
-                    cascadingMaps.adm2_adm3[adm2].add(adm3);
+                if (adm1 && adm3) {
+                    if (!cascadingMaps.adm1_adm3[adm1]) cascadingMaps.adm1_adm3[adm1] = new Set();
+                    cascadingMaps.adm1_adm3[adm1].add(adm3);
                 }
                 
                 if (adm3 && hf) {
@@ -938,11 +910,10 @@
                 }
             });
             
-            const countries = [...new Set(data.map(d => d.orgunitlevel1).filter(Boolean))].sort();
-            populateSelect('adm0Filter', countries);
+            const districts = [...new Set(data.map(d => d.orgunitlevel2).filter(Boolean))].sort();
+            populateSelect('adm1Filter', districts);
             
-            const periods = [...new Set(data.map(d => d.period).filter(Boolean))].sort();
-            const years = [...new Set(periods.map(p => p.split('-')[0]))].sort();
+            const years = [...new Set(data.map(d => d.year).filter(Boolean))].sort();
             const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                            'July', 'August', 'September', 'October', 'November', 'December'];
             
@@ -979,46 +950,15 @@
             }
         }
 
-        function handleAdm0Change() {
-            const adm0 = document.getElementById('adm0Filter').value;
-            
-            document.getElementById('adm1Filter').innerHTML = '<option value="all">All Regions</option>';
-            document.getElementById('adm2Filter').innerHTML = '<option value="all">All Districts</option>';
-            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
-            document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
-            
-            if (adm0 !== 'all' && cascadingMaps.adm0_adm1[adm0]) {
-                const regions = Array.from(cascadingMaps.adm0_adm1[adm0]).sort();
-                populateSelect('adm1Filter', regions);
-            }
-            
-            applyFilters();
-        }
-
         function handleAdm1Change() {
             const adm1 = document.getElementById('adm1Filter').value;
             
-            document.getElementById('adm2Filter').innerHTML = '<option value="all">All Districts</option>';
-            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
+            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Chiefdoms</option>';
             document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
             
-            if (adm1 !== 'all' && cascadingMaps.adm1_adm2[adm1]) {
-                const districts = Array.from(cascadingMaps.adm1_adm2[adm1]).sort();
-                populateSelect('adm2Filter', districts);
-            }
-            
-            applyFilters();
-        }
-
-        function handleAdm2Change() {
-            const adm2 = document.getElementById('adm2Filter').value;
-            
-            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
-            document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
-            
-            if (adm2 !== 'all' && cascadingMaps.adm2_adm3[adm2]) {
-                const subDistricts = Array.from(cascadingMaps.adm2_adm3[adm2]).sort();
-                populateSelect('adm3Filter', subDistricts);
+            if (adm1 !== 'all' && cascadingMaps.adm1_adm3[adm1]) {
+                const chiefdoms = Array.from(cascadingMaps.adm1_adm3[adm1]).sort();
+                populateSelect('adm3Filter', chiefdoms);
             }
             
             applyFilters();
@@ -1039,9 +979,7 @@
 
         function applyFilters() {
             const filters = {
-                adm0: document.getElementById('adm0Filter').value,
                 adm1: document.getElementById('adm1Filter').value,
-                adm2: document.getElementById('adm2Filter').value,
                 adm3: document.getElementById('adm3Filter').value,
                 hf: document.getElementById('hfFilter').value,
                 year: document.getElementById('yearFilter').value,
@@ -1051,17 +989,11 @@
             const data = calculateSummaries(rawData);
             
             filteredData = data.filter(item => {
-                if (filters.adm0 !== 'all' && item.orgunitlevel1 !== filters.adm0) return false;
                 if (filters.adm1 !== 'all' && item.orgunitlevel2 !== filters.adm1) return false;
-                if (filters.adm2 !== 'all' && item.orgunitlevel3 !== filters.adm2) return false;
                 if (filters.adm3 !== 'all' && item.orgunitlevel4 !== filters.adm3) return false;
                 if (filters.hf !== 'all' && item.organisationunitname !== filters.hf) return false;
-                
-                if (item.period) {
-                    const [year, month] = item.period.split('-');
-                    if (filters.year !== 'all' && year !== filters.year) return false;
-                    if (filters.month !== 'all' && month !== filters.month) return false;
-                }
+                if (filters.year !== 'all' && item.year !== filters.year) return false;
+                if (filters.month !== 'all' && item.month !== filters.month) return false;
                 
                 return true;
             });
@@ -1071,10 +1003,8 @@
         }
 
         function resetFilters() {
-            document.getElementById('adm0Filter').value = 'all';
-            document.getElementById('adm1Filter').innerHTML = '<option value="all">All Regions</option>';
-            document.getElementById('adm2Filter').innerHTML = '<option value="all">All Districts</option>';
-            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
+            document.getElementById('adm1Filter').value = 'all';
+            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Chiefdoms</option>';
             document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
             document.getElementById('yearFilter').value = 'all';
             document.getElementById('monthFilter').value = 'all';
@@ -1208,9 +1138,11 @@
             
             const monthlyData = {};
             filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) monthlyData[period] = 0;
-                monthlyData[period] += row.allout || 0;
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.allout || 0;
+                }
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -1239,7 +1171,16 @@
                     },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                        x: { 
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
@@ -1326,9 +1267,11 @@
             
             const monthlyData = {};
             filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) monthlyData[period] = 0;
-                monthlyData[period] += row.susp || 0;
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.susp || 0;
+                }
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -1355,7 +1298,16 @@
                     plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                        x: { 
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
@@ -1523,9 +1475,11 @@
             
             const monthlyData = {};
             filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) monthlyData[period] = 0;
-                monthlyData[period] += row.test || 0;
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.test || 0;
+                }
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -1552,7 +1506,16 @@
                     plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                        x: { 
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
@@ -1639,9 +1602,11 @@
             
             const monthlyData = {};
             filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) monthlyData[period] = 0;
-                monthlyData[period] += row.conf || 0;
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.conf || 0;
+                }
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -1668,7 +1633,16 @@
                     plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                        x: { 
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
@@ -1837,9 +1811,11 @@
             
             const monthlyData = {};
             filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) monthlyData[period] = 0;
-                monthlyData[period] += row.maltreat || 0;
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.maltreat || 0;
+                }
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -1866,7 +1842,16 @@
                     plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                        x: { 
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
@@ -1916,9 +1901,11 @@
             
             const monthlyData = {};
             filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) monthlyData[period] = 0;
-                monthlyData[period] += row.maladm || 0;
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.maladm || 0;
+                }
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -1945,7 +1932,16 @@
                     plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                        x: { 
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
@@ -2039,9 +2035,11 @@
             
             const monthlyData = {};
             filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) monthlyData[period] = 0;
-                monthlyData[period] += row.maldth || 0;
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.maldth || 0;
+                }
             });
             
             const labels = Object.keys(monthlyData).sort();
@@ -2068,7 +2066,16 @@
                     plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
                     scales: {
                         y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                        x: { 
+                            ticks: { 
+                                color: '#666',
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 12
+                            }, 
+                            grid: { display: false } 
+                        }
                     }
                 }
             });
