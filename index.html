@@ -281,13 +281,14 @@
         }
 
         .section-toggle {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             transition: transform 0.3s ease;
+            display: inline-block;
         }
 
         .section-toggle.collapsed {
-            transform: rotate(-90deg);
+            transform: rotate(180deg);
         }
 
         .section-content {
@@ -516,7 +517,7 @@
             <div class="section" id="summary">
                 <div class="section-header" onclick="toggleSection('summary')">
                     <div class="section-title">📊 Summary Overview</div>
-                    <div class="section-toggle" id="summary-toggle">▼</div>
+                    <div class="section-toggle" id="summary-toggle">▲</div>
                 </div>
                 <div class="section-content" id="summary-content">
                     <div class="summary-grid">
