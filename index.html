@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malaria Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #2c6693 0%, #1f4a6a 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #2c6693, #1f4a6a);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffffff, #4a90c4, #ffffff);
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 4px solid #ffffff;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .title {
+            font-size: 42px;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(44, 102, 147, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            color: #2c6693;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .filter-select {
+            background: #ffffff;
+            border: 2px solid #2c6693;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #2c6693;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #2c6693;
+            box-shadow: 0 0 0 3px rgba(44, 102, 147, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #2c6693;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: #1f4a6a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 102, 147, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border: 3px solid #2c6693;
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(26, 84, 144, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2c6693, #4a90c4, #2c6693);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(26, 84, 144, 0.25);
+            border-color: #1f4a6a;
+        }
+
+        .summary-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2c6693, #1f4a6a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(44, 102, 147, 0.3);
+        }
+
+        .summary-label {
+            color: #2c6693;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            font-size: 42px;
+            font-weight: 900;
+            color: #2c6693;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .summary-subtitle {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: #ffffff;
+            border: 3px solid #2c6693;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 16px rgba(44, 102, 147, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2c6693, #4a90c4, #2c6693);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #2c6693;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #e3f2fd;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        .chart-card canvas {
+            max-height: 350px !important;
+        }
+
+        .alert {
+            padding: 18px 24px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+            background: #ffffff;
+            border: 2px solid #2c6693;
+            color: #2c6693;
+            box-shadow: 0 2px 8px rgba(44, 102, 147, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 80px;
+            color: #ffffff;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🦟</div>
+            <h1 class="title">Malaria Analytics Dashboard</h1>
+            <p class="subtitle">Comprehensive Malaria Surveillance & Treatment Monitoring</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Country</label>
+                <select class="filter-select" id="adm0Filter" onchange="handleAdm0Change()">
+                    <option value="all">All Countries</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Region (Adm1)</label>
+                <select class="filter-select" id="adm1Filter" onchange="handleAdm1Change()">
+                    <option value="all">All Regions</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">District (Adm2)</label>
+                <select class="filter-select" id="adm2Filter" onchange="handleAdm2Change()">
+                    <option value="all">All Districts</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Sub-District (Adm3)</label>
+                <select class="filter-select" id="adm3Filter" onchange="handleAdm3Change()">
+                    <option value="all">All Sub-Districts</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Health Facility</label>
+                <select class="filter-select" id="hfFilter" onchange="applyFilters()">
+                    <option value="all">All Facilities</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Year</label>
+                <select class="filter-select" id="yearFilter" onchange="applyFilters()">
+                    <option value="all">All Years</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Month</label>
+                <select class="filter-select" id="monthFilter" onchange="applyFilters()">
+                    <option value="all">All Months</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" onclick="refreshDashboard()">🔄 Refresh Data</button>
+            <button class="btn btn-secondary" onclick="resetFilters()">↺ Reset Filters</button>
+            <button class="btn btn-secondary" onclick="exportData()">📊 Export Report</button>
+        </div>
+
+        <div class="alert">
+            <span style="font-size: 24px;">📡</span>
+            <div>
+                <strong>Data Source:</strong> Connected to DHIS2. Last updated: <span id="lastUpdate">Loading...</span>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <p style="font-size: 18px; font-weight: 700;">Loading malaria data...</p>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-icon">🏥</div>
+                    <div class="summary-label">Total OPD Visits</div>
+                    <div class="summary-value" id="totalOPD">0</div>
+                    <div class="summary-subtitle">All age groups</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">🔬</div>
+                    <div class="summary-label">Total Tests</div>
+                    <div class="summary-value" id="totalTests">0</div>
+                    <div class="summary-subtitle">Microscopy & RDT</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">✅</div>
+                    <div class="summary-label">Confirmed Cases</div>
+                    <div class="summary-value" id="confirmedCases">0</div>
+                    <div class="summary-subtitle">Positive results</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">💊</div>
+                    <div class="summary-label">Treated Cases</div>
+                    <div class="summary-value" id="treatedCases">0</div>
+                    <div class="summary-subtitle">ACT treatment</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">🏨</div>
+                    <div class="summary-label">Admissions</div>
+                    <div class="summary-value" id="totalAdmissions">0</div>
+                    <div class="summary-subtitle">Malaria admissions</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">⚠️</div>
+                    <div class="summary-label">Deaths</div>
+                    <div class="summary-value" id="totalDeaths" style="color: #d32f2f;">0</div>
+                    <div class="summary-subtitle">Malaria-related</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">📈</div>
+                    <div class="summary-label">Test Positivity Rate</div>
+                    <div class="summary-value" id="positivityRate" style="font-size: 36px;">0%</div>
+                    <div class="summary-subtitle">Confirmed / Tested</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">⏱️</div>
+                    <div class="summary-label">Early Treatment</div>
+                    <div class="summary-value" id="earlyTreatment" style="font-size: 36px;">0%</div>
+                    <div class="summary-subtitle">Within 24 hours</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <div class="chart-title">📊 Monthly Trends</div>
+                    <div class="chart-container">
+                        <canvas id="trendsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">👥 Cases by Age Group</div>
+                    <div class="chart-container">
+                        <canvas id="ageGroupChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">🔬 Testing Methods Distribution</div>
+                    <div class="chart-container">
+                        <canvas id="testingMethodsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">🏥 Facility vs Community Cases</div>
+                    <div class="chart-container">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">💊 Treatment Timeliness</div>
+                    <div class="chart-container">
+                        <canvas id="treatmentTimeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">📍 Cases by Region (Top 10)</div>
+                    <div class="chart-container">
+                        <canvas id="regionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">⚡ Case Management Funnel</div>
+                    <div class="chart-container">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">🎯 Key Performance Indicators</div>
+                    <div class="chart-container">
+                        <canvas id="kpiChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const DHIS2_URL = 'YOUR_DHIS2_API_URL_HERE';
+        
+        let rawData = [];
+        let filteredData = [];
+        let cascadingMaps = {
+            adm0_adm1: {},
+            adm1_adm2: {},
+            adm2_adm3: {},
+            adm3_hf: {}
+        };
+
+        let charts = {};
+
+        async function initDashboard() {
+            await loadData();
+            populateFilters();
+            renderDashboard();
+        }
+
+        async function loadData() {
+            try {
+                rawData = generateSampleData();
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Error loading data. Please check your DHIS2 connection.');
+            }
+        }
+
+        function generateSampleData() {
+            const data = [];
+            const countries = ['Sierra Leone'];
+            const regions = ['Northern', 'Southern', 'Eastern', 'Western'];
+            const districts = ['Bo', 'Kenema', 'Bombali', 'Port Loko', 'Kailahun', 'Tonkolili'];
+            const months = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+            
+            for (let i = 0; i < 200; i++) {
+                const country = countries[0];
+                const region = regions[Math.floor(Math.random() * regions.length)];
+                const district = districts[Math.floor(Math.random() * districts.length)];
+                const subDistrict = district + ' Sub-' + (Math.floor(Math.random() * 3) + 1);
+                const facility = 'Health Facility ' + (Math.floor(Math.random() * 20) + 1);
+                const period = months[Math.floor(Math.random() * months.length)];
+                
+                data.push({
+                    orgunitlevel1: country,
+                    orgunitlevel2: region,
+                    orgunitlevel3: district,
+                    orgunitlevel4: subDistrict,
+                    organisationunitname: facility,
+                    period: period,
+                    allout_u5: Math.floor(Math.random() * 500) + 100,
+                    allout_ov5: Math.floor(Math.random() * 800) + 200,
+                    susp_u5_hf: Math.floor(Math.random() * 150) + 30,
+                    susp_5_14_hf: Math.floor(Math.random() * 100) + 20,
+                    susp_ov15_hf: Math.floor(Math.random() * 120) + 25,
+                    susp_u5_com: Math.floor(Math.random() * 80) + 10,
+                    susp_5_14_com: Math.floor(Math.random() * 60) + 10,
+                    susp_ov15_com: Math.floor(Math.random() * 70) + 15,
+                    test_pos_mic_u5_hf: Math.floor(Math.random() * 40) + 5,
+                    test_neg_mic_u5_hf: Math.floor(Math.random() * 60) + 10,
+                    test_pos_mic_5_14_hf: Math.floor(Math.random() * 30) + 5,
+                    test_neg_mic_5_14_hf: Math.floor(Math.random() * 50) + 8,
+                    test_pos_mic_ov15_hf: Math.floor(Math.random() * 35) + 5,
+                    test_neg_mic_ov15_hf: Math.floor(Math.random() * 55) + 10,
+                    tes_pos_rdt_u5_hf: Math.floor(Math.random() * 50) + 10,
+                    tes_neg_rdt_u5_hf: Math.floor(Math.random() * 70) + 15,
+                    tes_pos_rdt_5_14_hf: Math.floor(Math.random() * 35) + 8,
+                    tes_neg_rdt_5_14_hf: Math.floor(Math.random() * 60) + 12,
+                    tes_pos_rdt_ov15_hf: Math.floor(Math.random() * 40) + 8,
+                    tes_neg_rdt_ov15_hf: Math.floor(Math.random() * 65) + 12,
+                    tes_pos_rdt_u5_com: Math.floor(Math.random() * 30) + 5,
+                    tes_neg_rdt_u5_com: Math.floor(Math.random() * 40) + 8,
+                    tes_pos_rdt_5_14_com: Math.floor(Math.random() * 25) + 4,
+                    tes_neg_rdt_5_14_com: Math.floor(Math.random() * 35) + 6,
+                    tes_pos_rdt_ov15_com: Math.floor(Math.random() * 28) + 5,
+                    tes_neg_rdt_ov15_com: Math.floor(Math.random() * 38) + 7,
+                    maltreat_u24_u5_hf: Math.floor(Math.random() * 35) + 8,
+                    maltreat_ov24_u5_hf: Math.floor(Math.random() * 25) + 5,
+                    maltreat_u24_5_14_hf: Math.floor(Math.random() * 30) + 6,
+                    maltreat_ov24_5_14_hf: Math.floor(Math.random() * 20) + 4,
+                    maltreat_u24_ov15_hf: Math.floor(Math.random() * 32) + 6,
+                    maltreat_ov24_ov15_hf: Math.floor(Math.random() * 22) + 4,
+                    maltreat_u24_u5_com: Math.floor(Math.random() * 25) + 5,
+                    maltreat_ov24_u5_com: Math.floor(Math.random() * 15) + 3,
+                    maltreat_u24_5_14_com: Math.floor(Math.random() * 20) + 4,
+                    maltreat_ov24_5_14_com: Math.floor(Math.random() * 12) + 2,
+                    maltreat_u24_ov15_com: Math.floor(Math.random() * 22) + 4,
+                    maltreat_ov24_ov15_com: Math.floor(Math.random() * 14) + 3,
+                    maladm_u5: Math.floor(Math.random() * 15) + 2,
+                    maladm_5_14: Math.floor(Math.random() * 10) + 1,
+                    maladm_ov15: Math.floor(Math.random() * 12) + 2,
+                    maldth_u5: Math.floor(Math.random() * 3),
+                    maldth_1_59m: Math.floor(Math.random() * 2),
+                    maldth_5_9: Math.floor(Math.random() * 2),
+                    maldth_10_14: Math.floor(Math.random() * 1),
+                    maldth_5_14: Math.floor(Math.random() * 2),
+                    maldth_ov15: Math.floor(Math.random() * 3),
+                    maldth_fem_ov15: Math.floor(Math.random() * 2),
+                    maldth_mal_ov15: Math.floor(Math.random() * 2)
+                });
+            }
+            
+            return data;
+        }
+
+        function calculateSummaries(data) {
+            const summaries = [];
+            
+            data.forEach(row => {
+                const summary = { ...row };
+                
+                summary.allout = (row.allout_u5 || 0) + (row.allout_ov5 || 0);
+                
+                summary.susp = (row.susp_u5_hf || 0) + (row.susp_5_14_hf || 0) + (row.susp_ov15_hf || 0) +
+                               (row.susp_u5_com || 0) + (row.susp_5_14_com || 0) + (row.susp_ov15_com || 0);
+                
+                summary.test_hf = (row.test_neg_mic_u5_hf || 0) + (row.test_pos_mic_u5_hf || 0) +
+                                  (row.test_neg_mic_5_14_hf || 0) + (row.test_pos_mic_5_14_hf || 0) +
+                                  (row.test_neg_mic_ov15_hf || 0) + (row.test_pos_mic_ov15_hf || 0) +
+                                  (row.tes_neg_rdt_u5_hf || 0) + (row.tes_pos_rdt_u5_hf || 0) +
+                                  (row.tes_neg_rdt_5_14_hf || 0) + (row.tes_pos_rdt_5_14_hf || 0) +
+                                  (row.tes_neg_rdt_ov15_hf || 0) + (row.tes_pos_rdt_ov15_hf || 0);
+                
+                summary.test_com = (row.tes_neg_rdt_u5_com || 0) + (row.tes_pos_rdt_u5_com || 0) +
+                                   (row.tes_neg_rdt_5_14_com || 0) + (row.tes_pos_rdt_5_14_com || 0) +
+                                   (row.tes_neg_rdt_ov15_com || 0) + (row.tes_pos_rdt_ov15_com || 0);
+                
+                summary.test = summary.test_hf + summary.test_com;
+                
+                summary.conf_hf = (row.test_pos_mic_u5_hf || 0) + (row.test_pos_mic_5_14_hf || 0) + (row.test_pos_mic_ov15_hf || 0) +
+                                  (row.tes_pos_rdt_u5_hf || 0) + (row.tes_pos_rdt_5_14_hf || 0) + (row.tes_pos_rdt_ov15_hf || 0);
+                
+                summary.conf_com = (row.tes_pos_rdt_u5_com || 0) + (row.tes_pos_rdt_5_14_com || 0) + (row.tes_pos_rdt_ov15_com || 0);
+                
+                summary.conf = summary.conf_hf + summary.conf_com;
+                
+                summary.maltreat_com = (row.maltreat_u24_u5_com || 0) + (row.maltreat_ov24_u5_com || 0) +
+                                       (row.maltreat_u24_5_14_com || 0) + (row.maltreat_ov24_5_14_com || 0) +
+                                       (row.maltreat_u24_ov15_com || 0) + (row.maltreat_ov24_ov15_com || 0);
+                
+                summary.maltreat_hf = (row.maltreat_u24_u5_hf || 0) + (row.maltreat_ov24_u5_hf || 0) +
+                                      (row.maltreat_u24_5_14_hf || 0) + (row.maltreat_ov24_5_14_hf || 0) +
+                                      (row.maltreat_u24_ov15_hf || 0) + (row.maltreat_ov24_ov15_hf || 0);
+                
+                summary.maltreat = summary.maltreat_hf + summary.maltreat_com;
+                
+                summary.pres_com = summary.maltreat_com - summary.conf_com;
+                summary.pres_hf = summary.maltreat_hf - summary.conf_hf;
+                summary.pres = summary.pres_com + summary.pres_hf;
+                
+                summary.maladm = (row.maladm_u5 || 0) + (row.maladm_5_14 || 0) + (row.maladm_ov15 || 0);
+                
+                summary.maldth = (row.maldth_u5 || 0) + (row.maldth_1_59m || 0) + (row.maldth_10_14 || 0) +
+                                 (row.maldth_5_9 || 0) + (row.maldth_5_14 || 0) + (row.maldth_ov15 || 0) +
+                                 (row.maldth_fem_ov15 || 0) + (row.maldth_mal_ov15 || 0);
+                
+                summaries.push(summary);
+            });
+            
+            return summaries;
+        }
+
+        function populateFilters() {
+            const data = calculateSummaries(rawData);
+            
+            data.forEach(d => {
+                const adm0 = d.orgunitlevel1;
+                const adm1 = d.orgunitlevel2;
+                const adm2 = d.orgunitlevel3;
+                const adm3 = d.orgunitlevel4;
+                const hf = d.organisationunitname;
+                
+                if (adm0 && adm1) {
+                    if (!cascadingMaps.adm0_adm1[adm0]) cascadingMaps.adm0_adm1[adm0] = new Set();
+                    cascadingMaps.adm0_adm1[adm0].add(adm1);
+                }
+                
+                if (adm1 && adm2) {
+                    if (!cascadingMaps.adm1_adm2[adm1]) cascadingMaps.adm1_adm2[adm1] = new Set();
+                    cascadingMaps.adm1_adm2[adm1].add(adm2);
+                }
+                
+                if (adm2 && adm3) {
+                    if (!cascadingMaps.adm2_adm3[adm2]) cascadingMaps.adm2_adm3[adm2] = new Set();
+                    cascadingMaps.adm2_adm3[adm2].add(adm3);
+                }
+                
+                if (adm3 && hf) {
+                    if (!cascadingMaps.adm3_hf[adm3]) cascadingMaps.adm3_hf[adm3] = new Set();
+                    cascadingMaps.adm3_hf[adm3].add(hf);
+                }
+            });
+            
+            const countries = [...new Set(data.map(d => d.orgunitlevel1))].sort();
+            populateSelect('adm0Filter', countries);
+            
+            const periods = [...new Set(data.map(d => d.period))].sort();
+            const years = [...new Set(periods.map(p => p.split('-')[0]))].sort();
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            populateSelect('yearFilter', years);
+            populateSelect('monthFilter', months.map((m, i) => ({ value: String(i + 1).padStart(2, '0'), label: m })));
+            
+            applyFilters();
+        }
+
+        function populateSelect(id, options) {
+            const select = document.getElementById(id);
+            const currentValue = select.value;
+            
+            const allOption = select.options[0];
+            select.innerHTML = '';
+            select.appendChild(allOption);
+            
+            if (Array.isArray(options)) {
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    if (typeof opt === 'object') {
+                        option.value = opt.value;
+                        option.textContent = opt.label;
+                    } else {
+                        option.value = opt;
+                        option.textContent = opt;
+                    }
+                    select.appendChild(option);
+                });
+            }
+            
+            if (currentValue && Array.from(select.options).some(o => o.value === currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function handleAdm0Change() {
+            const adm0 = document.getElementById('adm0Filter').value;
+            const adm1Filter = document.getElementById('adm1Filter');
+            
+            adm1Filter.innerHTML = '<option value="all">All Regions</option>';
+            document.getElementById('adm2Filter').innerHTML = '<option value="all">All Districts</option>';
+            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
+            document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
+            
+            if (adm0 !== 'all' && cascadingMaps.adm0_adm1[adm0]) {
+                const regions = Array.from(cascadingMaps.adm0_adm1[adm0]).sort();
+                populateSelect('adm1Filter', regions);
+            }
+            
+            applyFilters();
+        }
+
+        function handleAdm1Change() {
+            const adm1 = document.getElementById('adm1Filter').value;
+            
+            document.getElementById('adm2Filter').innerHTML = '<option value="all">All Districts</option>';
+            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
+            document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
+            
+            if (adm1 !== 'all' && cascadingMaps.adm1_adm2[adm1]) {
+                const districts = Array.from(cascadingMaps.adm1_adm2[adm1]).sort();
+                populateSelect('adm2Filter', districts);
+            }
+            
+            applyFilters();
+        }
+
+        function handleAdm2Change() {
+            const adm2 = document.getElementById('adm2Filter').value;
+            
+            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
+            document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
+            
+            if (adm2 !== 'all' && cascadingMaps.adm2_adm3[adm2]) {
+                const subDistricts = Array.from(cascadingMaps.adm2_adm3[adm2]).sort();
+                populateSelect('adm3Filter', subDistricts);
+            }
+            
+            applyFilters();
+        }
+
+        function handleAdm3Change() {
+            const adm3 = document.getElementById('adm3Filter').value;
+            
+            document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
+            
+            if (adm3 !== 'all' && cascadingMaps.adm3_hf[adm3]) {
+                const facilities = Array.from(cascadingMaps.adm3_hf[adm3]).sort();
+                populateSelect('hfFilter', facilities);
+            }
+            
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const filters = {
+                adm0: document.getElementById('adm0Filter').value,
+                adm1: document.getElementById('adm1Filter').value,
+                adm2: document.getElementById('adm2Filter').value,
+                adm3: document.getElementById('adm3Filter').value,
+                hf: document.getElementById('hfFilter').value,
+                year: document.getElementById('yearFilter').value,
+                month: document.getElementById('monthFilter').value
+            };
+            
+            const data = calculateSummaries(rawData);
+            
+            filteredData = data.filter(item => {
+                if (filters.adm0 !== 'all' && item.orgunitlevel1 !== filters.adm0) return false;
+                if (filters.adm1 !== 'all' && item.orgunitlevel2 !== filters.adm1) return false;
+                if (filters.adm2 !== 'all' && item.orgunitlevel3 !== filters.adm2) return false;
+                if (filters.adm3 !== 'all' && item.orgunitlevel4 !== filters.adm3) return false;
+                if (filters.hf !== 'all' && item.organisationunitname !== filters.hf) return false;
+                
+                if (item.period) {
+                    const [year, month] = item.period.split('-');
+                    if (filters.year !== 'all' && year !== filters.year) return false;
+                    if (filters.month !== 'all' && month !== filters.month) return false;
+                }
+                
+                return true;
+            });
+            
+            updateSummaryCards();
+            renderCharts();
+        }
+
+        function resetFilters() {
+            document.getElementById('adm0Filter').value = 'all';
+            document.getElementById('adm1Filter').innerHTML = '<option value="all">All Regions</option>';
+            document.getElementById('adm2Filter').innerHTML = '<option value="all">All Districts</option>';
+            document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
+            document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
+            document.getElementById('yearFilter').value = 'all';
+            document.getElementById('monthFilter').value = 'all';
+            
+            applyFilters();
+        }
+
+        function renderDashboard() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+            
+            updateSummaryCards();
+            renderCharts();
+        }
+
+        function updateSummaryCards() {
+            const totals = {
+                allout: 0,
+                test: 0,
+                conf: 0,
+                maltreat: 0,
+                maladm: 0,
+                maldth: 0,
+                maltreat_u24: 0
+            };
+            
+            filteredData.forEach(row => {
+                totals.allout += row.allout || 0;
+                totals.test += row.test || 0;
+                totals.conf += row.conf || 0;
+                totals.maltreat += row.maltreat || 0;
+                totals.maladm += row.maladm || 0;
+                totals.maldth += row.maldth || 0;
+                
+                totals.maltreat_u24 += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_u24_5_14_hf || 0) + 
+                                       (row.maltreat_u24_ov15_hf || 0) + (row.maltreat_u24_u5_com || 0) + 
+                                       (row.maltreat_u24_5_14_com || 0) + (row.maltreat_u24_ov15_com || 0);
+            });
+            
+            document.getElementById('totalOPD').textContent = totals.allout.toLocaleString();
+            document.getElementById('totalTests').textContent = totals.test.toLocaleString();
+            document.getElementById('confirmedCases').textContent = totals.conf.toLocaleString();
+            document.getElementById('treatedCases').textContent = totals.maltreat.toLocaleString();
+            document.getElementById('totalAdmissions').textContent = totals.maladm.toLocaleString();
+            document.getElementById('totalDeaths').textContent = totals.maldth.toLocaleString();
+            
+            const positivityRate = totals.test > 0 ? ((totals.conf / totals.test) * 100).toFixed(1) : 0;
+            document.getElementById('positivityRate').textContent = positivityRate + '%';
+            
+            const earlyTreatmentRate = totals.maltreat > 0 ? ((totals.maltreat_u24 / totals.maltreat) * 100).toFixed(1) : 0;
+            document.getElementById('earlyTreatment').textContent = earlyTreatmentRate + '%';
+        }
+
+        function renderCharts() {
+            renderTrendsChart();
+            renderAgeGroupChart();
+            renderTestingMethodsChart();
+            renderLocationChart();
+            renderTreatmentTimeChart();
+            renderRegionChart();
+            renderFunnelChart();
+            renderKPIChart();
+        }
+
+        function renderTrendsChart() {
+            const ctx = document.getElementById('trendsChart');
+            
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) {
+                    monthlyData[period] = { susp: 0, test: 0, conf: 0, maltreat: 0 };
+                }
+                monthlyData[period].susp += row.susp || 0;
+                monthlyData[period].test += row.test || 0;
+                monthlyData[period].conf += row.conf || 0;
+                monthlyData[period].maltreat += row.maltreat || 0;
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            
+            if (charts.trends) charts.trends.destroy();
+            
+            charts.trends = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Suspected',
+                            data: labels.map(l => monthlyData[l].susp),
+                            borderColor: '#fbbf24',
+                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Tested',
+                            data: labels.map(l => monthlyData[l].test),
+                            borderColor: '#2c6693',
+                            backgroundColor: 'rgba(44, 102, 147, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Confirmed',
+                            data: labels.map(l => monthlyData[l].conf),
+                            borderColor: '#d32f2f',
+                            backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Treated',
+                            data: labels.map(l => monthlyData[l].maltreat),
+                            borderColor: '#2e7d32',
+                            backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            labels: { 
+                                color: '#333',
+                                font: { weight: 700, size: 12 },
+                                padding: 15
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { color: '#666', font: { weight: 600 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#666', font: { weight: 600 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAgeGroupChart() {
+            const ctx = document.getElementById('ageGroupChart');
+            
+            const ageGroups = {
+                'Under 5': 0,
+                '5-14 years': 0,
+                '15+ years': 0
+            };
+            
+            filteredData.forEach(row => {
+                ageGroups['Under 5'] += (row.tes_pos_rdt_u5_hf || 0) + (row.tes_pos_rdt_u5_com || 0) + 
+                                        (row.test_pos_mic_u5_hf || 0);
+                ageGroups['5-14 years'] += (row.tes_pos_rdt_5_14_hf || 0) + (row.tes_pos_rdt_5_14_com || 0) + 
+                                           (row.test_pos_mic_5_14_hf || 0);
+                ageGroups['15+ years'] += (row.tes_pos_rdt_ov15_hf || 0) + (row.tes_pos_rdt_ov15_com || 0) + 
+                                          (row.test_pos_mic_ov15_hf || 0);
+            });
+            
+            if (charts.ageGroup) charts.ageGroup.destroy();
+            
+            charts.ageGroup = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(ageGroups),
+                    datasets: [{
+                        data: Object.values(ageGroups),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: { 
+                                color: '#333',
+                                font: { weight: 700, size: 13 },
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTestingMethodsChart() {
+            const ctx = document.getElementById('testingMethodsChart');
+            
+            const methods = {
+                'RDT (Facility)': 0,
+                'RDT (Community)': 0,
+                'Microscopy': 0
+            };
+            
+            filteredData.forEach(row => {
+                methods['RDT (Facility)'] += (row.tes_pos_rdt_u5_hf || 0) + (row.tes_neg_rdt_u5_hf || 0) +
+                                             (row.tes_pos_rdt_5_14_hf || 0) + (row.tes_neg_rdt_5_14_hf || 0) +
+                                             (row.tes_pos_rdt_ov15_hf || 0) + (row.tes_neg_rdt_ov15_hf || 0);
+                
+                methods['RDT (Community)'] += (row.tes_pos_rdt_u5_com || 0) + (row.tes_neg_rdt_u5_com || 0) +
+                                              (row.tes_pos_rdt_5_14_com || 0) + (row.tes_neg_rdt_5_14_com || 0) +
+                                              (row.tes_pos_rdt_ov15_com || 0) + (row.tes_neg_rdt_ov15_com || 0);
+                
+                methods['Microscopy'] += (row.test_pos_mic_u5_hf || 0) + (row.test_neg_mic_u5_hf || 0) +
+                                         (row.test_pos_mic_5_14_hf || 0) + (row.test_neg_mic_5_14_hf || 0) +
+                                         (row.test_pos_mic_ov15_hf || 0) + (row.test_neg_mic_ov15_hf || 0);
+            });
+            
+            if (charts.testing) charts.testing.destroy();
+            
+            charts.testing = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(methods),
+                    datasets: [{
+                        data: Object.values(methods),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: { 
+                                color: '#333',
+                                font: { weight: 700, size: 13 },
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderLocationChart() {
+            const ctx = document.getElementById('locationChart');
+            
+            let facilityConfirmed = 0;
+            let communityConfirmed = 0;
+            
+            filteredData.forEach(row => {
+                facilityConfirmed += row.conf_hf || 0;
+                communityConfirmed += row.conf_com || 0;
+            });
+            
+            if (charts.location) charts.location.destroy();
+            
+            charts.location = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Health Facility', 'Community'],
+                    datasets: [{
+                        label: 'Confirmed Cases',
+                        data: [facilityConfirmed, communityConfirmed],
+                        backgroundColor: ['#2c6693', '#4a90c4'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { color: '#666', font: { weight: 600 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#666', font: { weight: 700, size: 13 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTreatmentTimeChart() {
+            const ctx = document.getElementById('treatmentTimeChart');
+            
+            let within24 = 0;
+            let after24 = 0;
+            
+            filteredData.forEach(row => {
+                within24 += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_u24_5_14_hf || 0) + (row.maltreat_u24_ov15_hf || 0) +
+                           (row.maltreat_u24_u5_com || 0) + (row.maltreat_u24_5_14_com || 0) + (row.maltreat_u24_ov15_com || 0);
+                
+                after24 += (row.maltreat_ov24_u5_hf || 0) + (row.maltreat_ov24_5_14_hf || 0) + (row.maltreat_ov24_ov15_hf || 0) +
+                          (row.maltreat_ov24_u5_com || 0) + (row.maltreat_ov24_5_14_com || 0) + (row.maltreat_ov24_ov15_com || 0);
+            });
+            
+            if (charts.treatment) charts.treatment.destroy();
+            
+            charts.treatment = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Within 24 hours', 'After 24 hours'],
+                    datasets: [{
+                        data: [within24, after24],
+                        backgroundColor: ['#2e7d32', '#fbbf24'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: { 
+                                color: '#333',
+                                font: { weight: 700, size: 13 },
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderRegionChart() {
+            const ctx = document.getElementById('regionChart');
+            
+            const regionData = {};
+            filteredData.forEach(row => {
+                const region = row.orgunitlevel2 || 'Unknown';
+                if (!regionData[region]) regionData[region] = 0;
+                regionData[region] += row.conf || 0;
+            });
+            
+            const sorted = Object.entries(regionData)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            if (charts.region) charts.region.destroy();
+            
+            charts.region = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        label: 'Confirmed Cases',
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: '#2c6693',
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { 
+                            beginAtZero: true,
+                            ticks: { color: '#666', font: { weight: 600 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        y: {
+                            ticks: { color: '#666', font: { weight: 700 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderFunnelChart() {
+            const ctx = document.getElementById('funnelChart');
+            
+            const totals = {
+                suspected: 0,
+                tested: 0,
+                confirmed: 0,
+                treated: 0
+            };
+            
+            filteredData.forEach(row => {
+                totals.suspected += row.susp || 0;
+                totals.tested += row.test || 0;
+                totals.confirmed += row.conf || 0;
+                totals.treated += row.maltreat || 0;
+            });
+            
+            if (charts.funnel) charts.funnel.destroy();
+            
+            charts.funnel = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Suspected', 'Tested', 'Confirmed', 'Treated'],
+                    datasets: [{
+                        label: 'Cases',
+                        data: [totals.suspected, totals.tested, totals.confirmed, totals.treated],
+                        backgroundColor: ['#fbbf24', '#2c6693', '#d32f2f', '#2e7d32'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { color: '#666', font: { weight: 600 } },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#666', font: { weight: 700, size: 13 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderKPIChart() {
+            const ctx = document.getElementById('kpiChart');
+            
+            let totalTest = 0;
+            let totalConf = 0;
+            let totalTreat = 0;
+            let totalEarly = 0;
+            
+            filteredData.forEach(row => {
+                totalTest += row.test || 0;
+                totalConf += row.conf || 0;
+                totalTreat += row.maltreat || 0;
+                totalEarly += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_u24_5_14_hf || 0) + (row.maltreat_u24_ov15_hf || 0) +
+                             (row.maltreat_u24_u5_com || 0) + (row.maltreat_u24_5_14_com || 0) + (row.maltreat_u24_ov15_com || 0);
+            });
+            
+            const positivityRate = totalTest > 0 ? ((totalConf / totalTest) * 100).toFixed(1) : 0;
+            const treatmentRate = totalConf > 0 ? ((totalTreat / totalConf) * 100).toFixed(1) : 0;
+            const earlyTreatmentRate = totalTreat > 0 ? ((totalEarly / totalTreat) * 100).toFixed(1) : 0;
+            
+            if (charts.kpi) charts.kpi.destroy();
+            
+            charts.kpi = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Test Positivity', 'Treatment Coverage', 'Early Treatment'],
+                    datasets: [{
+                        label: 'Performance (%)',
+                        data: [positivityRate, treatmentRate, earlyTreatmentRate],
+                        backgroundColor: ['#2c6693', '#2e7d32', '#4a90c4'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { 
+                                color: '#666', 
+                                font: { weight: 600 },
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#666', font: { weight: 700, size: 13 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function refreshDashboard() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('dashboardContent').style.display = 'none';
+            
+            await loadData();
+            populateFilters();
+            renderDashboard();
+        }
+
+        function exportData() {
+            if (filteredData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const columns = Object.keys(filteredData[0]);
+            const csv = [
+                columns.join(','),
+                ...filteredData.map(row => 
+                    columns.map(col => {
+                        const value = row[col] || '';
+                        return typeof value === 'string' && value.includes(',') 
+                            ? `"${value}"` 
+                            : value;
+                    }).join(',')
+                )
+            ].join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `malaria_data_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        window.addEventListener('load', initDashboard);
+    </script>
+</body>
+</html>
