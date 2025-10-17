@@ -48,21 +48,6 @@
             background: linear-gradient(90deg, #ffffff, #4a90c4, #ffffff);
         }
 
-        .logo {
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 4px solid #ffffff;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
         .title {
             font-size: 42px;
             font-weight: 900;
@@ -77,6 +62,76 @@
             font-size: 20px;
             font-weight: 700;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Navigation Menu */
+        .nav-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2c6693;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .nav-toggle:hover {
+            background: #1f4a6a;
+            transform: translateY(-2px);
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: #ffffff;
+            border: 3px solid #2c6693;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .nav-menu.active {
+            display: block;
+        }
+
+        .nav-menu h3 {
+            color: #2c6693;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border: 2px solid #e3f2fd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #2c6693;
+        }
+
+        .nav-item:hover {
+            background: #e3f2fd;
+            border-color: #2c6693;
+            transform: translateX(-5px);
         }
 
         .filters {
@@ -159,123 +214,6 @@
             border-color: #ffffff;
         }
 
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .summary-card {
-            background: #ffffff;
-            border: 3px solid #2c6693;
-            border-radius: 16px;
-            padding: 25px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(26, 84, 144, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .summary-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #2c6693, #4a90c4, #2c6693);
-        }
-
-        .summary-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 28px rgba(26, 84, 144, 0.25);
-            border-color: #1f4a6a;
-        }
-
-        .summary-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #2c6693, #1f4a6a);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(44, 102, 147, 0.3);
-        }
-
-        .summary-label {
-            color: #2c6693;
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 10px;
-        }
-
-        .summary-value {
-            font-size: 42px;
-            font-weight: 900;
-            color: #2c6693;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-
-        .summary-subtitle {
-            font-size: 12px;
-            color: #666;
-            font-weight: 600;
-        }
-
-        .charts-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .chart-card {
-            background: #ffffff;
-            border: 3px solid #2c6693;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 4px 16px rgba(44, 102, 147, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chart-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #2c6693, #4a90c4, #2c6693);
-        }
-
-        .chart-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: #2c6693;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 3px solid #e3f2fd;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 350px;
-        }
-
-        .chart-card canvas {
-            max-height: 350px !important;
-        }
-
         .alert {
             padding: 18px 24px;
             border-radius: 12px;
@@ -311,8 +249,153 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Section Styles */
+        .section {
+            margin-bottom: 30px;
+            scroll-margin-top: 20px;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #2c6693, #1f4a6a);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .section-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-toggle {
+            font-size: 24px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .section-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            background: #ffffff;
+            border: 3px solid #2c6693;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(44, 102, 147, 0.15);
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border: 3px solid #2c6693;
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(26, 84, 144, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2c6693, #4a90c4, #2c6693);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(26, 84, 144, 0.25);
+            border-color: #1f4a6a;
+        }
+
+        .summary-label {
+            color: #2c6693;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            font-size: 42px;
+            font-weight: 900;
+            color: #2c6693;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .summary-subtitle {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+        }
+
+        .chart-card {
+            background: #f8f9fa;
+            border: 2px solid #e3f2fd;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(44, 102, 147, 0.1);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #2c6693;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #2c6693;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        .chart-card canvas {
+            max-height: 350px !important;
+        }
+
         @media (max-width: 768px) {
-            .charts-section {
+            .charts-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -323,13 +406,37 @@
             .filters {
                 grid-template-columns: 1fr;
             }
+
+            .nav-toggle {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .nav-menu {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
         }
     </style>
 </head>
 <body>
+    <button class="nav-toggle" onclick="toggleNav()">📋 Navigation</button>
+    
+    <div class="nav-menu" id="navMenu">
+        <h3>Quick Navigation</h3>
+        <div class="nav-item" onclick="scrollToSection('summary')">📊 Summary Overview</div>
+        <div class="nav-item" onclick="scrollToSection('opd')">🏥 OPD Visits</div>
+        <div class="nav-item" onclick="scrollToSection('suspected')">🤒 Suspected Cases</div>
+        <div class="nav-item" onclick="scrollToSection('testing')">🔬 Testing</div>
+        <div class="nav-item" onclick="scrollToSection('confirmed')">✅ Confirmed Cases</div>
+        <div class="nav-item" onclick="scrollToSection('treatment')">💊 Treatment</div>
+        <div class="nav-item" onclick="scrollToSection('admissions')">🏨 Admissions</div>
+        <div class="nav-item" onclick="scrollToSection('deaths')">⚠️ Deaths</div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <div class="logo">🦟</div>
             <h1 class="title">Malaria Analytics Dashboard</h1>
             <p class="subtitle">Comprehensive Malaria Surveillance & Treatment Monitoring</p>
         </div>
@@ -394,7 +501,7 @@
         <div class="alert">
             <span style="font-size: 24px;">📡</span>
             <div>
-                <strong>Data Source:</strong> Connected to DHIS2. Last updated: <span id="lastUpdate">Loading...</span>
+                <strong>Data Source:</strong> Connected to Google Sheets. Last updated: <span id="lastUpdate">Loading...</span>
             </div>
         </div>
 
@@ -404,129 +511,300 @@
         </div>
 
         <div id="dashboardContent" style="display: none;">
-            <!-- Summary Cards -->
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="summary-icon">🏥</div>
-                    <div class="summary-label">Total OPD Visits</div>
-                    <div class="summary-value" id="totalOPD">0</div>
-                    <div class="summary-subtitle">All age groups</div>
+            
+            <!-- Summary Section -->
+            <div class="section" id="summary">
+                <div class="section-header" onclick="toggleSection('summary')">
+                    <div class="section-title">📊 Summary Overview</div>
+                    <div class="section-toggle" id="summary-toggle">▼</div>
                 </div>
-
-                <div class="summary-card">
-                    <div class="summary-icon">🔬</div>
-                    <div class="summary-label">Total Tests</div>
-                    <div class="summary-value" id="totalTests">0</div>
-                    <div class="summary-subtitle">Microscopy & RDT</div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="summary-icon">✅</div>
-                    <div class="summary-label">Confirmed Cases</div>
-                    <div class="summary-value" id="confirmedCases">0</div>
-                    <div class="summary-subtitle">Positive results</div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="summary-icon">💊</div>
-                    <div class="summary-label">Treated Cases</div>
-                    <div class="summary-value" id="treatedCases">0</div>
-                    <div class="summary-subtitle">ACT treatment</div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="summary-icon">🏨</div>
-                    <div class="summary-label">Admissions</div>
-                    <div class="summary-value" id="totalAdmissions">0</div>
-                    <div class="summary-subtitle">Malaria admissions</div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="summary-icon">⚠️</div>
-                    <div class="summary-label">Deaths</div>
-                    <div class="summary-value" id="totalDeaths" style="color: #d32f2f;">0</div>
-                    <div class="summary-subtitle">Malaria-related</div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="summary-icon">📈</div>
-                    <div class="summary-label">Test Positivity Rate</div>
-                    <div class="summary-value" id="positivityRate" style="font-size: 36px;">0%</div>
-                    <div class="summary-subtitle">Confirmed / Tested</div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="summary-icon">⏱️</div>
-                    <div class="summary-label">Early Treatment</div>
-                    <div class="summary-value" id="earlyTreatment" style="font-size: 36px;">0%</div>
-                    <div class="summary-subtitle">Within 24 hours</div>
-                </div>
-            </div>
-
-            <!-- Charts Grid -->
-            <div class="charts-section">
-                <div class="chart-card">
-                    <div class="chart-title">📊 Monthly Trends</div>
-                    <div class="chart-container">
-                        <canvas id="trendsChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">👥 Cases by Age Group</div>
-                    <div class="chart-container">
-                        <canvas id="ageGroupChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">🔬 Testing Methods Distribution</div>
-                    <div class="chart-container">
-                        <canvas id="testingMethodsChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">🏥 Facility vs Community Cases</div>
-                    <div class="chart-container">
-                        <canvas id="locationChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">💊 Treatment Timeliness</div>
-                    <div class="chart-container">
-                        <canvas id="treatmentTimeChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">📍 Cases by Region (Top 10)</div>
-                    <div class="chart-container">
-                        <canvas id="regionChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">⚡ Case Management Funnel</div>
-                    <div class="chart-container">
-                        <canvas id="funnelChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">🎯 Key Performance Indicators</div>
-                    <div class="chart-container">
-                        <canvas id="kpiChart"></canvas>
+                <div class="section-content" id="summary-content">
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-label">Total OPD Visits</div>
+                            <div class="summary-value" id="totalOPD">0</div>
+                            <div class="summary-subtitle">All age groups</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Suspected Cases</div>
+                            <div class="summary-value" id="totalSuspected">0</div>
+                            <div class="summary-subtitle">Facility & Community</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Total Tests</div>
+                            <div class="summary-value" id="totalTests">0</div>
+                            <div class="summary-subtitle">Microscopy & RDT</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Confirmed Cases</div>
+                            <div class="summary-value" id="confirmedCases">0</div>
+                            <div class="summary-subtitle">Positive results</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Treated Cases</div>
+                            <div class="summary-value" id="treatedCases">0</div>
+                            <div class="summary-subtitle">ACT treatment</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Admissions</div>
+                            <div class="summary-value" id="totalAdmissions">0</div>
+                            <div class="summary-subtitle">Malaria admissions</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Deaths</div>
+                            <div class="summary-value" id="totalDeaths" style="color: #d32f2f;">0</div>
+                            <div class="summary-subtitle">Malaria-related</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Test Positivity Rate</div>
+                            <div class="summary-value" id="positivityRate" style="font-size: 36px;">0%</div>
+                            <div class="summary-subtitle">Confirmed / Tested</div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- OPD Visits Section -->
+            <div class="section" id="opd">
+                <div class="section-header" onclick="toggleSection('opd')">
+                    <div class="section-title">🏥 Outpatient Department Visits</div>
+                    <div class="section-toggle collapsed" id="opd-toggle">▼</div>
+                </div>
+                <div class="section-content collapsed" id="opd-content">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-title">OPD Visits by Age Group</div>
+                            <div class="chart-container">
+                                <canvas id="opdAgeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Monthly OPD Trends</div>
+                            <div class="chart-container">
+                                <canvas id="opdTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suspected Cases Section -->
+            <div class="section" id="suspected">
+                <div class="section-header" onclick="toggleSection('suspected')">
+                    <div class="section-title">🤒 Suspected Malaria Cases</div>
+                    <div class="section-toggle collapsed" id="suspected-toggle">▼</div>
+                </div>
+                <div class="section-content collapsed" id="suspected-content">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-title">Suspected Cases by Location</div>
+                            <div class="chart-container">
+                                <canvas id="suspectedLocationChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Suspected Cases by Age Group</div>
+                            <div class="chart-container">
+                                <canvas id="suspectedAgeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Monthly Suspected Cases Trend</div>
+                            <div class="chart-container">
+                                <canvas id="suspectedTrendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Suspected Cases by Region</div>
+                            <div class="chart-container">
+                                <canvas id="suspectedRegionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testing Section -->
+            <div class="section" id="testing">
+                <div class="section-header" onclick="toggleSection('testing')">
+                    <div class="section-title">🔬 Malaria Testing</div>
+                    <div class="section-toggle collapsed" id="testing-toggle">▼</div>
+                </div>
+                <div class="section-content collapsed" id="testing-content">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-title">Testing Methods Distribution</div>
+                            <div class="chart-container">
+                                <canvas id="testMethodChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Tests by Location</div>
+                            <div class="chart-container">
+                                <canvas id="testLocationChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Test Results Distribution</div>
+                            <div class="chart-container">
+                                <canvas id="testResultsChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Monthly Testing Trend</div>
+                            <div class="chart-container">
+                                <canvas id="testTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmed Cases Section -->
+            <div class="section" id="confirmed">
+                <div class="section-header" onclick="toggleSection('confirmed')">
+                    <div class="section-title">✅ Confirmed Malaria Cases</div>
+                    <div class="section-toggle collapsed" id="confirmed-toggle">▼</div>
+                </div>
+                <div class="section-content collapsed" id="confirmed-content">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-title">Confirmed Cases by Age Group</div>
+                            <div class="chart-container">
+                                <canvas id="confirmedAgeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Facility vs Community Confirmed</div>
+                            <div class="chart-container">
+                                <canvas id="confirmedLocationChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Monthly Confirmed Cases Trend</div>
+                            <div class="chart-container">
+                                <canvas id="confirmedTrendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Confirmed Cases by Region</div>
+                            <div class="chart-container">
+                                <canvas id="confirmedRegionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treatment Section -->
+            <div class="section" id="treatment">
+                <div class="section-header" onclick="toggleSection('treatment')">
+                    <div class="section-title">💊 Malaria Treatment</div>
+                    <div class="section-toggle collapsed" id="treatment-toggle">▼</div>
+                </div>
+                <div class="section-content collapsed" id="treatment-content">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-title">Treatment Timeliness</div>
+                            <div class="chart-container">
+                                <canvas id="treatmentTimeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Treatment by Age Group</div>
+                            <div class="chart-container">
+                                <canvas id="treatmentAgeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Treatment Location</div>
+                            <div class="chart-container">
+                                <canvas id="treatmentLocationChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Monthly Treatment Trend</div>
+                            <div class="chart-container">
+                                <canvas id="treatmentTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admissions Section -->
+            <div class="section" id="admissions">
+                <div class="section-header" onclick="toggleSection('admissions')">
+                    <div class="section-title">🏨 Malaria Admissions</div>
+                    <div class="section-toggle collapsed" id="admissions-toggle">▼</div>
+                </div>
+                <div class="section-content collapsed" id="admissions-content">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-title">Admissions by Age Group</div>
+                            <div class="chart-container">
+                                <canvas id="admissionsAgeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Monthly Admissions Trend</div>
+                            <div class="chart-container">
+                                <canvas id="admissionsTrendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Admissions by Region</div>
+                            <div class="chart-container">
+                                <canvas id="admissionsRegionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deaths Section -->
+            <div class="section" id="deaths">
+                <div class="section-header" onclick="toggleSection('deaths')">
+                    <div class="section-title">⚠️ Malaria Deaths</div>
+                    <div class="section-toggle collapsed" id="deaths-toggle">▼</div>
+                </div>
+                <div class="section-content collapsed" id="deaths-content">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-title">Deaths by Age Group</div>
+                            <div class="chart-container">
+                                <canvas id="deathsAgeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Monthly Deaths Trend</div>
+                            <div class="chart-container">
+                                <canvas id="deathsTrendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Deaths by Gender (15+ years)</div>
+                            <div class="chart-container">
+                                <canvas id="deathsGenderChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Deaths by Region</div>
+                            <div class="chart-container">
+                                <canvas id="deathsRegionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        const DHIS2_URL = 'YOUR_DHIS2_API_URL_HERE';
+        // CONFIGURE YOUR GOOGLE APPS SCRIPT URL
+        const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
         
         let rawData = [];
         let filteredData = [];
@@ -539,6 +817,34 @@
 
         let charts = {};
 
+        // Navigation Functions
+        function toggleNav() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('active');
+        }
+
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Open the section if it's collapsed
+                const content = document.getElementById(sectionId + '-content');
+                if (content && content.classList.contains('collapsed')) {
+                    toggleSection(sectionId);
+                }
+            }
+            // Close nav menu on mobile
+            document.getElementById('navMenu').classList.remove('active');
+        }
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const toggle = document.getElementById(sectionId + '-toggle');
+            
+            content.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+        }
+
         async function initDashboard() {
             await loadData();
             populateFilters();
@@ -547,89 +853,23 @@
 
         async function loadData() {
             try {
-                rawData = generateSampleData();
+                if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    alert('Please configure your Google Apps Script URL in the dashboard code.');
+                    return;
+                }
+
+                const response = await fetch(SCRIPT_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                rawData = await response.json();
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
             } catch (error) {
                 console.error('Error loading data:', error);
-                alert('Error loading data. Please check your DHIS2 connection.');
+                alert('Error loading data from Google Sheets. Please check your Apps Script URL and permissions.\n\nError: ' + error.message);
             }
-        }
-
-        function generateSampleData() {
-            const data = [];
-            const countries = ['Sierra Leone'];
-            const regions = ['Northern', 'Southern', 'Eastern', 'Western'];
-            const districts = ['Bo', 'Kenema', 'Bombali', 'Port Loko', 'Kailahun', 'Tonkolili'];
-            const months = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
-            
-            for (let i = 0; i < 200; i++) {
-                const country = countries[0];
-                const region = regions[Math.floor(Math.random() * regions.length)];
-                const district = districts[Math.floor(Math.random() * districts.length)];
-                const subDistrict = district + ' Sub-' + (Math.floor(Math.random() * 3) + 1);
-                const facility = 'Health Facility ' + (Math.floor(Math.random() * 20) + 1);
-                const period = months[Math.floor(Math.random() * months.length)];
-                
-                data.push({
-                    orgunitlevel1: country,
-                    orgunitlevel2: region,
-                    orgunitlevel3: district,
-                    orgunitlevel4: subDistrict,
-                    organisationunitname: facility,
-                    period: period,
-                    allout_u5: Math.floor(Math.random() * 500) + 100,
-                    allout_ov5: Math.floor(Math.random() * 800) + 200,
-                    susp_u5_hf: Math.floor(Math.random() * 150) + 30,
-                    susp_5_14_hf: Math.floor(Math.random() * 100) + 20,
-                    susp_ov15_hf: Math.floor(Math.random() * 120) + 25,
-                    susp_u5_com: Math.floor(Math.random() * 80) + 10,
-                    susp_5_14_com: Math.floor(Math.random() * 60) + 10,
-                    susp_ov15_com: Math.floor(Math.random() * 70) + 15,
-                    test_pos_mic_u5_hf: Math.floor(Math.random() * 40) + 5,
-                    test_neg_mic_u5_hf: Math.floor(Math.random() * 60) + 10,
-                    test_pos_mic_5_14_hf: Math.floor(Math.random() * 30) + 5,
-                    test_neg_mic_5_14_hf: Math.floor(Math.random() * 50) + 8,
-                    test_pos_mic_ov15_hf: Math.floor(Math.random() * 35) + 5,
-                    test_neg_mic_ov15_hf: Math.floor(Math.random() * 55) + 10,
-                    tes_pos_rdt_u5_hf: Math.floor(Math.random() * 50) + 10,
-                    tes_neg_rdt_u5_hf: Math.floor(Math.random() * 70) + 15,
-                    tes_pos_rdt_5_14_hf: Math.floor(Math.random() * 35) + 8,
-                    tes_neg_rdt_5_14_hf: Math.floor(Math.random() * 60) + 12,
-                    tes_pos_rdt_ov15_hf: Math.floor(Math.random() * 40) + 8,
-                    tes_neg_rdt_ov15_hf: Math.floor(Math.random() * 65) + 12,
-                    tes_pos_rdt_u5_com: Math.floor(Math.random() * 30) + 5,
-                    tes_neg_rdt_u5_com: Math.floor(Math.random() * 40) + 8,
-                    tes_pos_rdt_5_14_com: Math.floor(Math.random() * 25) + 4,
-                    tes_neg_rdt_5_14_com: Math.floor(Math.random() * 35) + 6,
-                    tes_pos_rdt_ov15_com: Math.floor(Math.random() * 28) + 5,
-                    tes_neg_rdt_ov15_com: Math.floor(Math.random() * 38) + 7,
-                    maltreat_u24_u5_hf: Math.floor(Math.random() * 35) + 8,
-                    maltreat_ov24_u5_hf: Math.floor(Math.random() * 25) + 5,
-                    maltreat_u24_5_14_hf: Math.floor(Math.random() * 30) + 6,
-                    maltreat_ov24_5_14_hf: Math.floor(Math.random() * 20) + 4,
-                    maltreat_u24_ov15_hf: Math.floor(Math.random() * 32) + 6,
-                    maltreat_ov24_ov15_hf: Math.floor(Math.random() * 22) + 4,
-                    maltreat_u24_u5_com: Math.floor(Math.random() * 25) + 5,
-                    maltreat_ov24_u5_com: Math.floor(Math.random() * 15) + 3,
-                    maltreat_u24_5_14_com: Math.floor(Math.random() * 20) + 4,
-                    maltreat_ov24_5_14_com: Math.floor(Math.random() * 12) + 2,
-                    maltreat_u24_ov15_com: Math.floor(Math.random() * 22) + 4,
-                    maltreat_ov24_ov15_com: Math.floor(Math.random() * 14) + 3,
-                    maladm_u5: Math.floor(Math.random() * 15) + 2,
-                    maladm_5_14: Math.floor(Math.random() * 10) + 1,
-                    maladm_ov15: Math.floor(Math.random() * 12) + 2,
-                    maldth_u5: Math.floor(Math.random() * 3),
-                    maldth_1_59m: Math.floor(Math.random() * 2),
-                    maldth_5_9: Math.floor(Math.random() * 2),
-                    maldth_10_14: Math.floor(Math.random() * 1),
-                    maldth_5_14: Math.floor(Math.random() * 2),
-                    maldth_ov15: Math.floor(Math.random() * 3),
-                    maldth_fem_ov15: Math.floor(Math.random() * 2),
-                    maldth_mal_ov15: Math.floor(Math.random() * 2)
-                });
-            }
-            
-            return data;
         }
 
         function calculateSummaries(data) {
@@ -720,10 +960,10 @@
                 }
             });
             
-            const countries = [...new Set(data.map(d => d.orgunitlevel1))].sort();
+            const countries = [...new Set(data.map(d => d.orgunitlevel1).filter(Boolean))].sort();
             populateSelect('adm0Filter', countries);
             
-            const periods = [...new Set(data.map(d => d.period))].sort();
+            const periods = [...new Set(data.map(d => d.period).filter(Boolean))].sort();
             const years = [...new Set(periods.map(p => p.split('-')[0]))].sort();
             const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                            'July', 'August', 'September', 'October', 'November', 'December'];
@@ -763,9 +1003,8 @@
 
         function handleAdm0Change() {
             const adm0 = document.getElementById('adm0Filter').value;
-            const adm1Filter = document.getElementById('adm1Filter');
             
-            adm1Filter.innerHTML = '<option value="all">All Regions</option>';
+            document.getElementById('adm1Filter').innerHTML = '<option value="all">All Regions</option>';
             document.getElementById('adm2Filter').innerHTML = '<option value="all">All Districts</option>';
             document.getElementById('adm3Filter').innerHTML = '<option value="all">All Sub-Districts</option>';
             document.getElementById('hfFilter').innerHTML = '<option value="all">All Facilities</option>';
@@ -850,7 +1089,7 @@
             });
             
             updateSummaryCards();
-            renderCharts();
+            renderAllCharts();
         }
 
         function resetFilters() {
@@ -870,34 +1109,32 @@
             document.getElementById('dashboardContent').style.display = 'block';
             
             updateSummaryCards();
-            renderCharts();
+            renderAllCharts();
         }
 
         function updateSummaryCards() {
             const totals = {
                 allout: 0,
+                susp: 0,
                 test: 0,
                 conf: 0,
                 maltreat: 0,
                 maladm: 0,
-                maldth: 0,
-                maltreat_u24: 0
+                maldth: 0
             };
             
             filteredData.forEach(row => {
                 totals.allout += row.allout || 0;
+                totals.susp += row.susp || 0;
                 totals.test += row.test || 0;
                 totals.conf += row.conf || 0;
                 totals.maltreat += row.maltreat || 0;
                 totals.maladm += row.maladm || 0;
                 totals.maldth += row.maldth || 0;
-                
-                totals.maltreat_u24 += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_u24_5_14_hf || 0) + 
-                                       (row.maltreat_u24_ov15_hf || 0) + (row.maltreat_u24_u5_com || 0) + 
-                                       (row.maltreat_u24_5_14_com || 0) + (row.maltreat_u24_ov15_com || 0);
             });
             
             document.getElementById('totalOPD').textContent = totals.allout.toLocaleString();
+            document.getElementById('totalSuspected').textContent = totals.susp.toLocaleString();
             document.getElementById('totalTests').textContent = totals.test.toLocaleString();
             document.getElementById('confirmedCases').textContent = totals.conf.toLocaleString();
             document.getElementById('treatedCases').textContent = totals.maltreat.toLocaleString();
@@ -906,138 +1143,71 @@
             
             const positivityRate = totals.test > 0 ? ((totals.conf / totals.test) * 100).toFixed(1) : 0;
             document.getElementById('positivityRate').textContent = positivityRate + '%';
-            
-            const earlyTreatmentRate = totals.maltreat > 0 ? ((totals.maltreat_u24 / totals.maltreat) * 100).toFixed(1) : 0;
-            document.getElementById('earlyTreatment').textContent = earlyTreatmentRate + '%';
         }
 
-        function renderCharts() {
-            renderTrendsChart();
-            renderAgeGroupChart();
-            renderTestingMethodsChart();
-            renderLocationChart();
+        function renderAllCharts() {
+            // OPD Charts
+            renderOPDAgeChart();
+            renderOPDTrendChart();
+            
+            // Suspected Charts
+            renderSuspectedLocationChart();
+            renderSuspectedAgeChart();
+            renderSuspectedTrendChart();
+            renderSuspectedRegionChart();
+            
+            // Testing Charts
+            renderTestMethodChart();
+            renderTestLocationChart();
+            renderTestResultsChart();
+            renderTestTrendChart();
+            
+            // Confirmed Charts
+            renderConfirmedAgeChart();
+            renderConfirmedLocationChart();
+            renderConfirmedTrendChart();
+            renderConfirmedRegionChart();
+            
+            // Treatment Charts
             renderTreatmentTimeChart();
-            renderRegionChart();
-            renderFunnelChart();
-            renderKPIChart();
+            renderTreatmentAgeChart();
+            renderTreatmentLocationChart();
+            renderTreatmentTrendChart();
+            
+            // Admissions Charts
+            renderAdmissionsAgeChart();
+            renderAdmissionsTrendChart();
+            renderAdmissionsRegionChart();
+            
+            // Deaths Charts
+            renderDeathsAgeChart();
+            renderDeathsTrendChart();
+            renderDeathsGenderChart();
+            renderDeathsRegionChart();
         }
 
-        function renderTrendsChart() {
-            const ctx = document.getElementById('trendsChart');
-            
-            const monthlyData = {};
-            filteredData.forEach(row => {
-                const period = row.period || 'Unknown';
-                if (!monthlyData[period]) {
-                    monthlyData[period] = { susp: 0, test: 0, conf: 0, maltreat: 0 };
-                }
-                monthlyData[period].susp += row.susp || 0;
-                monthlyData[period].test += row.test || 0;
-                monthlyData[period].conf += row.conf || 0;
-                monthlyData[period].maltreat += row.maltreat || 0;
-            });
-            
-            const labels = Object.keys(monthlyData).sort();
-            
-            if (charts.trends) charts.trends.destroy();
-            
-            charts.trends = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Suspected',
-                            data: labels.map(l => monthlyData[l].susp),
-                            borderColor: '#fbbf24',
-                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            borderWidth: 3
-                        },
-                        {
-                            label: 'Tested',
-                            data: labels.map(l => monthlyData[l].test),
-                            borderColor: '#2c6693',
-                            backgroundColor: 'rgba(44, 102, 147, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            borderWidth: 3
-                        },
-                        {
-                            label: 'Confirmed',
-                            data: labels.map(l => monthlyData[l].conf),
-                            borderColor: '#d32f2f',
-                            backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            borderWidth: 3
-                        },
-                        {
-                            label: 'Treated',
-                            data: labels.map(l => monthlyData[l].maltreat),
-                            borderColor: '#2e7d32',
-                            backgroundColor: 'rgba(46, 125, 50, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            borderWidth: 3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { 
-                            labels: { 
-                                color: '#333',
-                                font: { weight: 700, size: 12 },
-                                padding: 15
-                            }
-                        }
-                    },
-                    scales: {
-                        y: { 
-                            beginAtZero: true,
-                            ticks: { color: '#666', font: { weight: 600 } },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        x: {
-                            ticks: { color: '#666', font: { weight: 600 } },
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderAgeGroupChart() {
-            const ctx = document.getElementById('ageGroupChart');
-            
-            const ageGroups = {
+        // OPD Charts
+        function renderOPDAgeChart() {
+            const ctx = document.getElementById('opdAgeChart');
+            const ageData = {
                 'Under 5': 0,
-                '5-14 years': 0,
-                '15+ years': 0
+                '5+ years': 0
             };
             
             filteredData.forEach(row => {
-                ageGroups['Under 5'] += (row.tes_pos_rdt_u5_hf || 0) + (row.tes_pos_rdt_u5_com || 0) + 
-                                        (row.test_pos_mic_u5_hf || 0);
-                ageGroups['5-14 years'] += (row.tes_pos_rdt_5_14_hf || 0) + (row.tes_pos_rdt_5_14_com || 0) + 
-                                           (row.test_pos_mic_5_14_hf || 0);
-                ageGroups['15+ years'] += (row.tes_pos_rdt_ov15_hf || 0) + (row.tes_pos_rdt_ov15_com || 0) + 
-                                          (row.test_pos_mic_ov15_hf || 0);
+                ageData['Under 5'] += row.allout_u5 || 0;
+                ageData['5+ years'] += row.allout_ov5 || 0;
             });
             
-            if (charts.ageGroup) charts.ageGroup.destroy();
+            if (charts.opdAge) charts.opdAge.destroy();
             
-            charts.ageGroup = new Chart(ctx, {
+            charts.opdAge = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(ageGroups),
+                    labels: Object.keys(ageData),
                     datasets: [{
-                        data: Object.values(ageGroups),
-                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        data: Object.values(ageData),
+                        backgroundColor: ['#2c6693', '#4a90c4'],
                         borderWidth: 4,
                         borderColor: '#ffffff'
                     }]
@@ -1048,19 +1218,213 @@
                     plugins: {
                         legend: { 
                             position: 'bottom',
-                            labels: { 
-                                color: '#333',
-                                font: { weight: 700, size: 13 },
-                                padding: 20
-                            }
+                            labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 }
                         }
                     }
                 }
             });
         }
 
-        function renderTestingMethodsChart() {
-            const ctx = document.getElementById('testingMethodsChart');
+        function renderOPDTrendChart() {
+            const ctx = document.getElementById('opdTrendChart');
+            
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) monthlyData[period] = 0;
+                monthlyData[period] += row.allout || 0;
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            
+            if (charts.opdTrend) charts.opdTrend.destroy();
+            
+            charts.opdTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'OPD Visits',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#2c6693',
+                        backgroundColor: 'rgba(44, 102, 147, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#333', font: { weight: 700 } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Suspected Charts
+        function renderSuspectedLocationChart() {
+            const ctx = document.getElementById('suspectedLocationChart');
+            
+            let facilityTotal = 0;
+            let communityTotal = 0;
+            
+            filteredData.forEach(row => {
+                facilityTotal += (row.susp_u5_hf || 0) + (row.susp_5_14_hf || 0) + (row.susp_ov15_hf || 0);
+                communityTotal += (row.susp_u5_com || 0) + (row.susp_5_14_com || 0) + (row.susp_ov15_com || 0);
+            });
+            
+            if (charts.suspectedLocation) charts.suspectedLocation.destroy();
+            
+            charts.suspectedLocation = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Health Facility', 'Community'],
+                    datasets: [{
+                        data: [facilityTotal, communityTotal],
+                        backgroundColor: ['#2c6693', '#4a90c4'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        function renderSuspectedAgeChart() {
+            const ctx = document.getElementById('suspectedAgeChart');
+            
+            const ageData = {
+                'Under 5': 0,
+                '5-14 years': 0,
+                '15+ years': 0
+            };
+            
+            filteredData.forEach(row => {
+                ageData['Under 5'] += (row.susp_u5_hf || 0) + (row.susp_u5_com || 0);
+                ageData['5-14 years'] += (row.susp_5_14_hf || 0) + (row.susp_5_14_com || 0);
+                ageData['15+ years'] += (row.susp_ov15_hf || 0) + (row.susp_ov15_com || 0);
+            });
+            
+            if (charts.suspectedAge) charts.suspectedAge.destroy();
+            
+            charts.suspectedAge = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageData),
+                    datasets: [{
+                        label: 'Suspected Cases',
+                        data: Object.values(ageData),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderSuspectedTrendChart() {
+            const ctx = document.getElementById('suspectedTrendChart');
+            
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) monthlyData[period] = 0;
+                monthlyData[period] += row.susp || 0;
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            
+            if (charts.suspectedTrend) charts.suspectedTrend.destroy();
+            
+            charts.suspectedTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Suspected Cases',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderSuspectedRegionChart() {
+            const ctx = document.getElementById('suspectedRegionChart');
+            
+            const regionData = {};
+            filteredData.forEach(row => {
+                const region = row.orgunitlevel2 || 'Unknown';
+                if (!regionData[region]) regionData[region] = 0;
+                regionData[region] += row.susp || 0;
+            });
+            
+            const sorted = Object.entries(regionData).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            
+            if (charts.suspectedRegion) charts.suspectedRegion.destroy();
+            
+            charts.suspectedRegion = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        label: 'Suspected Cases',
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: '#2c6693',
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        y: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Testing Charts
+        function renderTestMethodChart() {
+            const ctx = document.getElementById('testMethodChart');
             
             const methods = {
                 'RDT (Facility)': 0,
@@ -1082,10 +1446,10 @@
                                          (row.test_pos_mic_ov15_hf || 0) + (row.test_neg_mic_ov15_hf || 0);
             });
             
-            if (charts.testing) charts.testing.destroy();
+            if (charts.testMethod) charts.testMethod.destroy();
             
-            charts.testing = new Chart(ctx, {
-                type: 'pie',
+            charts.testMethod = new Chart(ctx, {
+                type: 'doughnut',
                 data: {
                     labels: Object.keys(methods),
                     datasets: [{
@@ -1099,21 +1463,164 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { 
-                            position: 'bottom',
-                            labels: { 
-                                color: '#333',
-                                font: { weight: 700, size: 13 },
-                                padding: 20
-                            }
-                        }
+                        legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 } }
                     }
                 }
             });
         }
 
-        function renderLocationChart() {
-            const ctx = document.getElementById('locationChart');
+        function renderTestLocationChart() {
+            const ctx = document.getElementById('testLocationChart');
+            
+            let facilityTests = 0;
+            let communityTests = 0;
+            
+            filteredData.forEach(row => {
+                facilityTests += row.test_hf || 0;
+                communityTests += row.test_com || 0;
+            });
+            
+            if (charts.testLocation) charts.testLocation.destroy();
+            
+            charts.testLocation = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Health Facility', 'Community'],
+                    datasets: [{
+                        label: 'Tests Conducted',
+                        data: [facilityTests, communityTests],
+                        backgroundColor: ['#2c6693', '#4a90c4'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderTestResultsChart() {
+            const ctx = document.getElementById('testResultsChart');
+            
+            let positive = 0;
+            let negative = 0;
+            
+            filteredData.forEach(row => {
+                positive += row.conf || 0;
+                negative += (row.test || 0) - (row.conf || 0);
+            });
+            
+            if (charts.testResults) charts.testResults.destroy();
+            
+            charts.testResults = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Positive', 'Negative'],
+                    datasets: [{
+                        data: [positive, negative],
+                        backgroundColor: ['#d32f2f', '#2e7d32'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        function renderTestTrendChart() {
+            const ctx = document.getElementById('testTrendChart');
+            
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) monthlyData[period] = 0;
+                monthlyData[period] += row.test || 0;
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            
+            if (charts.testTrend) charts.testTrend.destroy();
+            
+            charts.testTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tests Conducted',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#2c6693',
+                        backgroundColor: 'rgba(44, 102, 147, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Confirmed Charts
+        function renderConfirmedAgeChart() {
+            const ctx = document.getElementById('confirmedAgeChart');
+            
+            const ageData = {
+                'Under 5': 0,
+                '5-14 years': 0,
+                '15+ years': 0
+            };
+            
+            filteredData.forEach(row => {
+                ageData['Under 5'] += (row.tes_pos_rdt_u5_hf || 0) + (row.tes_pos_rdt_u5_com || 0) + (row.test_pos_mic_u5_hf || 0);
+                ageData['5-14 years'] += (row.tes_pos_rdt_5_14_hf || 0) + (row.tes_pos_rdt_5_14_com || 0) + (row.test_pos_mic_5_14_hf || 0);
+                ageData['15+ years'] += (row.tes_pos_rdt_ov15_hf || 0) + (row.tes_pos_rdt_ov15_com || 0) + (row.test_pos_mic_ov15_hf || 0);
+            });
+            
+            if (charts.confirmedAge) charts.confirmedAge.destroy();
+            
+            charts.confirmedAge = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(ageData),
+                    datasets: [{
+                        data: Object.values(ageData),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        function renderConfirmedLocationChart() {
+            const ctx = document.getElementById('confirmedLocationChart');
             
             let facilityConfirmed = 0;
             let communityConfirmed = 0;
@@ -1123,9 +1630,9 @@
                 communityConfirmed += row.conf_com || 0;
             });
             
-            if (charts.location) charts.location.destroy();
+            if (charts.confirmedLocation) charts.confirmedLocation.destroy();
             
-            charts.location = new Chart(ctx, {
+            charts.confirmedLocation = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Health Facility', 'Community'],
@@ -1140,70 +1647,57 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true,
-                            ticks: { color: '#666', font: { weight: 600 } },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        x: {
-                            ticks: { color: '#666', font: { weight: 700, size: 13 } },
-                            grid: { display: false }
-                        }
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             });
         }
 
-        function renderTreatmentTimeChart() {
-            const ctx = document.getElementById('treatmentTimeChart');
+        function renderConfirmedTrendChart() {
+            const ctx = document.getElementById('confirmedTrendChart');
             
-            let within24 = 0;
-            let after24 = 0;
-            
+            const monthlyData = {};
             filteredData.forEach(row => {
-                within24 += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_u24_5_14_hf || 0) + (row.maltreat_u24_ov15_hf || 0) +
-                           (row.maltreat_u24_u5_com || 0) + (row.maltreat_u24_5_14_com || 0) + (row.maltreat_u24_ov15_com || 0);
-                
-                after24 += (row.maltreat_ov24_u5_hf || 0) + (row.maltreat_ov24_5_14_hf || 0) + (row.maltreat_ov24_ov15_hf || 0) +
-                          (row.maltreat_ov24_u5_com || 0) + (row.maltreat_ov24_5_14_com || 0) + (row.maltreat_ov24_ov15_com || 0);
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) monthlyData[period] = 0;
+                monthlyData[period] += row.conf || 0;
             });
             
-            if (charts.treatment) charts.treatment.destroy();
+            const labels = Object.keys(monthlyData).sort();
             
-            charts.treatment = new Chart(ctx, {
-                type: 'doughnut',
+            if (charts.confirmedTrend) charts.confirmedTrend.destroy();
+            
+            charts.confirmedTrend = new Chart(ctx, {
+                type: 'line',
                 data: {
-                    labels: ['Within 24 hours', 'After 24 hours'],
+                    labels: labels,
                     datasets: [{
-                        data: [within24, after24],
-                        backgroundColor: ['#2e7d32', '#fbbf24'],
-                        borderWidth: 4,
-                        borderColor: '#ffffff'
+                        label: 'Confirmed Cases',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#d32f2f',
+                        backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { 
-                            position: 'bottom',
-                            labels: { 
-                                color: '#333',
-                                font: { weight: 700, size: 13 },
-                                padding: 20
-                            }
-                        }
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             });
         }
 
-        function renderRegionChart() {
-            const ctx = document.getElementById('regionChart');
+        function renderConfirmedRegionChart() {
+            const ctx = document.getElementById('confirmedRegionChart');
             
             const regionData = {};
             filteredData.forEach(row => {
@@ -1212,13 +1706,11 @@
                 regionData[region] += row.conf || 0;
             });
             
-            const sorted = Object.entries(regionData)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 10);
+            const sorted = Object.entries(regionData).sort((a, b) => b[1] - a[1]).slice(0, 10);
             
-            if (charts.region) charts.region.destroy();
+            if (charts.confirmedRegion) charts.confirmedRegion.destroy();
             
-            charts.region = new Chart(ctx, {
+            charts.confirmedRegion = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: sorted.map(s => s[0]),
@@ -1234,51 +1726,81 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     indexAxis: 'y',
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        x: { 
-                            beginAtZero: true,
-                            ticks: { color: '#666', font: { weight: 600 } },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        y: {
-                            ticks: { color: '#666', font: { weight: 700 } },
-                            grid: { display: false }
-                        }
+                        x: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        y: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             });
         }
 
-        function renderFunnelChart() {
-            const ctx = document.getElementById('funnelChart');
+        // Treatment Charts
+        function renderTreatmentTimeChart() {
+            const ctx = document.getElementById('treatmentTimeChart');
             
-            const totals = {
-                suspected: 0,
-                tested: 0,
-                confirmed: 0,
-                treated: 0
+            let within24 = 0;
+            let after24 = 0;
+            
+            filteredData.forEach(row => {
+                within24 += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_u24_5_14_hf || 0) + (row.maltreat_u24_ov15_hf || 0) +
+                           (row.maltreat_u24_u5_com || 0) + (row.maltreat_u24_5_14_com || 0) + (row.maltreat_u24_ov15_com || 0);
+                
+                after24 += (row.maltreat_ov24_u5_hf || 0) + (row.maltreat_ov24_5_14_hf || 0) + (row.maltreat_ov24_ov15_hf || 0) +
+                          (row.maltreat_ov24_u5_com || 0) + (row.maltreat_ov24_5_14_com || 0) + (row.maltreat_ov24_ov15_com || 0);
+            });
+            
+            if (charts.treatmentTime) charts.treatmentTime.destroy();
+            
+            charts.treatmentTime = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Within 24 hours', 'After 24 hours'],
+                    datasets: [{
+                        data: [within24, after24],
+                        backgroundColor: ['#2e7d32', '#fbbf24'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        function renderTreatmentAgeChart() {
+            const ctx = document.getElementById('treatmentAgeChart');
+            
+            const ageData = {
+                'Under 5': 0,
+                '5-14 years': 0,
+                '15+ years': 0
             };
             
             filteredData.forEach(row => {
-                totals.suspected += row.susp || 0;
-                totals.tested += row.test || 0;
-                totals.confirmed += row.conf || 0;
-                totals.treated += row.maltreat || 0;
+                ageData['Under 5'] += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_ov24_u5_hf || 0) + 
+                                      (row.maltreat_u24_u5_com || 0) + (row.maltreat_ov24_u5_com || 0);
+                ageData['5-14 years'] += (row.maltreat_u24_5_14_hf || 0) + (row.maltreat_ov24_5_14_hf || 0) +
+                                         (row.maltreat_u24_5_14_com || 0) + (row.maltreat_ov24_5_14_com || 0);
+                ageData['15+ years'] += (row.maltreat_u24_ov15_hf || 0) + (row.maltreat_ov24_ov15_hf || 0) +
+                                       (row.maltreat_u24_ov15_com || 0) + (row.maltreat_ov24_ov15_com || 0);
             });
             
-            if (charts.funnel) charts.funnel.destroy();
+            if (charts.treatmentAge) charts.treatmentAge.destroy();
             
-            charts.funnel = new Chart(ctx, {
+            charts.treatmentAge = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Suspected', 'Tested', 'Confirmed', 'Treated'],
+                    labels: Object.keys(ageData),
                     datasets: [{
-                        label: 'Cases',
-                        data: [totals.suspected, totals.tested, totals.confirmed, totals.treated],
-                        backgroundColor: ['#fbbf24', '#2c6693', '#d32f2f', '#2e7d32'],
+                        label: 'Treated Cases',
+                        data: Object.values(ageData),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
                         borderWidth: 0,
                         borderRadius: 8
                     }]
@@ -1286,54 +1808,36 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true,
-                            ticks: { color: '#666', font: { weight: 600 } },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        x: {
-                            ticks: { color: '#666', font: { weight: 700, size: 13 } },
-                            grid: { display: false }
-                        }
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             });
         }
 
-        function renderKPIChart() {
-            const ctx = document.getElementById('kpiChart');
+        function renderTreatmentLocationChart() {
+            const ctx = document.getElementById('treatmentLocationChart');
             
-            let totalTest = 0;
-            let totalConf = 0;
-            let totalTreat = 0;
-            let totalEarly = 0;
+            let facilityTreatment = 0;
+            let communityTreatment = 0;
             
             filteredData.forEach(row => {
-                totalTest += row.test || 0;
-                totalConf += row.conf || 0;
-                totalTreat += row.maltreat || 0;
-                totalEarly += (row.maltreat_u24_u5_hf || 0) + (row.maltreat_u24_5_14_hf || 0) + (row.maltreat_u24_ov15_hf || 0) +
-                             (row.maltreat_u24_u5_com || 0) + (row.maltreat_u24_5_14_com || 0) + (row.maltreat_u24_ov15_com || 0);
+                facilityTreatment += row.maltreat_hf || 0;
+                communityTreatment += row.maltreat_com || 0;
             });
             
-            const positivityRate = totalTest > 0 ? ((totalConf / totalTest) * 100).toFixed(1) : 0;
-            const treatmentRate = totalConf > 0 ? ((totalTreat / totalConf) * 100).toFixed(1) : 0;
-            const earlyTreatmentRate = totalTreat > 0 ? ((totalEarly / totalTreat) * 100).toFixed(1) : 0;
+            if (charts.treatmentLocation) charts.treatmentLocation.destroy();
             
-            if (charts.kpi) charts.kpi.destroy();
-            
-            charts.kpi = new Chart(ctx, {
+            charts.treatmentLocation = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Test Positivity', 'Treatment Coverage', 'Early Treatment'],
+                    labels: ['Health Facility', 'Community'],
                     datasets: [{
-                        label: 'Performance (%)',
-                        data: [positivityRate, treatmentRate, earlyTreatmentRate],
-                        backgroundColor: ['#2c6693', '#2e7d32', '#4a90c4'],
+                        label: 'Treated Cases',
+                        data: [facilityTreatment, communityTreatment],
+                        backgroundColor: ['#2c6693', '#4a90c4'],
                         borderWidth: 0,
                         borderRadius: 8
                     }]
@@ -1341,26 +1845,325 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { 
-                                color: '#666', 
-                                font: { weight: 600 },
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            },
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
-                        },
-                        x: {
-                            ticks: { color: '#666', font: { weight: 700, size: 13 } },
-                            grid: { display: false }
-                        }
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderTreatmentTrendChart() {
+            const ctx = document.getElementById('treatmentTrendChart');
+            
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) monthlyData[period] = 0;
+                monthlyData[period] += row.maltreat || 0;
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            
+            if (charts.treatmentTrend) charts.treatmentTrend.destroy();
+            
+            charts.treatmentTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Treated Cases',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#2e7d32',
+                        backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Admissions Charts
+        function renderAdmissionsAgeChart() {
+            const ctx = document.getElementById('admissionsAgeChart');
+            
+            const ageData = {
+                'Under 5': 0,
+                '5-14 years': 0,
+                '15+ years': 0
+            };
+            
+            filteredData.forEach(row => {
+                ageData['Under 5'] += row.maladm_u5 || 0;
+                ageData['5-14 years'] += row.maladm_5_14 || 0;
+                ageData['15+ years'] += row.maladm_ov15 || 0;
+            });
+            
+            if (charts.admissionsAge) charts.admissionsAge.destroy();
+            
+            charts.admissionsAge = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(ageData),
+                    datasets: [{
+                        data: Object.values(ageData),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        function renderAdmissionsTrendChart() {
+            const ctx = document.getElementById('admissionsTrendChart');
+            
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) monthlyData[period] = 0;
+                monthlyData[period] += row.maladm || 0;
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            
+            if (charts.admissionsTrend) charts.admissionsTrend.destroy();
+            
+            charts.admissionsTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Admissions',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#2c6693',
+                        backgroundColor: 'rgba(44, 102, 147, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderAdmissionsRegionChart() {
+            const ctx = document.getElementById('admissionsRegionChart');
+            
+            const regionData = {};
+            filteredData.forEach(row => {
+                const region = row.orgunitlevel2 || 'Unknown';
+                if (!regionData[region]) regionData[region] = 0;
+                regionData[region] += row.maladm || 0;
+            });
+            
+            const sorted = Object.entries(regionData).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            
+            if (charts.admissionsRegion) charts.admissionsRegion.destroy();
+            
+            charts.admissionsRegion = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        label: 'Admissions',
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: '#2c6693',
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        y: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Deaths Charts
+        function renderDeathsAgeChart() {
+            const ctx = document.getElementById('deathsAgeChart');
+            
+            const ageData = {
+                '1-59 months': 0,
+                '5-9 years': 0,
+                '10-14 years': 0,
+                '15+ years': 0
+            };
+            
+            filteredData.forEach(row => {
+                ageData['1-59 months'] += (row.maldth_u5 || 0) + (row.maldth_1_59m || 0);
+                ageData['5-9 years'] += row.maldth_5_9 || 0;
+                ageData['10-14 years'] += row.maldth_10_14 || 0;
+                ageData['15+ years'] += (row.maldth_ov15 || 0) + (row.maldth_fem_ov15 || 0) + (row.maldth_mal_ov15 || 0);
+            });
+            
+            if (charts.deathsAge) charts.deathsAge.destroy();
+            
+            charts.deathsAge = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageData),
+                    datasets: [{
+                        label: 'Deaths',
+                        data: Object.values(ageData),
+                        backgroundColor: ['#d32f2f', '#e57373', '#ef9a9a', '#ffcdd2'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderDeathsTrendChart() {
+            const ctx = document.getElementById('deathsTrendChart');
+            
+            const monthlyData = {};
+            filteredData.forEach(row => {
+                const period = row.period || 'Unknown';
+                if (!monthlyData[period]) monthlyData[period] = 0;
+                monthlyData[period] += row.maldth || 0;
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            
+            if (charts.deathsTrend) charts.deathsTrend.destroy();
+            
+            charts.deathsTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Deaths',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#d32f2f',
+                        backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 } } } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        x: { ticks: { color: '#666' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderDeathsGenderChart() {
+            const ctx = document.getElementById('deathsGenderChart');
+            
+            let male = 0;
+            let female = 0;
+            
+            filteredData.forEach(row => {
+                male += row.maldth_mal_ov15 || 0;
+                female += row.maldth_fem_ov15 || 0;
+            });
+            
+            if (charts.deathsGender) charts.deathsGender.destroy();
+            
+            charts.deathsGender = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Male', 'Female'],
+                    datasets: [{
+                        data: [male, female],
+                        backgroundColor: ['#2c6693', '#ec4899'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        function renderDeathsRegionChart() {
+            const ctx = document.getElementById('deathsRegionChart');
+            
+            const regionData = {};
+            filteredData.forEach(row => {
+                const region = row.orgunitlevel2 || 'Unknown';
+                if (!regionData[region]) regionData[region] = 0;
+                regionData[region] += row.maldth || 0;
+            });
+            
+            const sorted = Object.entries(regionData).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            
+            if (charts.deathsRegion) charts.deathsRegion.destroy();
+            
+            charts.deathsRegion = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        label: 'Deaths',
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: '#d32f2f',
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                        y: { ticks: { color: '#666' }, grid: { display: false } }
                     }
                 }
             });
