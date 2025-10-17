@@ -822,34 +822,75 @@
         async function loadData() {
             try {
                 updateStatus('Connecting to Google Sheets...');
+                console.log('Fetching data from:', SCRIPT_URL);
                 
                 const response = await fetch(SCRIPT_URL);
+                console.log('Response status:', response.status, response.statusText);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
-                rawData = await response.json();
+                const jsonData = await response.json();
+                console.log('Received data:', jsonData);
                 
-                if (!Array.isArray(rawData) || rawData.length === 0) {
-                    throw new Error('No data received from Google Sheets');
+                // Check if it's an error response from Apps Script
+                if (jsonData.error) {
+                    throw new Error(`Apps Script Error: ${jsonData.error}`);
                 }
                 
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
-                updateStatus(`Connected to Google Sheets. Loaded ${rawData.length} records.`);
+                // Check if data is valid
+                if (!Array.isArray(jsonData)) {
+                    console.error('Invalid data format. Expected array, got:', typeof jsonData);
+                    throw new Error('Invalid data format received from Google Sheets');
+                }
+                
+                if (jsonData.length === 0) {
+                    throw new Error('No data records found in Google Sheets');
+                }
+                
+                // Data is valid, update everything
+                rawData = jsonData;
+                const updateTime = new Date().toLocaleString();
+                document.getElementById('lastUpdate').textContent = updateTime;
+                updateStatus(`✓ Connected to Google Sheets. Loaded ${rawData.length} records.`);
+                console.log(`Successfully loaded ${rawData.length} records at ${updateTime}`);
                 
             } catch (error) {
                 console.error('Error loading data:', error);
-                updateStatus(`Error: ${error.message}`, true);
-                alert('Error loading data from Google Sheets.\n\nPlease check:\n1. Your Apps Script URL is correct\n2. The script is deployed as a web app\n3. Access permissions are set correctly\n\nError: ' + error.message);
+                document.getElementById('lastUpdate').textContent = 'Failed to load';
+                updateStatus(`✗ Error: ${error.message}`, true);
+                
+                // Show detailed error to user
+                alert('Error loading data from Google Sheets.\n\n' +
+                      'Error Details: ' + error.message + '\n\n' +
+                      'Please check:\n' +
+                      '1. Your Apps Script URL is correct\n' +
+                      '2. The script is deployed as a web app\n' +
+                      '3. "Who has access" is set to "Anyone"\n' +
+                      '4. Your Google Sheet has data\n\n' +
+                      'Open browser console (F12) for more details.');
             }
         }
 
         function calculateSummaries(data) {
             const summaries = [];
             
+            // Month name to number mapping
+            const monthMap = {
+                'january': '01', 'february': '02', 'march': '03', 'april': '04',
+                'may': '05', 'june': '06', 'july': '07', 'august': '08',
+                'september': '09', 'october': '10', 'november': '11', 'december': '12'
+            };
+            
             data.forEach(row => {
                 const summary = { ...row };
+                
+                // Convert month name to number if needed
+                if (summary.month && isNaN(summary.month)) {
+                    const monthName = summary.month.toLowerCase();
+                    summary.month = monthMap[monthName] || summary.month;
+                }
                 
                 summary.allout = (row.allout_u5 || 0) + (row.allout_ov5 || 0);
                 summary.susp = (row.susp_u5_hf || 0) + (row.susp_5_14_hf || 0) + (row.susp_ov15_hf || 0) +
@@ -2007,4 +2048,7 @@
             window.URL.revokeObjectURL(url);
         }
 
-        window.addEventListener('load', initDashboard
+        window.addEventListener('load', initDashboard);
+    </script>
+</body>
+</html>
