@@ -74,17 +74,31 @@
             border: none;
             padding: 12px 20px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 800;
             cursor: pointer;
             z-index: 1001;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .nav-toggle:hover {
             background: #1f4a6a;
             transform: translateY(-2px);
+        }
+
+        .nav-arrow {
+            font-size: 20px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .nav-arrow.collapsed {
+            transform: rotate(180deg);
         }
 
         .nav-menu {
@@ -260,17 +274,10 @@
             color: white;
             padding: 20px 30px;
             border-radius: 12px 12px 0 0;
-            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .section-header:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
 
         .section-title {
@@ -280,17 +287,6 @@
             letter-spacing: 1px;
         }
 
-        .section-toggle {
-            font-size: 28px;
-            font-weight: bold;
-            transition: transform 0.3s ease;
-            display: inline-block;
-        }
-
-        .section-toggle.collapsed {
-            transform: rotate(180deg);
-        }
-
         .section-content {
             background: #ffffff;
             border: 3px solid #2c6693;
@@ -298,10 +294,6 @@
             border-radius: 0 0 12px 12px;
             padding: 30px;
             box-shadow: 0 4px 12px rgba(44, 102, 147, 0.15);
-        }
-
-        .section-content.collapsed {
-            display: none;
         }
 
         .summary-grid {
@@ -422,7 +414,10 @@
     </style>
 </head>
 <body>
-    <button class="nav-toggle" onclick="toggleNav()">📋 Navigation</button>
+    <button class="nav-toggle" onclick="toggleNav()">
+        <span>Navigation</span>
+        <span class="nav-arrow" id="navArrow">▼</span>
+    </button>
     
     <div class="nav-menu" id="navMenu">
         <h3>Quick Navigation</h3>
@@ -515,11 +510,10 @@
             
             <!-- Summary Section -->
             <div class="section" id="summary">
-                <div class="section-header" onclick="toggleSection('summary')">
+                <div class="section-header">
                     <div class="section-title">📊 Summary Overview</div>
-                    <div class="section-toggle" id="summary-toggle">▲</div>
                 </div>
-                <div class="section-content" id="summary-content">
+                <div class="section-content">
                     <div class="summary-grid">
                         <div class="summary-card">
                             <div class="summary-label">Total OPD Visits</div>
@@ -567,11 +561,10 @@
 
             <!-- OPD Visits Section -->
             <div class="section" id="opd">
-                <div class="section-header" onclick="toggleSection('opd')">
+                <div class="section-header">
                     <div class="section-title">🏥 Outpatient Department Visits</div>
-                    <div class="section-toggle collapsed" id="opd-toggle">▼</div>
                 </div>
-                <div class="section-content collapsed" id="opd-content">
+                <div class="section-content">
                     <div class="charts-grid">
                         <div class="chart-card">
                             <div class="chart-title">OPD Visits by Age Group</div>
@@ -591,11 +584,10 @@
 
             <!-- Suspected Cases Section -->
             <div class="section" id="suspected">
-                <div class="section-header" onclick="toggleSection('suspected')">
+                <div class="section-header">
                     <div class="section-title">🤒 Suspected Malaria Cases</div>
-                    <div class="section-toggle collapsed" id="suspected-toggle">▼</div>
                 </div>
-                <div class="section-content collapsed" id="suspected-content">
+                <div class="section-content">
                     <div class="charts-grid">
                         <div class="chart-card">
                             <div class="chart-title">Suspected Cases by Location</div>
@@ -627,11 +619,10 @@
 
             <!-- Testing Section -->
             <div class="section" id="testing">
-                <div class="section-header" onclick="toggleSection('testing')">
+                <div class="section-header">
                     <div class="section-title">🔬 Malaria Testing</div>
-                    <div class="section-toggle collapsed" id="testing-toggle">▼</div>
                 </div>
-                <div class="section-content collapsed" id="testing-content">
+                <div class="section-content">
                     <div class="charts-grid">
                         <div class="chart-card">
                             <div class="chart-title">Testing Methods Distribution</div>
@@ -663,11 +654,10 @@
 
             <!-- Confirmed Cases Section -->
             <div class="section" id="confirmed">
-                <div class="section-header" onclick="toggleSection('confirmed')">
+                <div class="section-header">
                     <div class="section-title">✅ Confirmed Malaria Cases</div>
-                    <div class="section-toggle collapsed" id="confirmed-toggle">▼</div>
                 </div>
-                <div class="section-content collapsed" id="confirmed-content">
+                <div class="section-content">
                     <div class="charts-grid">
                         <div class="chart-card">
                             <div class="chart-title">Confirmed Cases by Age Group</div>
@@ -699,11 +689,10 @@
 
             <!-- Treatment Section -->
             <div class="section" id="treatment">
-                <div class="section-header" onclick="toggleSection('treatment')">
+                <div class="section-header">
                     <div class="section-title">💊 Malaria Treatment</div>
-                    <div class="section-toggle collapsed" id="treatment-toggle">▼</div>
                 </div>
-                <div class="section-content collapsed" id="treatment-content">
+                <div class="section-content">
                     <div class="charts-grid">
                         <div class="chart-card">
                             <div class="chart-title">Treatment Timeliness</div>
@@ -735,11 +724,10 @@
 
             <!-- Admissions Section -->
             <div class="section" id="admissions">
-                <div class="section-header" onclick="toggleSection('admissions')">
+                <div class="section-header">
                     <div class="section-title">🏨 Malaria Admissions</div>
-                    <div class="section-toggle collapsed" id="admissions-toggle">▼</div>
                 </div>
-                <div class="section-content collapsed" id="admissions-content">
+                <div class="section-content">
                     <div class="charts-grid">
                         <div class="chart-card">
                             <div class="chart-title">Admissions by Age Group</div>
@@ -765,11 +753,10 @@
 
             <!-- Deaths Section -->
             <div class="section" id="deaths">
-                <div class="section-header" onclick="toggleSection('deaths')">
+                <div class="section-header">
                     <div class="section-title">⚠️ Malaria Deaths</div>
-                    <div class="section-toggle collapsed" id="deaths-toggle">▼</div>
                 </div>
-                <div class="section-content collapsed" id="deaths-content">
+                <div class="section-content">
                     <div class="charts-grid">
                         <div class="chart-card">
                             <div class="chart-title">Deaths by Age Group</div>
@@ -821,29 +808,19 @@
         // Navigation Functions
         function toggleNav() {
             const navMenu = document.getElementById('navMenu');
+            const navArrow = document.getElementById('navArrow');
             navMenu.classList.toggle('active');
+            navArrow.classList.toggle('collapsed');
         }
 
         function scrollToSection(sectionId) {
             const section = document.getElementById(sectionId);
             if (section) {
                 section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // Open the section if it's collapsed
-                const content = document.getElementById(sectionId + '-content');
-                if (content && content.classList.contains('collapsed')) {
-                    toggleSection(sectionId);
-                }
             }
-            // Close nav menu on mobile
+            // Close nav menu
             document.getElementById('navMenu').classList.remove('active');
-        }
-
-        function toggleSection(sectionId) {
-            const content = document.getElementById(sectionId + '-content');
-            const toggle = document.getElementById(sectionId + '-toggle');
-            
-            content.classList.toggle('collapsed');
-            toggle.classList.toggle('collapsed');
+            document.getElementById('navArrow').classList.remove('collapsed');
         }
 
         async function initDashboard() {
