@@ -424,14 +424,14 @@
     
     <div class="nav-menu" id="navMenu">
         <h3>Quick Navigation</h3>
-        <div class="nav-item" onclick="scrollToSection('summary')"> Summary Overview</div>
-        <div class="nav-item" onclick="scrollToSection('opd')"> OPD Visits</div>
-        <div class="nav-item" onclick="scrollToSection('suspected')"> Suspected Cases</div>
-        <div class="nav-item" onclick="scrollToSection('testing')"> Testing</div>
-        <div class="nav-item" onclick="scrollToSection('confirmed')"> Confirmed Cases</div>
-        <div class="nav-item" onclick="scrollToSection('treatment')">Treatment</div>
-        <div class="nav-item" onclick="scrollToSection('admissions')">Admissions</div>
-        <div class="nav-item" onclick="scrollToSection('deaths')">Deaths</div>
+        <div class="nav-item" onclick="scrollToSection('summary')">📊 Summary Overview</div>
+        <div class="nav-item" onclick="scrollToSection('opd')">🏥 OPD Visits</div>
+        <div class="nav-item" onclick="scrollToSection('suspected')">🔍 Suspected Cases</div>
+        <div class="nav-item" onclick="scrollToSection('testing')">🧪 Testing</div>
+        <div class="nav-item" onclick="scrollToSection('confirmed')">✅ Confirmed Cases</div>
+        <div class="nav-item" onclick="scrollToSection('treatment')">💊 Treatment</div>
+        <div class="nav-item" onclick="scrollToSection('admissions')">🏨 Admissions</div>
+        <div class="nav-item" onclick="scrollToSection('deaths')">⚠️ Deaths</div>
     </div>
 
     <div class="container">
@@ -484,7 +484,7 @@
         </div>
 
         <div class="alert" id="statusAlert">
-            <span style="font-size: 24px;"></span>
+            <span style="font-size: 24px;">ℹ️</span>
             <div>
                 <strong>Status:</strong> <span id="statusMessage">Initializing...</span><br>
                 <small>Last updated: <span id="lastUpdate">Never</span></small>
@@ -834,12 +834,10 @@
                 const jsonData = await response.json();
                 console.log('Received data:', jsonData);
                 
-                // Check if it's an error response from Apps Script
                 if (jsonData.error) {
                     throw new Error(`Apps Script Error: ${jsonData.error}`);
                 }
                 
-                // Check if data is valid
                 if (!Array.isArray(jsonData)) {
                     console.error('Invalid data format. Expected array, got:', typeof jsonData);
                     throw new Error('Invalid data format received from Google Sheets');
@@ -849,7 +847,6 @@
                     throw new Error('No data records found in Google Sheets');
                 }
                 
-                // Data is valid, update everything
                 rawData = jsonData;
                 const updateTime = new Date().toLocaleString();
                 document.getElementById('lastUpdate').textContent = updateTime;
@@ -861,7 +858,6 @@
                 document.getElementById('lastUpdate').textContent = 'Failed to load';
                 updateStatus(`✗ Error: ${error.message}`, true);
                 
-                // Show detailed error to user
                 alert('Error loading data from Google Sheets.\n\n' +
                       'Error Details: ' + error.message + '\n\n' +
                       'Please check:\n' +
@@ -876,20 +872,12 @@
         function calculateSummaries(data) {
             const summaries = [];
             
-            // Month name to number mapping
-            const monthMap = {
-                'january': '01', 'february': '02', 'march': '03', 'april': '04',
-                'may': '05', 'june': '06', 'july': '07', 'august': '08',
-                'september': '09', 'october': '10', 'november': '11', 'december': '12'
-            };
-            
             data.forEach(row => {
                 const summary = { ...row };
                 
-                // Convert month name to number if needed
-                if (summary.month && isNaN(summary.month)) {
-                    const monthName = summary.month.toLowerCase();
-                    summary.month = monthMap[monthName] || summary.month;
+                // Ensure month is 2-digit format
+                if (summary.month) {
+                    summary.month = String(summary.month).padStart(2, '0');
                 }
                 
                 summary.allout = (row.allout_u5 || 0) + (row.allout_ov5 || 0);
@@ -958,11 +946,23 @@
             populateSelect('adm1Filter', districts);
             
             const years = [...new Set(data.map(d => d.year).filter(Boolean))].sort();
-            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                           'July', 'August', 'September', 'October', 'November', 'December'];
+            const months = [
+                { value: '01', label: 'January' },
+                { value: '02', label: 'February' },
+                { value: '03', label: 'March' },
+                { value: '04', label: 'April' },
+                { value: '05', label: 'May' },
+                { value: '06', label: 'June' },
+                { value: '07', label: 'July' },
+                { value: '08', label: 'August' },
+                { value: '09', label: 'September' },
+                { value: '10', label: 'October' },
+                { value: '11', label: 'November' },
+                { value: '12', label: 'December' }
+            ];
             
             populateSelect('yearFilter', years);
-            populateSelect('monthFilter', months.map((m, i) => ({ value: String(i + 1).padStart(2, '0'), label: m })));
+            populateSelect('monthFilter', months);
             
             applyFilters();
         }
@@ -1036,8 +1036,8 @@
                 if (filters.adm1 !== 'all' && item.orgunitlevel2 !== filters.adm1) return false;
                 if (filters.adm3 !== 'all' && item.orgunitlevel4 !== filters.adm3) return false;
                 if (filters.hf !== 'all' && item.organisationunitname !== filters.hf) return false;
-                if (filters.year !== 'all' && item.year !== filters.year) return false;
-                if (filters.month !== 'all' && item.month !== filters.month) return false;
+                if (filters.year !== 'all' && String(item.year) !== filters.year) return false;
+                if (filters.month !== 'all' && String(item.month) !== filters.month) return false;
                 return true;
             });
             
@@ -1169,289 +1169,6 @@
                     labels: labels,
                     datasets: [{
                         label: 'OPD Visits',
-                        data: labels.map(l => monthlyData[l]),
-                        borderColor: '#2c6693',
-                        backgroundColor: 'rgba(44, 102, 147, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 }}}},
-                    scales: {
-                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
-                        x: { ticks: { color: '#666', maxRotation: 45, minRotation: 45 }, grid: { display: false }}
-                    }
-                }
-            });
-        }
-
-        function renderSuspectedLocationChart() {
-            const ctx = document.getElementById('suspectedLocationChart');
-            let facilityTotal = 0, communityTotal = 0;
-            
-            filteredData.forEach(row => {
-                facilityTotal += (row.susp_u5_hf || 0) + (row.susp_5_14_hf || 0) + (row.susp_ov15_hf || 0);
-                communityTotal += (row.susp_u5_com || 0) + (row.susp_5_14_com || 0) + (row.susp_ov15_com || 0);
-            });
-            
-            if (charts.suspectedLocation) charts.suspectedLocation.destroy();
-            charts.suspectedLocation = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Health Facility', 'Community'],
-                    datasets: [{
-                        data: [facilityTotal, communityTotal],
-                        backgroundColor: ['#2c6693', '#4a90c4'],
-                        borderWidth: 4,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 }}}
-                }
-            });
-        }
-
-        function renderSuspectedAgeChart() {
-            const ctx = document.getElementById('suspectedAgeChart');
-            const ageData = {'Under 5': 0, '5-14 years': 0, '15+ years': 0};
-            
-            filteredData.forEach(row => {
-                ageData['Under 5'] += (row.susp_u5_hf || 0) + (row.susp_u5_com || 0);
-                ageData['5-14 years'] += (row.susp_5_14_hf || 0) + (row.susp_5_14_com || 0);
-                ageData['15+ years'] += (row.susp_ov15_hf || 0) + (row.susp_ov15_com || 0);
-            });
-            
-            if (charts.suspectedAge) charts.suspectedAge.destroy();
-            charts.suspectedAge = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(ageData),
-                    datasets: [{
-                        label: 'Suspected Cases',
-                        data: Object.values(ageData),
-                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
-                        borderWidth: 0,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }},
-                    scales: {
-                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
-                        x: { ticks: { color: '#666' }, grid: { display: false }}
-                    }
-                }
-            });
-        }
-
-        function renderSuspectedTrendChart() {
-            const ctx = document.getElementById('suspectedTrendChart');
-            const monthlyData = {};
-            
-            filteredData.forEach(row => {
-                if (row.year && row.month) {
-                    const period = `${row.year}-${row.month}`;
-                    if (!monthlyData[period]) monthlyData[period] = 0;
-                    monthlyData[period] += row.susp || 0;
-                }
-            });
-            
-            const labels = Object.keys(monthlyData).sort();
-            if (charts.suspectedTrend) charts.suspectedTrend.destroy();
-            
-            charts.suspectedTrend = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Suspected Cases',
-                        data: labels.map(l => monthlyData[l]),
-                        borderColor: '#fbbf24',
-                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 }}}},
-                    scales: {
-                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
-                        x: { ticks: { color: '#666', maxRotation: 45, minRotation: 45 }, grid: { display: false }}
-                    }
-                }
-            });
-        }
-
-        function renderSuspectedRegionChart() {
-            const ctx = document.getElementById('suspectedRegionChart');
-            const regionData = {};
-            
-            filteredData.forEach(row => {
-                const region = row.orgunitlevel2 || 'Unknown';
-                if (!regionData[region]) regionData[region] = 0;
-                regionData[region] += row.susp || 0;
-            });
-            
-            const sorted = Object.entries(regionData).sort((a, b) => b[1] - a[1]).slice(0, 10);
-            if (charts.suspectedRegion) charts.suspectedRegion.destroy();
-            
-            charts.suspectedRegion = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: sorted.map(s => s[0]),
-                    datasets: [{
-                        label: 'Suspected Cases',
-                        data: sorted.map(s => s[1]),
-                        backgroundColor: '#2c6693',
-                        borderWidth: 0,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: { legend: { display: false }},
-                    scales: {
-                        x: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
-                        y: { ticks: { color: '#666' }, grid: { display: false }}
-                    }
-                }
-            });
-        }
-
-        function renderTestMethodChart() {
-            const ctx = document.getElementById('testMethodChart');
-            const methods = {'RDT (Facility)': 0, 'RDT (Community)': 0, 'Microscopy': 0};
-            
-            filteredData.forEach(row => {
-                methods['RDT (Facility)'] += (row.tes_pos_rdt_u5_hf || 0) + (row.tes_neg_rdt_u5_hf || 0) +
-                                             (row.tes_pos_rdt_5_14_hf || 0) + (row.tes_neg_rdt_5_14_hf || 0) +
-                                             (row.tes_pos_rdt_ov15_hf || 0) + (row.tes_neg_rdt_ov15_hf || 0);
-                methods['RDT (Community)'] += (row.tes_pos_rdt_u5_com || 0) + (row.tes_neg_rdt_u5_com || 0) +
-                                              (row.tes_pos_rdt_5_14_com || 0) + (row.tes_neg_rdt_5_14_com || 0) +
-                                              (row.tes_pos_rdt_ov15_com || 0) + (row.tes_neg_rdt_ov15_com || 0);
-                methods['Microscopy'] += (row.test_pos_mic_u5_hf || 0) + (row.test_neg_mic_u5_hf || 0) +
-                                         (row.test_pos_mic_5_14_hf || 0) + (row.test_neg_mic_5_14_hf || 0) +
-                                         (row.test_pos_mic_ov15_hf || 0) + (row.test_neg_mic_ov15_hf || 0);
-            });
-            
-            if (charts.testMethod) charts.testMethod.destroy();
-            charts.testMethod = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(methods),
-                    datasets: [{
-                        data: Object.values(methods),
-                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
-                        borderWidth: 4,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 }}}
-                }
-            });
-        }
-
-        function renderTestLocationChart() {
-            const ctx = document.getElementById('testLocationChart');
-            let facilityTests = 0, communityTests = 0;
-            
-            filteredData.forEach(row => {
-                facilityTests += row.test_hf || 0;
-                communityTests += row.test_com || 0;
-            });
-            
-            if (charts.testLocation) charts.testLocation.destroy();
-            charts.testLocation = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Health Facility', 'Community'],
-                    datasets: [{
-                        label: 'Tests Conducted',
-                        data: [facilityTests, communityTests],
-                        backgroundColor: ['#2c6693', '#4a90c4'],
-                        borderWidth: 0,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }},
-                    scales: {
-                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
-                        x: { ticks: { color: '#666' }, grid: { display: false }}
-                    }
-                }
-            });
-        }
-
-        function renderTestResultsChart() {
-            const ctx = document.getElementById('testResultsChart');
-            let positive = 0, negative = 0;
-            
-            filteredData.forEach(row => {
-                positive += row.conf || 0;
-                negative += (row.test || 0) - (row.conf || 0);
-            });
-            
-            if (charts.testResults) charts.testResults.destroy();
-            charts.testResults = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Positive', 'Negative'],
-                    datasets: [{
-                        data: [positive, negative],
-                        backgroundColor: ['#d32f2f', '#2e7d32'],
-                        borderWidth: 4,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 }}}
-                }
-            });
-        }
-
-        function renderTestTrendChart() {
-            const ctx = document.getElementById('testTrendChart');
-            const monthlyData = {};
-            
-            filteredData.forEach(row => {
-                if (row.year && row.month) {
-                    const period = `${row.year}-${row.month}`;
-                    if (!monthlyData[period]) monthlyData[period] = 0;
-                    monthlyData[period] += row.test || 0;
-                }
-            });
-            
-            const labels = Object.keys(monthlyData).sort();
-            if (charts.testTrend) charts.testTrend.destroy();
-            
-            charts.testTrend = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Tests Conducted',
                         data: labels.map(l => monthlyData[l]),
                         borderColor: '#2c6693',
                         backgroundColor: 'rgba(44, 102, 147, 0.1)',
@@ -2051,4 +1768,287 @@
         window.addEventListener('load', initDashboard);
     </script>
 </body>
-</html>
+</html> 'rgba(44, 102, 147, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 }}}},
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
+                        x: { ticks: { color: '#666', maxRotation: 45, minRotation: 45 }, grid: { display: false }}
+                    }
+                }
+            });
+        }
+
+        function renderSuspectedLocationChart() {
+            const ctx = document.getElementById('suspectedLocationChart');
+            let facilityTotal = 0, communityTotal = 0;
+            
+            filteredData.forEach(row => {
+                facilityTotal += (row.susp_u5_hf || 0) + (row.susp_5_14_hf || 0) + (row.susp_ov15_hf || 0);
+                communityTotal += (row.susp_u5_com || 0) + (row.susp_5_14_com || 0) + (row.susp_ov15_com || 0);
+            });
+            
+            if (charts.suspectedLocation) charts.suspectedLocation.destroy();
+            charts.suspectedLocation = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Health Facility', 'Community'],
+                    datasets: [{
+                        data: [facilityTotal, communityTotal],
+                        backgroundColor: ['#2c6693', '#4a90c4'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 }}}
+                }
+            });
+        }
+
+        function renderSuspectedAgeChart() {
+            const ctx = document.getElementById('suspectedAgeChart');
+            const ageData = {'Under 5': 0, '5-14 years': 0, '15+ years': 0};
+            
+            filteredData.forEach(row => {
+                ageData['Under 5'] += (row.susp_u5_hf || 0) + (row.susp_u5_com || 0);
+                ageData['5-14 years'] += (row.susp_5_14_hf || 0) + (row.susp_5_14_com || 0);
+                ageData['15+ years'] += (row.susp_ov15_hf || 0) + (row.susp_ov15_com || 0);
+            });
+            
+            if (charts.suspectedAge) charts.suspectedAge.destroy();
+            charts.suspectedAge = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageData),
+                    datasets: [{
+                        label: 'Suspected Cases',
+                        data: Object.values(ageData),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }},
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
+                        x: { ticks: { color: '#666' }, grid: { display: false }}
+                    }
+                }
+            });
+        }
+
+        function renderSuspectedTrendChart() {
+            const ctx = document.getElementById('suspectedTrendChart');
+            const monthlyData = {};
+            
+            filteredData.forEach(row => {
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.susp || 0;
+                }
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            if (charts.suspectedTrend) charts.suspectedTrend.destroy();
+            
+            charts.suspectedTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Suspected Cases',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#333', font: { weight: 700 }}}},
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
+                        x: { ticks: { color: '#666', maxRotation: 45, minRotation: 45 }, grid: { display: false }}
+                    }
+                }
+            });
+        }
+
+        function renderSuspectedRegionChart() {
+            const ctx = document.getElementById('suspectedRegionChart');
+            const regionData = {};
+            
+            filteredData.forEach(row => {
+                const region = row.orgunitlevel2 || 'Unknown';
+                if (!regionData[region]) regionData[region] = 0;
+                regionData[region] += row.susp || 0;
+            });
+            
+            const sorted = Object.entries(regionData).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            if (charts.suspectedRegion) charts.suspectedRegion.destroy();
+            
+            charts.suspectedRegion = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        label: 'Suspected Cases',
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: '#2c6693',
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false }},
+                    scales: {
+                        x: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
+                        y: { ticks: { color: '#666' }, grid: { display: false }}
+                    }
+                }
+            });
+        }
+
+        function renderTestMethodChart() {
+            const ctx = document.getElementById('testMethodChart');
+            const methods = {'RDT (Facility)': 0, 'RDT (Community)': 0, 'Microscopy': 0};
+            
+            filteredData.forEach(row => {
+                methods['RDT (Facility)'] += (row.tes_pos_rdt_u5_hf || 0) + (row.tes_neg_rdt_u5_hf || 0) +
+                                             (row.tes_pos_rdt_5_14_hf || 0) + (row.tes_neg_rdt_5_14_hf || 0) +
+                                             (row.tes_pos_rdt_ov15_hf || 0) + (row.tes_neg_rdt_ov15_hf || 0);
+                methods['RDT (Community)'] += (row.tes_pos_rdt_u5_com || 0) + (row.tes_neg_rdt_u5_com || 0) +
+                                              (row.tes_pos_rdt_5_14_com || 0) + (row.tes_neg_rdt_5_14_com || 0) +
+                                              (row.tes_pos_rdt_ov15_com || 0) + (row.tes_neg_rdt_ov15_com || 0);
+                methods['Microscopy'] += (row.test_pos_mic_u5_hf || 0) + (row.test_neg_mic_u5_hf || 0) +
+                                         (row.test_pos_mic_5_14_hf || 0) + (row.test_neg_mic_5_14_hf || 0) +
+                                         (row.test_pos_mic_ov15_hf || 0) + (row.test_neg_mic_ov15_hf || 0);
+            });
+            
+            if (charts.testMethod) charts.testMethod.destroy();
+            charts.testMethod = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(methods),
+                    datasets: [{
+                        data: Object.values(methods),
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 }}}
+                }
+            });
+        }
+
+        function renderTestLocationChart() {
+            const ctx = document.getElementById('testLocationChart');
+            let facilityTests = 0, communityTests = 0;
+            
+            filteredData.forEach(row => {
+                facilityTests += row.test_hf || 0;
+                communityTests += row.test_com || 0;
+            });
+            
+            if (charts.testLocation) charts.testLocation.destroy();
+            charts.testLocation = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Health Facility', 'Community'],
+                    datasets: [{
+                        label: 'Tests Conducted',
+                        data: [facilityTests, communityTests],
+                        backgroundColor: ['#2c6693', '#4a90c4'],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }},
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: '#666' }, grid: { color: 'rgba(0, 0, 0, 0.05)' }},
+                        x: { ticks: { color: '#666' }, grid: { display: false }}
+                    }
+                }
+            });
+        }
+
+        function renderTestResultsChart() {
+            const ctx = document.getElementById('testResultsChart');
+            let positive = 0, negative = 0;
+            
+            filteredData.forEach(row => {
+                positive += row.conf || 0;
+                negative += (row.test || 0) - (row.conf || 0);
+            });
+            
+            if (charts.testResults) charts.testResults.destroy();
+            charts.testResults = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Positive', 'Negative'],
+                    datasets: [{
+                        data: [positive, negative],
+                        backgroundColor: ['#d32f2f', '#2e7d32'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#333', font: { weight: 700, size: 13 }, padding: 20 }}}
+                }
+            });
+        }
+
+        function renderTestTrendChart() {
+            const ctx = document.getElementById('testTrendChart');
+            const monthlyData = {};
+            
+            filteredData.forEach(row => {
+                if (row.year && row.month) {
+                    const period = `${row.year}-${row.month}`;
+                    if (!monthlyData[period]) monthlyData[period] = 0;
+                    monthlyData[period] += row.test || 0;
+                }
+            });
+            
+            const labels = Object.keys(monthlyData).sort();
+            if (charts.testTrend) charts.testTrend.destroy();
+            
+            charts.testTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tests Conducted',
+                        data: labels.map(l => monthlyData[l]),
+                        borderColor: '#2c6693',
+                        backgroundColor:
