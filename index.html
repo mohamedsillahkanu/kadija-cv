@@ -998,35 +998,257 @@
         }
 
         function renderAllCharts() {
-            // Due to size limits, I'll create a simplified version with key charts
-            renderChart('opdAgeChart', 'doughnut', ['Under 5', '5+ years'], 
-                filteredData.reduce((acc, r) => {
-                    acc[0] += r.allout_u5 || 0;
-                    acc[1] += r.allout_ov5 || 0;
-                    return acc;
-                }, [0, 0]));
-            
-            const monthlyData = {};
-            filteredData.forEach(row => {
-                if (row.year && row.month) {
-                    const period = `${row.year}-${row.month}`;
-                    monthlyData[period] = (monthlyData[period] || 0) + (row.allout || 0);
-                }
-            });
-            const labels = Object.keys(monthlyData).sort();
-            renderLineChart('opdTrendChart', 'OPD Visits', labels, labels.map(l => monthlyData[l]));
+            renderOPDCharts();
+            renderSuspectedCharts();
+            renderTestingCharts();
+            renderConfirmedCharts();
+            renderTreatmentCharts();
+            renderAdmissionsCharts();
+            renderDeathsCharts();
         }
 
-        function renderChart(id, type, labels, data) {
+        function renderOPDCharts() {
+            const ageData = [0, 0];
+            filteredData.forEach(r => {
+                ageData[0] += r.allout_u5 || 0;
+                ageData[1] += r.allout_ov5 || 0;
+            });
+            renderDoughnut('opdAgeChart', ['Under 5', '5+ years'], ageData);
+            
+            const monthly = {};
+            filteredData.forEach(r => {
+                if (r.year && r.month) {
+                    const p = `${r.year}-${r.month}`;
+                    monthly[p] = (monthly[p] || 0) + (r.allout || 0);
+                }
+            });
+            const labels = Object.keys(monthly).sort();
+            renderLine('opdTrendChart', 'OPD Visits', labels, labels.map(l => monthly[l]), '#2c6693');
+        }
+
+        function renderSuspectedCharts() {
+            let fac = 0, com = 0;
+            filteredData.forEach(r => {
+                fac += (r.susp_u5_hf || 0) + (r.susp_5_14_hf || 0) + (r.susp_ov15_hf || 0);
+                com += (r.susp_u5_com || 0) + (r.susp_5_14_com || 0) + (r.susp_ov15_com || 0);
+            });
+            renderPie('suspectedLocationChart', ['Health Facility', 'Community'], [fac, com]);
+            
+            const age = [0, 0, 0];
+            filteredData.forEach(r => {
+                age[0] += (r.susp_u5_hf || 0) + (r.susp_u5_com || 0);
+                age[1] += (r.susp_5_14_hf || 0) + (r.susp_5_14_com || 0);
+                age[2] += (r.susp_ov15_hf || 0) + (r.susp_ov15_com || 0);
+            });
+            renderBar('suspectedAgeChart', ['Under 5', '5-14', '15+'], age);
+            
+            const monthly = {};
+            filteredData.forEach(r => {
+                if (r.year && r.month) {
+                    const p = `${r.year}-${r.month}`;
+                    monthly[p] = (monthly[p] || 0) + (r.susp || 0);
+                }
+            });
+            const labels = Object.keys(monthly).sort();
+            renderLine('suspectedTrendChart', 'Suspected', labels, labels.map(l => monthly[l]), '#fbbf24');
+            
+            const regions = {};
+            filteredData.forEach(r => {
+                const reg = r.orgunitlevel2 || 'Unknown';
+                regions[reg] = (regions[reg] || 0) + (r.susp || 0);
+            });
+            const sorted = Object.entries(regions).sort((a,b) => b[1]-a[1]).slice(0,10);
+            renderHBar('suspectedRegionChart', sorted.map(s => s[0]), sorted.map(s => s[1]));
+        }
+
+        function renderTestingCharts() {
+            const methods = [0, 0, 0];
+            filteredData.forEach(r => {
+                methods[0] += (r.tes_pos_rdt_u5_hf || 0) + (r.tes_neg_rdt_u5_hf || 0) + 
+                              (r.tes_pos_rdt_5_14_hf || 0) + (r.tes_neg_rdt_5_14_hf || 0) + 
+                              (r.tes_pos_rdt_ov15_hf || 0) + (r.tes_neg_rdt_ov15_hf || 0);
+                methods[1] += (r.tes_pos_rdt_u5_com || 0) + (r.tes_neg_rdt_u5_com || 0) + 
+                              (r.tes_pos_rdt_5_14_com || 0) + (r.tes_neg_rdt_5_14_com || 0) + 
+                              (r.tes_pos_rdt_ov15_com || 0) + (r.tes_neg_rdt_ov15_com || 0);
+                methods[2] += (r.test_pos_mic_u5_hf || 0) + (r.test_neg_mic_u5_hf || 0) + 
+                              (r.test_pos_mic_5_14_hf || 0) + (r.test_neg_mic_5_14_hf || 0) + 
+                              (r.test_pos_mic_ov15_hf || 0) + (r.test_neg_mic_ov15_hf || 0);
+            });
+            renderDoughnut('testMethodChart', ['RDT (Facility)', 'RDT (Community)', 'Microscopy'], methods);
+            
+            let fac = 0, com = 0;
+            filteredData.forEach(r => {
+                fac += r.test_hf || 0;
+                com += r.test_com || 0;
+            });
+            renderBar('testLocationChart', ['Health Facility', 'Community'], [fac, com]);
+            
+            let pos = 0, neg = 0;
+            filteredData.forEach(r => {
+                pos += r.conf || 0;
+                neg += (r.test || 0) - (r.conf || 0);
+            });
+            renderPie('testResultsChart', ['Positive', 'Negative'], [pos, neg]);
+            
+            const monthly = {};
+            filteredData.forEach(r => {
+                if (r.year && r.month) {
+                    const p = `${r.year}-${r.month}`;
+                    monthly[p] = (monthly[p] || 0) + (r.test || 0);
+                }
+            });
+            const labels = Object.keys(monthly).sort();
+            renderLine('testTrendChart', 'Tests', labels, labels.map(l => monthly[l]), '#2c6693');
+        }
+
+        function renderConfirmedCharts() {
+            const age = [0, 0, 0];
+            filteredData.forEach(r => {
+                age[0] += (r.tes_pos_rdt_u5_hf || 0) + (r.tes_pos_rdt_u5_com || 0) + (r.test_pos_mic_u5_hf || 0);
+                age[1] += (r.tes_pos_rdt_5_14_hf || 0) + (r.tes_pos_rdt_5_14_com || 0) + (r.test_pos_mic_5_14_hf || 0);
+                age[2] += (r.tes_pos_rdt_ov15_hf || 0) + (r.tes_pos_rdt_ov15_com || 0) + (r.test_pos_mic_ov15_hf || 0);
+            });
+            renderDoughnut('confirmedAgeChart', ['Under 5', '5-14', '15+'], age);
+            
+            let fac = 0, com = 0;
+            filteredData.forEach(r => {
+                fac += r.conf_hf || 0;
+                com += r.conf_com || 0;
+            });
+            renderBar('confirmedLocationChart', ['Health Facility', 'Community'], [fac, com]);
+            
+            const monthly = {};
+            filteredData.forEach(r => {
+                if (r.year && r.month) {
+                    const p = `${r.year}-${r.month}`;
+                    monthly[p] = (monthly[p] || 0) + (r.conf || 0);
+                }
+            });
+            const labels = Object.keys(monthly).sort();
+            renderLine('confirmedTrendChart', 'Confirmed', labels, labels.map(l => monthly[l]), '#d32f2f');
+            
+            const regions = {};
+            filteredData.forEach(r => {
+                const reg = r.orgunitlevel2 || 'Unknown';
+                regions[reg] = (regions[reg] || 0) + (r.conf || 0);
+            });
+            const sorted = Object.entries(regions).sort((a,b) => b[1]-a[1]).slice(0,10);
+            renderHBar('confirmedRegionChart', sorted.map(s => s[0]), sorted.map(s => s[1]));
+        }
+
+        function renderTreatmentCharts() {
+            let w24 = 0, a24 = 0;
+            filteredData.forEach(r => {
+                w24 += (r.maltreat_u24_u5_hf || 0) + (r.maltreat_u24_5_14_hf || 0) + (r.maltreat_u24_ov15_hf || 0) +
+                       (r.maltreat_u24_u5_com || 0) + (r.maltreat_u24_5_14_com || 0) + (r.maltreat_u24_ov15_com || 0);
+                a24 += (r.maltreat_ov24_u5_hf || 0) + (r.maltreat_ov24_5_14_hf || 0) + (r.maltreat_ov24_ov15_hf || 0) +
+                       (r.maltreat_ov24_u5_com || 0) + (r.maltreat_ov24_5_14_com || 0) + (r.maltreat_ov24_ov15_com || 0);
+            });
+            renderDoughnut('treatmentTimeChart', ['Within 24hrs', 'After 24hrs'], [w24, a24]);
+            
+            const age = [0, 0, 0];
+            filteredData.forEach(r => {
+                age[0] += (r.maltreat_u24_u5_hf || 0) + (r.maltreat_ov24_u5_hf || 0) + 
+                          (r.maltreat_u24_u5_com || 0) + (r.maltreat_ov24_u5_com || 0);
+                age[1] += (r.maltreat_u24_5_14_hf || 0) + (r.maltreat_ov24_5_14_hf || 0) + 
+                          (r.maltreat_u24_5_14_com || 0) + (r.maltreat_ov24_5_14_com || 0);
+                age[2] += (r.maltreat_u24_ov15_hf || 0) + (r.maltreat_ov24_ov15_hf || 0) + 
+                          (r.maltreat_u24_ov15_com || 0) + (r.maltreat_ov24_ov15_com || 0);
+            });
+            renderBar('treatmentAgeChart', ['Under 5', '5-14', '15+'], age);
+            
+            let fac = 0, com = 0;
+            filteredData.forEach(r => {
+                fac += r.maltreat_hf || 0;
+                com += r.maltreat_com || 0;
+            });
+            renderBar('treatmentLocationChart', ['Health Facility', 'Community'], [fac, com]);
+            
+            const monthly = {};
+            filteredData.forEach(r => {
+                if (r.year && r.month) {
+                    const p = `${r.year}-${r.month}`;
+                    monthly[p] = (monthly[p] || 0) + (r.maltreat || 0);
+                }
+            });
+            const labels = Object.keys(monthly).sort();
+            renderLine('treatmentTrendChart', 'Treatment', labels, labels.map(l => monthly[l]), '#2e7d32');
+        }
+
+        function renderAdmissionsCharts() {
+            const age = [0, 0, 0];
+            filteredData.forEach(r => {
+                age[0] += r.maladm_u5 || 0;
+                age[1] += r.maladm_5_14 || 0;
+                age[2] += r.maladm_ov15 || 0;
+            });
+            renderDoughnut('admissionsAgeChart', ['Under 5', '5-14', '15+'], age);
+            
+            const monthly = {};
+            filteredData.forEach(r => {
+                if (r.year && r.month) {
+                    const p = `${r.year}-${r.month}`;
+                    monthly[p] = (monthly[p] || 0) + (r.maladm || 0);
+                }
+            });
+            const labels = Object.keys(monthly).sort();
+            renderLine('admissionsTrendChart', 'Admissions', labels, labels.map(l => monthly[l]), '#2c6693');
+            
+            const regions = {};
+            filteredData.forEach(r => {
+                const reg = r.orgunitlevel2 || 'Unknown';
+                regions[reg] = (regions[reg] || 0) + (r.maladm || 0);
+            });
+            const sorted = Object.entries(regions).sort((a,b) => b[1]-a[1]).slice(0,10);
+            renderHBar('admissionsRegionChart', sorted.map(s => s[0]), sorted.map(s => s[1]));
+        }
+
+        function renderDeathsCharts() {
+            const age = [0, 0, 0, 0];
+            filteredData.forEach(r => {
+                age[0] += (r.maldth_u5 || 0) + (r.maldth_1_59m || 0);
+                age[1] += r.maldth_5_9 || 0;
+                age[2] += r.maldth_10_14 || 0;
+                age[3] += (r.maldth_ov15 || 0) + (r.maldth_fem_ov15 || 0) + (r.maldth_mal_ov15 || 0);
+            });
+            renderBar('deathsAgeChart', ['1-59m', '5-9y', '10-14y', '15+'], age);
+            
+            const monthly = {};
+            filteredData.forEach(r => {
+                if (r.year && r.month) {
+                    const p = `${r.year}-${r.month}`;
+                    monthly[p] = (monthly[p] || 0) + (r.maldth || 0);
+                }
+            });
+            const labels = Object.keys(monthly).sort();
+            renderLine('deathsTrendChart', 'Deaths', labels, labels.map(l => monthly[l]), '#d32f2f');
+            
+            let m = 0, f = 0;
+            filteredData.forEach(r => {
+                m += r.maldth_mal_ov15 || 0;
+                f += r.maldth_fem_ov15 || 0;
+            });
+            renderPie('deathsGenderChart', ['Male', 'Female'], [m, f]);
+            
+            const regions = {};
+            filteredData.forEach(r => {
+                const reg = r.orgunitlevel2 || 'Unknown';
+                regions[reg] = (regions[reg] || 0) + (r.maldth || 0);
+            });
+            const sorted = Object.entries(regions).sort((a,b) => b[1]-a[1]).slice(0,10);
+            renderHBar('deathsRegionChart', sorted.map(s => s[0]), sorted.map(s => s[1]));
+        }
+
+        function renderDoughnut(id, labels, data) {
             const ctx = document.getElementById(id);
             if (charts[id]) charts[id].destroy();
             charts[id] = new Chart(ctx, {
-                type: type,
+                type: 'doughnut',
                 data: {
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9'],
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9', '#b3d4e8'],
                         borderWidth: 4,
                         borderColor: '#ffffff'
                     }]
@@ -1039,7 +1261,74 @@
             });
         }
 
-        function renderLineChart(id, label, labels, data) {
+        function renderPie(id, labels, data) {
+            const ctx = document.getElementById(id);
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#2c6693', '#4a90c4', '#2e7d32', '#d32f2f', '#ec4899'],
+                        borderWidth: 4,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {position: 'bottom'}}
+                }
+            });
+        }
+
+        function renderBar(id, labels, data) {
+            const ctx = document.getElementById(id);
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#2c6693', '#4a90c4', '#87b5d9', '#b3d4e8'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {y: {beginAtZero: true}}
+                }
+            });
+        }
+
+        function renderHBar(id, labels, data) {
+            const ctx = document.getElementById(id);
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: '#2c6693',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {legend: {display: false}},
+                    scales: {x: {beginAtZero: true}}
+                }
+            });
+        }
+
+        function renderLine(id, label, labels, data, color) {
             const ctx = document.getElementById(id);
             if (charts[id]) charts[id].destroy();
             charts[id] = new Chart(ctx, {
@@ -1049,10 +1338,11 @@
                     datasets: [{
                         label: label,
                         data: data,
-                        borderColor: '#2c6693',
-                        backgroundColor: 'rgba(44, 102, 147, 0.1)',
+                        borderColor: color,
+                        backgroundColor: color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
                         tension: 0.4,
-                        fill: true
+                        fill: true,
+                        borderWidth: 3
                     }]
                 },
                 options: {
