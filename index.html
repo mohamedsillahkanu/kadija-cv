@@ -424,14 +424,14 @@
     
     <div class="nav-menu" id="navMenu">
         <h3>Quick Navigation</h3>
-        <div class="nav-item" onclick="scrollToSection('summary')">📊 Summary Overview</div>
-        <div class="nav-item" onclick="scrollToSection('opd')">🏥 OPD Visits</div>
-        <div class="nav-item" onclick="scrollToSection('suspected')">🤒 Suspected Cases</div>
-        <div class="nav-item" onclick="scrollToSection('testing')">🔬 Testing</div>
-        <div class="nav-item" onclick="scrollToSection('confirmed')">✅ Confirmed Cases</div>
-        <div class="nav-item" onclick="scrollToSection('treatment')">💊 Treatment</div>
-        <div class="nav-item" onclick="scrollToSection('admissions')">🏨 Admissions</div>
-        <div class="nav-item" onclick="scrollToSection('deaths')">⚠️ Deaths</div>
+        <div class="nav-item" onclick="scrollToSection('summary')">Summary Overview</div>
+        <div class="nav-item" onclick="scrollToSection('opd')">OPD Visits</div>
+        <div class="nav-item" onclick="scrollToSection('suspected')">Suspected Cases</div>
+        <div class="nav-item" onclick="scrollToSection('testing')">Testing</div>
+        <div class="nav-item" onclick="scrollToSection('confirmed')"Confirmed Cases</div>
+        <div class="nav-item" onclick="scrollToSection('treatment')">Treatment</div>
+        <div class="nav-item" onclick="scrollToSection('admissions')">Admissions</div>
+        <div class="nav-item" onclick="scrollToSection('deaths')">Deaths</div>
     </div>
 
     <div class="container">
@@ -478,13 +478,13 @@
         </div>
 
         <div class="action-buttons">
-            <button class="btn" onclick="refreshDashboard()">🔄 Refresh Data</button>
-            <button class="btn btn-secondary" onclick="resetFilters()">↺ Reset Filters</button>
-            <button class="btn btn-secondary" onclick="exportData()">📊 Export Report</button>
+            <button class="btn" onclick="refreshDashboard()">Refresh Data</button>
+            <button class="btn btn-secondary" onclick="resetFilters()">Reset Filters</button>
+            <button class="btn btn-secondary" onclick="exportData()">Export Report</button>
         </div>
 
         <div class="alert" id="statusAlert">
-            <span style="font-size: 24px;">📡</span>
+            <span style="font-size: 24px;"></span>
             <div>
                 <strong>Status:</strong> <span id="statusMessage">Initializing...</span><br>
                 <small>Last updated: <span id="lastUpdate">Never</span></small>
@@ -500,7 +500,7 @@
             
             <div class="section" id="summary">
                 <div class="section-header">
-                    <div class="section-title">📊 Summary Overview</div>
+                    <div class="section-title">Summary Overview</div>
                 </div>
                 <div class="section-content">
                     <div class="summary-grid">
@@ -550,7 +550,7 @@
 
             <div class="section" id="opd">
                 <div class="section-header">
-                    <div class="section-title">🏥 Outpatient Department Visits</div>
+                    <div class="section-title">Outpatient Department Visits</div>
                 </div>
                 <div class="section-content">
                     <div class="charts-grid">
@@ -572,7 +572,7 @@
 
             <div class="section" id="suspected">
                 <div class="section-header">
-                    <div class="section-title">🤒 Suspected Malaria Cases</div>
+                    <div class="section-title">Suspected Malaria Cases</div>
                 </div>
                 <div class="section-content">
                     <div class="charts-grid">
@@ -606,7 +606,7 @@
 
             <div class="section" id="testing">
                 <div class="section-header">
-                    <div class="section-title">🔬 Malaria Testing</div>
+                    <div class="section-title">Malaria Testing</div>
                 </div>
                 <div class="section-content">
                     <div class="charts-grid">
@@ -640,7 +640,7 @@
 
             <div class="section" id="confirmed">
                 <div class="section-header">
-                    <div class="section-title">✅ Confirmed Malaria Cases</div>
+                    <div class="section-title">Confirmed Malaria Cases</div>
                 </div>
                 <div class="section-content">
                     <div class="charts-grid">
@@ -674,7 +674,7 @@
 
             <div class="section" id="treatment">
                 <div class="section-header">
-                    <div class="section-title">💊 Malaria Treatment</div>
+                    <div class="section-title">Malaria Treatment</div>
                 </div>
                 <div class="section-content">
                     <div class="charts-grid">
@@ -708,7 +708,7 @@
 
             <div class="section" id="admissions">
                 <div class="section-header">
-                    <div class="section-title">🏨 Malaria Admissions</div>
+                    <div class="section-title">Malaria Admissions</div>
                 </div>
                 <div class="section-content">
                     <div class="charts-grid">
@@ -736,7 +736,7 @@
 
             <div class="section" id="deaths">
                 <div class="section-header">
-                    <div class="section-title">⚠️ Malaria Deaths</div>
+                    <div class="section-title">Malaria Deaths</div>
                 </div>
                 <div class="section-content">
                     <div class="charts-grid">
@@ -773,7 +773,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2566zWtWCPEySaiI3eLdS54pf1uVmBC10rjyLb5NZXDczFFV4bDsNg6GPjXlhIOhY/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbh9DmxOw3Z7YO8DUzbxdU7HW4uLuRE6MyvZcQYw09VvFeeKCESaXaxtI0CaHSd6r15g/exec';
         
         let rawData = [];
         let filteredData = [];
