@@ -13,6 +13,15 @@
         .logo-box { background: #f8f9fa; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid #004080; }
         .logo-box img { width: 80px; height: auto; border-radius: 6px; }
         
+        /* Login Screen */
+        .login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background: linear-gradient(135deg, #004080 0%, #0066cc 100%); }
+        .login-card { background: #ffffff; border-radius: 12px; padding: 40px; max-width: 450px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); border: 4px double #004080; }
+        .logo-container { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; }
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-header h1 { color: #004080; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+        .login-header p { color: #666; font-size: 14px; font-weight: 500; }
+        .readonly-input { background: #e9ecef !important; color: #495057 !important; cursor: not-allowed; }
+        
         /* Form Elements */
         .form-group { margin-bottom: 20px; }
         .form-label { display: block; color: #004080; font-size: 14px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -33,7 +42,8 @@
         .btn-gold:hover { background: #e0a800; border-color: #e0a800; }
         
         /* Main Content */
-        .main-content { display: block; padding: 20px; }
+        .main-content { display: none; padding: 20px; }
+        .main-content.active { display: block; }
         .page-container { width: 100%; max-width: 1400px; margin: 0 auto; }
         
         .page-header { background-color: #004080; color: #ffffff; padding: 25px 30px; text-align: center; margin-bottom: 15px; border-radius: 8px 8px 0 0; }
@@ -136,6 +146,41 @@
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="logo-container">
+                <div class="logo-box">
+                    <img src="https://github.com/mohamedsillahkanu/gdp-dashboard-2/raw/6c7463b0d5c3be150aafae695a4bcbbd8aeb1499/ICF-SL.jpg" alt="ICF-SL Logo" class="logo-img" style="width: 100px;">
+                </div>
+            </div>
+
+            <div class="login-header">
+                <h1>DHIS2 DATASET DOWNLOAD</h1>
+                <p>Export Dataset Data in Wide CSV Format</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">DHIS2 Instance URL</label>
+                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://sl.dhis2.org/hmis23" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input readonly-input" id="username" value="musa-sillahkanu" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input readonly-input" id="password" value="Navigator/2024!" readonly>
+                </div>
+
+                <button type="submit" class="btn-primary">Connect to DHIS2</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="page-container">
@@ -327,21 +372,32 @@
         let selectedOrgUnits = [];
         let currentPeriodType = 'monthly';
 
-        // Auto-connect on page load
-        document.addEventListener('DOMContentLoaded', async function() {
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Connecting...';
+            
             try {
+                showNotification('Connecting to DHIS2...', 'info');
+                
                 const response = await fetch(dhis2Config.url + '/api/me', {
                     headers: { 'Authorization': 'Basic ' + dhis2Config.auth }
                 });
                 
                 if (response.ok) {
+                    showNotification('Connected successfully!', 'success');
+                    document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainContent').classList.add('active');
-                    showNotification('Connected to DHIS2 successfully!', 'success');
                 } else {
-                    showNotification('Connection failed. Please check credentials.', 'error');
+                    throw new Error('Authentication failed');
                 }
             } catch (error) {
-                showNotification('Connection error: ' + error.message, 'error');
+                showNotification('Connection failed: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.textContent = 'Connect to DHIS2';
             }
         });
 
@@ -544,7 +600,7 @@
                     const start = document.getElementById('periodStart').value;
                     const end = document.getElementById('periodEnd').value;
                     if (!start || !end) return '';
-                    // Generate array of months between start and end
+                    // Generate array of months between start and end (INCLUSIVE)
                     const periods = [];
                     let current = new Date(start + '-01');
                     const endDate = new Date(end + '-01');
@@ -562,6 +618,7 @@
                     const endYear = document.getElementById('endYear').value;
                     if (!startYear) return '';
                     if (!endYear || endYear === startYear) return startYear;
+                    // INCLUSIVE end year
                     const years = [];
                     for (let y = parseInt(startYear); y <= parseInt(endYear); y++) {
                         years.push(y.toString());
@@ -603,7 +660,7 @@
                 const orgUnitIds = selectedOrgUnits.join(';');
                 const periods = period.split(';');
 
-                addLog('Fetching data for ' + selectedItems.length + ' elements, ' + selectedOrgUnits.length + ' org units...', 'info');
+                addLog('Fetching data for ' + selectedItems.length + ' elements, ' + selectedOrgUnits.length + ' org units, ' + periods.length + ' periods...', 'info');
                 progressFill.style.width = '30%';
                 progressFill.textContent = '30%';
 
@@ -624,9 +681,9 @@
                 progressFill.style.width = '70%';
                 progressFill.textContent = '70%';
 
-                // Convert to wide format CSV
-                addLog('Converting to wide CSV format...', 'info');
-                const csv = convertToWideCSV(data);
+                // Convert to wide format CSV - include ALL org units and periods
+                addLog('Converting to wide CSV format (including all org units/periods)...', 'info');
+                const csv = convertToWideCSV(data, periods);
                 
                 progressFill.style.width = '90%';
                 progressFill.textContent = '90%';
@@ -645,15 +702,12 @@
             }
         }
 
-        // Convert Analytics Data to Wide CSV
-        function convertToWideCSV(data) {
-            if (!data.rows || data.rows.length === 0) {
-                return 'No data available';
-            }
-
-            const headers = data.headers || [];
+        // Convert Analytics Data to Wide CSV - Include ALL org units and periods
+        function convertToWideCSV(data, requestedPeriods) {
             const metaData = data.metaData || {};
             const items = metaData.items || {};
+            const headers = data.headers || [];
+            const rows = data.rows || [];
 
             // Get dimension indices
             const dxIndex = headers.findIndex(h => h.name === 'dx');
@@ -661,32 +715,61 @@
             const peIndex = headers.findIndex(h => h.name === 'pe');
             const valueIndex = headers.findIndex(h => h.name === 'value');
 
-            // Group by org unit and period
-            const grouped = {};
-            const allDataElements = new Set();
-
-            data.rows.forEach(row => {
+            // Build lookup for actual data
+            const dataLookup = {};
+            rows.forEach(row => {
                 const ou = row[ouIndex];
                 const pe = row[peIndex];
                 const dx = row[dxIndex];
                 const value = row[valueIndex];
-
+                
                 const key = ou + '|' + pe;
-                if (!grouped[key]) {
-                    grouped[key] = { ou, pe, values: {} };
+                if (!dataLookup[key]) {
+                    dataLookup[key] = {};
                 }
-                grouped[key].values[dx] = value;
-                allDataElements.add(dx);
+                dataLookup[key][dx] = value;
             });
 
-            // Build CSV
-            const dataElementList = Array.from(allDataElements);
-            const csvHeaders = ['Organisation Unit', 'Period', ...dataElementList.map(dx => items[dx]?.name || dx)];
+            // Get all data elements from selected items
+            const dataElementList = selectedItems.map(i => i.id);
             
-            const csvRows = Object.values(grouped).map(row => {
-                const ouName = items[row.ou]?.name || row.ou;
-                return [ouName, row.pe, ...dataElementList.map(dx => row.values[dx] || '')];
+            // Get org unit names lookup
+            const orgUnitNames = {};
+            selectedOrgUnits.forEach(ouId => {
+                const ou = orgUnits.find(o => o.id === ouId);
+                orgUnitNames[ouId] = ou ? (ou.displayName || ou.name) : (items[ouId]?.name || ouId);
             });
+
+            // Build CSV headers
+            const csvHeaders = ['Organisation Unit', 'Organisation Unit ID', 'Period', ...dataElementList.map(dx => {
+                const item = selectedItems.find(i => i.id === dx);
+                return item ? (item.displayName || item.name) : (items[dx]?.name || dx);
+            })];
+
+            // Generate ALL combinations of org units × periods
+            const csvRows = [];
+            selectedOrgUnits.forEach(ouId => {
+                requestedPeriods.forEach(pe => {
+                    const key = ouId + '|' + pe;
+                    const dataValues = dataLookup[key] || {};
+                    
+                    const row = [
+                        orgUnitNames[ouId],
+                        ouId,
+                        pe,
+                        ...dataElementList.map(dx => dataValues[dx] !== undefined ? dataValues[dx] : '')
+                    ];
+                    csvRows.push(row);
+                });
+            });
+
+            // Sort by org unit name, then period
+            csvRows.sort((a, b) => {
+                if (a[0] !== b[0]) return a[0].localeCompare(b[0]);
+                return a[2].localeCompare(b[2]);
+            });
+
+            addLog('Generated ' + csvRows.length + ' rows (' + selectedOrgUnits.length + ' org units × ' + requestedPeriods.length + ' periods)', 'info');
 
             // Convert to CSV string
             const csvContent = [csvHeaders, ...csvRows]
