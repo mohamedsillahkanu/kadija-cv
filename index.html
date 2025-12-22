@@ -34,11 +34,17 @@
         /* Buttons */
         .btn-primary { width: 100%; padding: 14px 24px; background: #004080; color: #ffffff; border: 2px solid #004080; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
         .btn-primary:hover { background: #0056b3; border-color: #0056b3; }
-        .btn-primary:disabled { background: #6c757d; border-color: #6c757d; cursor: not-allowed; opacity: 0.7; }
+        .btn-primary:disabled { background: #6c757d; border-color: #6c757d; cursor: wait; opacity: 0.9; }
+        .btn-primary:disabled::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 8px; border: 2px solid #ffffff; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         .btn-secondary { padding: 12px 20px; background: #ffffff; color: #004080; border: 2px solid #004080; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
         .btn-secondary:hover { background: #004080; color: #ffffff; }
+        .btn-secondary:disabled { background: #e9ecef; color: #004080; cursor: wait; }
+        .btn-secondary:disabled::after { content: ''; display: inline-block; width: 12px; height: 12px; margin-left: 8px; border: 2px solid #004080; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .btn-gold { padding: 14px 24px; background: #ffc107; color: #000000; border: 2px solid #ffc107; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
         .btn-gold:hover { background: #e0a800; border-color: #e0a800; }
+        .btn-gold:disabled { background: #e9ecef; color: #666; border-color: #ccc; cursor: wait; }
+        .btn-gold:disabled::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 8px; border: 2px solid #666; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         
         /* Main Content */
         .main-content { display: none; padding: 20px; }
@@ -210,14 +216,54 @@
 
             <div class="content-card">
                 <div class="content-inner">
-                    <!-- Data Elements Section -->
+                    <!-- Organisation Units Section -->
                     <div class="section-header">
                         <span class="section-icon">1</span>
+                        <span class="section-title">SELECT ORGANISATION UNITS</span>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <button type="button" class="btn-secondary" onclick="loadOrgUnitsTree()" style="width: auto;">
+                            Load Organisation Units
+                        </button>
+                    </div>
+
+                    <!-- Organisation Unit Group Sets (Facility Types) -->
+                    <div id="groupSetsContainer" style="display: none; margin-bottom: 15px;">
+                        <label class="form-label">Filter by Facility Type (Optional)</label>
+                        <div style="margin-bottom: 10px;">
+                            <select class="form-select" id="groupSetSelect" onchange="loadGroupSetOptions()">
+                                <option value="">-- Select a Group Set --</option>
+                            </select>
+                        </div>
+                        <div id="groupOptionsContainer" style="display: none; background: #f8f9fa; border: 2px solid #004080; border-radius: 8px; padding: 15px; max-height: 200px; overflow-y: auto;">
+                            <div style="margin-bottom: 10px;">
+                                <button type="button" class="control-btn select-all" onclick="selectAllGroupOptions()" style="padding: 5px 10px; font-size: 11px;">Select All</button>
+                                <button type="button" class="control-btn clear" onclick="clearAllGroupOptions()" style="padding: 5px 10px; font-size: 11px;">Clear All</button>
+                                <button type="button" class="btn-secondary" onclick="applyFacilityTypeFilter()" style="padding: 5px 15px; font-size: 11px; margin-left: 10px;">Apply Filter</button>
+                            </div>
+                            <div id="groupOptionsList"></div>
+                        </div>
+                    </div>
+
+                    <div class="org-unit-tree" id="orgUnitTree">
+                        <p style="color: #666; text-align: center;">Click "Load Organisation Units" to fetch...</p>
+                    </div>
+                    <div class="control-buttons">
+                        <button type="button" class="control-btn expand" onclick="expandAllOrgUnits()">Expand All</button>
+                        <button type="button" class="control-btn clear" onclick="collapseAllOrgUnits()">Collapse All</button>
+                        <button type="button" class="control-btn select-all" onclick="selectAllOrgUnits()">Select All</button>
+                        <button type="button" class="control-btn clear" onclick="clearAllOrgUnits()">Clear All</button>
+                    </div>
+
+                    <!-- Data Elements Section -->
+                    <div class="section-header" style="margin-top: 30px;">
+                        <span class="section-icon">2</span>
                         <span class="section-title">SELECT DATA ELEMENTS</span>
                     </div>
 
                     <div style="margin-bottom: 15px;">
-                        <button type="button" class="btn-secondary" onclick="loadDatasetsWithElements()" style="width: auto; background: #ffc107; color: #000; border-color: #ffc107;">
+                        <button type="button" class="btn-secondary" onclick="loadDatasetsWithElements()" style="width: auto;">
                             Load Datasets
                         </button>
                     </div>
@@ -230,7 +276,7 @@
                                     <span class="panel-count" id="availableCount">0 items</span>
                                 </div>
                             </div>
-                            <input type="text" class="search-box" id="availableSearch" placeholder="Search available items..." onkeyup="filterAvailableItems()" style="display: none;">
+                            <input type="text" class="search-box" id="availableSearch" placeholder="Search available items..." onkeyup="debouncedFilterAvailable()" style="display: none;">
                             <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="display: none;" id="addAllBtn">
                                 Add All
                             </button>
@@ -246,7 +292,7 @@
                                     <span class="panel-count" id="selectedCount">0 items</span>
                                 </div>
                             </div>
-                            <input type="text" class="search-box" id="selectedSearch" placeholder="Search selected items..." onkeyup="filterSelectedItems()">
+                            <input type="text" class="search-box" id="selectedSearch" placeholder="Search selected items..." onkeyup="debouncedFilterSelected()">
                             <button type="button" class="panel-action-btn clear-all-btn" onclick="clearAllItems()">
                                 Clear All
                             </button>
@@ -254,27 +300,6 @@
                                 <p style="color: #666; text-align: center; padding: 20px;">No items selected yet</p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Organisation Units Section -->
-                    <div class="section-header" style="margin-top: 30px;">
-                        <span class="section-icon">2</span>
-                        <span class="section-title">SELECT ORGANISATION UNITS</span>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <button type="button" class="btn-secondary" onclick="loadOrgUnitsTree()" style="width: auto;">
-                            Load Organisation Units
-                        </button>
-                    </div>
-                    <div class="org-unit-tree" id="orgUnitTree">
-                        <p style="color: #666; text-align: center;">Click "Load Organisation Units" to fetch...</p>
-                    </div>
-                    <div class="control-buttons">
-                        <button type="button" class="control-btn expand" onclick="expandAllOrgUnits()">Expand All</button>
-                        <button type="button" class="control-btn clear" onclick="collapseAllOrgUnits()">Collapse All</button>
-                        <button type="button" class="control-btn select-all" onclick="selectAllOrgUnits()">Select All</button>
-                        <button type="button" class="control-btn clear" onclick="clearAllOrgUnits()">Clear All</button>
                     </div>
 
                     <!-- Period Section -->
@@ -380,9 +405,13 @@
         const GOOGLE_APPS_SCRIPT_PROXY = 'https://script.google.com/macros/s/AKfycbyRXc68PYSmDSCYPakAS8Gc9R00kRjmsMYoDujPYMItyquXfwMAJUtRqXLiDlNWbSfDQQ/exec';
         const state = { config: null, isLoggedIn: false };
         let datasetsData = [];
-        let selectedDataElements = new Set();
+        let selectedDataElements = new Map(); // Map: dataElementId -> { datasetId, datasetName, elementName }
         let orgUnitsData = [];
+        let allOrgUnitsData = []; // Store all org units before filtering
         let selectedOrgUnits = new Set();
+        let orgUnitGroupSets = [];
+        let orgUnitGroups = {};
+        let selectedGroupOptions = new Set();
 
         function makeProxyRequest(targetUrl, options = {}) {
             let proxyUrl = `${GOOGLE_APPS_SCRIPT_PROXY}?url=${encodeURIComponent(targetUrl)}`;
@@ -443,89 +472,136 @@
         }
 
         async function loadDatasetsWithElements() {
+            const btn = document.querySelector('button[onclick="loadDatasetsWithElements()"]');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Loading... 0%';
+            
             try {
+                btn.textContent = 'Loading... 10%';
                 log('Fetching datasets from DHIS2...', 'info');
                 showNotification('Loading datasets...', 'info');
+                
+                btn.textContent = 'Loading... 20%';
                 const url = `${state.config.instanceUrl}/api/dataSets.json?fields=id,displayName,name,periodType,dataSetElements[dataElement[id,displayName,name]]&paging=false`;
                 const response = await fetchWithAuth(url);
+                
+                btn.textContent = 'Loading... 50%';
                 if (!response.ok) throw new Error(`Failed to fetch datasets: ${response.status}`);
                 const data = await response.json();
+                
+                btn.textContent = 'Loading... 70%';
                 if (!data.dataSets || !Array.isArray(data.dataSets)) {
                     showNotification('No datasets found in response', 'error');
+                    btn.disabled = false;
+                    btn.textContent = originalText;
                     return;
                 }
                 datasetsData = data.dataSets;
+                
+                btn.textContent = 'Loading... 85%';
                 renderAvailableItems(datasetsData);
+                
+                btn.textContent = 'Loading... 95%';
                 renderSelectedItems();
                 document.getElementById('availableSearch').style.display = 'block';
                 document.getElementById('addAllBtn').style.display = 'block';
+                
                 log(`Loaded ${data.dataSets.length} datasets`, 'success');
                 showNotification(`Loaded ${data.dataSets.length} datasets`, 'success');
+                
+                btn.textContent = 'Done!';
+                setTimeout(() => { btn.textContent = originalText; }, 1000);
             } catch (error) {
                 log(`Error: ${error.message}`, 'error');
                 showNotification(`Failed to load datasets: ${error.message}`, 'error');
+                btn.textContent = originalText;
+            } finally {
+                btn.disabled = false;
             }
         }
 
         function renderAvailableItems(datasets) {
             const container = document.getElementById('availablePanel');
             let totalElements = 0;
-            datasets.forEach(ds => {
-                if (ds.dataSetElements) {
-                    ds.dataSetElements.forEach(dse => {
-                        if (dse.dataElement && !selectedDataElements.has(dse.dataElement.id)) totalElements++;
-                    });
-                }
-            });
+            
+            // Pre-calculate totals - hide if selected from ANY dataset
+            const datasetInfo = datasets.map(ds => {
+                if (!ds.dataSetElements || ds.dataSetElements.length === 0) return null;
+                const availableElements = ds.dataSetElements.filter(dse => {
+                    if (!dse.dataElement) return false;
+                    // Check if this element is selected (from any dataset)
+                    return !selectedDataElements.has(dse.dataElement.id);
+                });
+                if (availableElements.length === 0) return null;
+                totalElements += availableElements.length;
+                return { ds, availableElements };
+            }).filter(Boolean);
+            
             if (totalElements === 0) {
                 container.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">All items have been selected!</div>';
                 document.getElementById('availableCount').textContent = '0 items';
                 return;
             }
-            container.innerHTML = '';
-            datasets.forEach(ds => {
-                if (!ds.dataSetElements || ds.dataSetElements.length === 0) return;
-                const availableElements = ds.dataSetElements.filter(dse => dse.dataElement && !selectedDataElements.has(dse.dataElement.id));
-                if (availableElements.length === 0) return;
+            
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            datasetInfo.forEach(({ ds, availableElements }) => {
                 const datasetDiv = document.createElement('div');
                 datasetDiv.className = 'dataset-item';
                 datasetDiv.dataset.id = ds.id;
+                
                 const toggle = document.createElement('span');
                 toggle.className = 'item-toggle';
                 toggle.textContent = '▶';
                 toggle.onclick = (e) => { e.stopPropagation(); toggleDatasetExpand(ds.id); };
+                
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'item-name';
                 const periodType = ds.periodType ? ` (${ds.periodType})` : '';
                 nameSpan.textContent = `${ds.displayName || ds.name || ds.id}${periodType} - ${availableElements.length} elements`;
+                
                 datasetDiv.appendChild(toggle);
                 datasetDiv.appendChild(nameSpan);
-                datasetDiv.onclick = (e) => { if (e.target.className !== 'item-toggle') toggleDatasetExpand(ds.id); };
-                container.appendChild(datasetDiv);
+                datasetDiv.onclick = (e) => { if (!e.target.classList.contains('item-toggle')) toggleDatasetExpand(ds.id); };
+                fragment.appendChild(datasetDiv);
+                
                 const elementsContainer = document.createElement('div');
                 elementsContainer.className = 'data-elements-container';
                 elementsContainer.id = `elements-${ds.id}`;
+                
                 availableElements.forEach(dse => {
-                    if (dse.dataElement) {
-                        const elementDiv = document.createElement('div');
-                        elementDiv.className = 'data-element-item';
-                        elementDiv.dataset.id = dse.dataElement.id;
-                        elementDiv.dataset.name = (dse.dataElement.displayName || dse.dataElement.name || '').toLowerCase();
-                        const elNameSpan = document.createElement('span');
-                        elNameSpan.className = 'item-name';
-                        elNameSpan.textContent = dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id;
-                        const addBtn = document.createElement('button');
-                        addBtn.className = 'add-btn';
-                        addBtn.textContent = '+ Add';
-                        addBtn.onclick = (e) => { e.stopPropagation(); addItem(dse.dataElement.id); };
-                        elementDiv.onclick = () => addItem(dse.dataElement.id);
-                        elementDiv.appendChild(elNameSpan);
-                        elementDiv.appendChild(addBtn);
-                        elementsContainer.appendChild(elementDiv);
-                    }
+                    const elementDiv = document.createElement('div');
+                    elementDiv.className = 'data-element-item';
+                    elementDiv.dataset.id = dse.dataElement.id;
+                    elementDiv.dataset.datasetId = ds.id;
+                    elementDiv.dataset.datasetName = ds.displayName || ds.name || ds.id;
+                    elementDiv.dataset.name = (dse.dataElement.displayName || dse.dataElement.name || '').toLowerCase();
+                    
+                    const elNameSpan = document.createElement('span');
+                    elNameSpan.className = 'item-name';
+                    elNameSpan.textContent = dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id;
+                    
+                    const addBtn = document.createElement('button');
+                    addBtn.className = 'add-btn';
+                    addBtn.textContent = '+ Add';
+                    addBtn.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        addItem(dse.dataElement.id, ds.id, ds.displayName || ds.name, dse.dataElement.displayName || dse.dataElement.name); 
+                    };
+                    
+                    elementDiv.onclick = () => addItem(dse.dataElement.id, ds.id, ds.displayName || ds.name, dse.dataElement.displayName || dse.dataElement.name);
+                    elementDiv.appendChild(elNameSpan);
+                    elementDiv.appendChild(addBtn);
+                    elementsContainer.appendChild(elementDiv);
                 });
-                container.appendChild(elementsContainer);
+                
+                fragment.appendChild(elementsContainer);
             });
+            
+            container.innerHTML = '';
+            container.appendChild(fragment);
             document.getElementById('availableCount').textContent = `${totalElements} items`;
         }
 
@@ -545,23 +621,43 @@
 
         function renderSelectedItems() {
             const container = document.getElementById('selectedPanel');
-            const selectedItems = [];
-            datasetsData.forEach(ds => {
-                if (ds.dataSetElements) {
-                    ds.dataSetElements.forEach(dse => {
-                        if (dse.dataElement && selectedDataElements.has(dse.dataElement.id)) {
-                            selectedItems.push({ id: dse.dataElement.id, name: dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id, datasetName: ds.displayName || ds.name || ds.id });
-                        }
-                    });
-                }
-            });
-            if (selectedItems.length === 0) {
+            
+            if (selectedDataElements.size === 0) {
                 container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No items selected yet</p>';
                 document.getElementById('selectedCount').textContent = '0 items';
                 return;
             }
-            container.innerHTML = '';
+            
+            // Convert Map to array and sort
+            const selectedItems = Array.from(selectedDataElements.entries()).map(([id, info]) => ({
+                id,
+                name: info.elementName,
+                datasetId: info.datasetId,
+                datasetName: info.datasetName
+            }));
+            
+            // Sort by dataset name, then element name
+            selectedItems.sort((a, b) => {
+                const dsCompare = a.datasetName.localeCompare(b.datasetName);
+                if (dsCompare !== 0) return dsCompare;
+                return a.name.localeCompare(b.name);
+            });
+            
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            let currentDataset = '';
+            
             selectedItems.forEach(item => {
+                // Add dataset header if new dataset
+                if (item.datasetName !== currentDataset) {
+                    currentDataset = item.datasetName;
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'selected-dataset-header';
+                    headerDiv.style.cssText = 'background: #004080; color: white; padding: 8px 12px; margin: 8px 0 4px 0; border-radius: 4px; font-size: 12px; font-weight: 600;';
+                    headerDiv.textContent = item.datasetName;
+                    fragment.appendChild(headerDiv);
+                }
+                
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'selected-item';
                 itemDiv.dataset.id = item.id;
@@ -569,22 +665,74 @@
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'item-name';
                 nameSpan.textContent = item.name;
-                nameSpan.title = `From: ${item.datasetName}`;
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
                 removeBtn.textContent = '×';
                 removeBtn.onclick = (e) => { e.stopPropagation(); removeItem(item.id); };
                 itemDiv.appendChild(nameSpan);
                 itemDiv.appendChild(removeBtn);
-                container.appendChild(itemDiv);
+                fragment.appendChild(itemDiv);
             });
+            
+            container.innerHTML = '';
+            container.appendChild(fragment);
             document.getElementById('selectedCount').textContent = `${selectedItems.length} items`;
         }
 
-        function addItem(itemId) { selectedDataElements.add(itemId); renderAvailableItems(datasetsData); renderSelectedItems(); }
-        function removeItem(itemId) { selectedDataElements.delete(itemId); renderAvailableItems(datasetsData); renderSelectedItems(); }
-        function addAllItems() { datasetsData.forEach(ds => { if (ds.dataSetElements) { ds.dataSetElements.forEach(dse => { if (dse.dataElement) selectedDataElements.add(dse.dataElement.id); }); } }); renderAvailableItems(datasetsData); renderSelectedItems(); }
-        function clearAllItems() { selectedDataElements.clear(); renderAvailableItems(datasetsData); renderSelectedItems(); }
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function addItem(itemId, datasetId, datasetName, elementName) { 
+            // Check if already selected
+            if (selectedDataElements.has(itemId)) return;
+            
+            // Store with dataset info
+            selectedDataElements.set(itemId, { datasetId, datasetName, elementName });
+            
+            // Full re-render since element may exist in multiple datasets
+            renderAvailableItems(datasetsData);
+            renderSelectedItems();
+        }
+        
+        function removeItem(itemId) { 
+            selectedDataElements.delete(itemId); 
+            renderAvailableItems(datasetsData); 
+            renderSelectedItems(); 
+        }
+        
+        function addAllItems() { 
+            datasetsData.forEach(ds => { 
+                if (ds.dataSetElements) { 
+                    ds.dataSetElements.forEach(dse => { 
+                        if (dse.dataElement && !selectedDataElements.has(dse.dataElement.id)) {
+                            selectedDataElements.set(dse.dataElement.id, {
+                                datasetId: ds.id,
+                                datasetName: ds.displayName || ds.name || ds.id,
+                                elementName: dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id
+                            });
+                        }
+                    }); 
+                } 
+            }); 
+            renderAvailableItems(datasetsData); 
+            renderSelectedItems(); 
+        }
+        
+        function clearAllItems() { 
+            selectedDataElements.clear(); 
+            renderAvailableItems(datasetsData); 
+            renderSelectedItems(); 
+        }
+
+        // Debounced search functions
+        const debouncedFilterAvailable = debounce(filterAvailableItems, 150);
+        const debouncedFilterSelected = debounce(filterSelectedItems, 150);
 
         function filterAvailableItems() {
             const searchTerm = document.getElementById('availableSearch').value.toLowerCase();
@@ -617,39 +765,228 @@
         }
 
         async function loadOrgUnitsTree() {
+            const btn = document.querySelector('button[onclick="loadOrgUnitsTree()"]');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Loading... 0%';
+            
             try {
+                btn.textContent = 'Loading... 10%';
                 log('Fetching organisation units...', 'info');
                 showNotification('Loading organisation units...', 'info');
-                const url = `${state.config.instanceUrl}/api/organisationUnits.json?fields=id,displayName,level,parent[id],children[id]&paging=false`;
+                
+                btn.textContent = 'Loading... 20%';
+                const url = `${state.config.instanceUrl}/api/organisationUnits.json?fields=id,displayName,level,parent[id],children[id],organisationUnitGroups[id,name]&paging=false`;
                 const response = await fetchWithAuth(url);
+                
+                btn.textContent = 'Loading... 50%';
                 if (!response.ok) throw new Error('Failed to fetch organisation units');
                 const data = await response.json();
+                
+                btn.textContent = 'Loading... 70%';
                 orgUnitsData = data.organisationUnits;
+                allOrgUnitsData = [...orgUnitsData]; // Store copy for filtering
+                
+                btn.textContent = 'Loading... 80%';
                 const tree = buildOrgUnitTree(orgUnitsData);
+                
+                btn.textContent = 'Loading... 90%';
                 renderOrgUnitTree(tree);
+                
                 log(`Loaded ${orgUnitsData.length} organisation units`, 'success');
                 showNotification(`Loaded ${orgUnitsData.length} organisation units`, 'success');
+                
+                // Also fetch Organisation Unit Group Sets
+                btn.textContent = 'Loading Groups...';
+                await loadOrgUnitGroupSets();
+                
+                btn.textContent = 'Done!';
+                setTimeout(() => { btn.textContent = originalText; }, 1000);
             } catch (error) {
                 log(`Error: ${error.message}`, 'error');
                 showNotification('Failed to load organisation units', 'error');
+                btn.textContent = originalText;
+            } finally {
+                btn.disabled = false;
             }
+        }
+
+        async function loadOrgUnitGroupSets() {
+            try {
+                log('Fetching organisation unit group sets...', 'info');
+                const url = `${state.config.instanceUrl}/api/organisationUnitGroupSets.json?fields=id,displayName,name,organisationUnitGroups[id,displayName,name]&paging=false`;
+                const response = await fetchWithAuth(url);
+                if (!response.ok) throw new Error('Failed to fetch group sets');
+                const data = await response.json();
+                orgUnitGroupSets = data.organisationUnitGroupSets || [];
+                
+                if (orgUnitGroupSets.length > 0) {
+                    // Populate the group set dropdown
+                    const select = document.getElementById('groupSetSelect');
+                    select.innerHTML = '<option value="">-- Select a Group Set (e.g., Facility Type) --</option>';
+                    orgUnitGroupSets.forEach(gs => {
+                        const option = document.createElement('option');
+                        option.value = gs.id;
+                        option.textContent = gs.displayName || gs.name;
+                        select.appendChild(option);
+                    });
+                    
+                    // Store groups for quick lookup
+                    orgUnitGroupSets.forEach(gs => {
+                        if (gs.organisationUnitGroups) {
+                            gs.organisationUnitGroups.forEach(g => {
+                                orgUnitGroups[g.id] = g.displayName || g.name;
+                            });
+                        }
+                    });
+                    
+                    document.getElementById('groupSetsContainer').style.display = 'block';
+                    log(`Loaded ${orgUnitGroupSets.length} group sets`, 'success');
+                }
+            } catch (error) {
+                log(`Warning: Could not load group sets: ${error.message}`, 'warning');
+            }
+        }
+
+        function loadGroupSetOptions() {
+            const select = document.getElementById('groupSetSelect');
+            const selectedId = select.value;
+            const container = document.getElementById('groupOptionsContainer');
+            const list = document.getElementById('groupOptionsList');
+            
+            if (!selectedId) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            const groupSet = orgUnitGroupSets.find(gs => gs.id === selectedId);
+            if (!groupSet || !groupSet.organisationUnitGroups) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            list.innerHTML = '';
+            selectedGroupOptions.clear();
+            
+            groupSet.organisationUnitGroups.forEach(group => {
+                const div = document.createElement('div');
+                div.style.cssText = 'padding: 6px 10px; margin: 2px 0; display: flex; align-items: center; gap: 8px;';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `group-${group.id}`;
+                checkbox.dataset.id = group.id;
+                checkbox.style.accentColor = '#004080';
+                checkbox.onchange = () => {
+                    if (checkbox.checked) {
+                        selectedGroupOptions.add(group.id);
+                    } else {
+                        selectedGroupOptions.delete(group.id);
+                    }
+                };
+                
+                const label = document.createElement('label');
+                label.htmlFor = `group-${group.id}`;
+                label.textContent = group.displayName || group.name;
+                label.style.cursor = 'pointer';
+                
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                list.appendChild(div);
+            });
+            
+            container.style.display = 'block';
+        }
+
+        function selectAllGroupOptions() {
+            document.querySelectorAll('#groupOptionsList input[type="checkbox"]').forEach(cb => {
+                cb.checked = true;
+                selectedGroupOptions.add(cb.dataset.id);
+            });
+        }
+
+        function clearAllGroupOptions() {
+            document.querySelectorAll('#groupOptionsList input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            selectedGroupOptions.clear();
+        }
+
+        function applyFacilityTypeFilter() {
+            const btn = document.querySelector('button[onclick="applyFacilityTypeFilter()"]');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Filtering...';
+            
+            setTimeout(() => {
+                if (selectedGroupOptions.size === 0) {
+                    // No filter - show all org units
+                    orgUnitsData = [...allOrgUnitsData];
+                    showNotification('No filter applied - showing all organisation units', 'info');
+                } else {
+                    // Filter org units that belong to any of the selected groups
+                    orgUnitsData = allOrgUnitsData.filter(ou => {
+                        if (!ou.organisationUnitGroups) return false;
+                        return ou.organisationUnitGroups.some(g => selectedGroupOptions.has(g.id));
+                    });
+                    
+                    const groupNames = Array.from(selectedGroupOptions).map(id => orgUnitGroups[id] || id).join(', ');
+                    log(`Filtered to ${orgUnitsData.length} org units matching: ${groupNames}`, 'info');
+                    showNotification(`Filtered to ${orgUnitsData.length} organisation units`, 'success');
+                }
+                
+                // Clear current selections and re-render tree
+                selectedOrgUnits.clear();
+                const tree = buildOrgUnitTree(orgUnitsData);
+                renderOrgUnitTree(tree);
+                
+                btn.textContent = 'Done!';
+                setTimeout(() => { 
+                    btn.disabled = false;
+                    btn.textContent = originalText; 
+                }, 500);
+            }, 100);
         }
 
         function buildOrgUnitTree(orgUnits) {
             const orgUnitMap = {};
             const rootUnits = [];
+            
+            // First pass: create all nodes
             orgUnits.forEach(ou => { orgUnitMap[ou.id] = { ...ou, children: [] }; });
+            
+            // Second pass: build tree structure
             orgUnits.forEach(ou => {
-                if (ou.parent && orgUnitMap[ou.parent.id]) { orgUnitMap[ou.parent.id].children.push(orgUnitMap[ou.id]); } 
-                else { rootUnits.push(orgUnitMap[ou.id]); }
+                if (ou.parent && orgUnitMap[ou.parent.id]) { 
+                    orgUnitMap[ou.parent.id].children.push(orgUnitMap[ou.id]); 
+                } else if (!ou.parent) {
+                    // No parent = root unit
+                    rootUnits.push(orgUnitMap[ou.id]);
+                } else {
+                    // Parent exists but not in filtered set - treat as root
+                    rootUnits.push(orgUnitMap[ou.id]);
+                }
             });
+            
+            // Sort children alphabetically
+            const sortChildren = (node) => {
+                if (node.children && node.children.length > 0) {
+                    node.children.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || ''));
+                    node.children.forEach(sortChildren);
+                }
+            };
+            rootUnits.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || ''));
+            rootUnits.forEach(sortChildren);
+            
             return rootUnits;
         }
 
         function renderOrgUnitTree(tree) {
             const container = document.getElementById('orgUnitTree');
+            const fragment = document.createDocumentFragment();
+            tree.forEach(ou => fragment.appendChild(createOrgUnitNode(ou)));
             container.innerHTML = '';
-            tree.forEach(ou => container.appendChild(createOrgUnitNode(ou)));
+            container.appendChild(fragment);
         }
 
         function createOrgUnitNode(orgUnit) {
@@ -735,7 +1072,7 @@
         }
 
         async function executeDownloadDatasets() {
-            const selectedDataElementIds = Array.from(selectedDataElements);
+            const selectedDataElementIds = Array.from(selectedDataElements.keys());
             const selectedOrgUnitIds = Array.from(selectedOrgUnits);
             if (selectedDataElementIds.length === 0) { showNotification('Please select at least one data element', 'error'); return; }
             if (selectedOrgUnitIds.length === 0) { showNotification('Please select at least one organisation unit', 'error'); return; }
@@ -748,14 +1085,9 @@
                 log(`Processing ${selectedDataElementIds.length} selected data elements...`, 'info');
                 setProgress(20);
                 const dataElementMap = {};
-                datasetsData.forEach(ds => {
-                    if (ds.dataSetElements) {
-                        ds.dataSetElements.forEach(dse => {
-                            if (dse.dataElement && selectedDataElementIds.includes(dse.dataElement.id)) {
-                                dataElementMap[dse.dataElement.id] = dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id;
-                            }
-                        });
-                    }
+                // Build map from our selected elements Map
+                selectedDataElements.forEach((info, id) => {
+                    dataElementMap[id] = info.elementName;
                 });
                 log(`Prepared ${Object.keys(dataElementMap).length} data elements for export`, 'success');
                 const orgUnitMap = {};
@@ -899,18 +1231,24 @@
             
             const submitBtn = e.target.querySelector('.btn-primary');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Connecting...';
+            submitBtn.textContent = 'Connecting... 0%';
             
             const config = { instanceUrl, username, password };
             try {
+                submitBtn.textContent = 'Connecting... 30%';
                 showNotification('Connecting via proxy...', 'info');
                 const testUrl = `${instanceUrl}/api/me`;
                 const authHeader = 'Basic ' + btoa(`${username}:${password}`);
+                
+                submitBtn.textContent = 'Connecting... 60%';
                 const response = await makeProxyRequest(testUrl, { method: 'GET', headers: { 'Authorization': authHeader } });
+                
+                submitBtn.textContent = 'Connecting... 90%';
                 if (response.ok) {
                     const userData = await response.json();
                     state.config = config;
                     state.isLoggedIn = true;
+                    submitBtn.textContent = 'Connected!';
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainContent').classList.add('active');
                     const firstName = userData.firstName || '';
