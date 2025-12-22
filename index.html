@@ -216,6 +216,12 @@
                         <span class="section-title">SELECT DATA ELEMENTS</span>
                     </div>
 
+                    <div style="margin-bottom: 15px;">
+                        <button type="button" class="btn-secondary" onclick="loadDatasetsWithElements()" style="width: auto; background: #ffc107; color: #000; border-color: #ffc107;">
+                            Load Datasets
+                        </button>
+                    </div>
+
                     <div class="dual-panel-container">
                         <div class="panel">
                             <div class="panel-header">
@@ -224,9 +230,6 @@
                                     <span class="panel-count" id="availableCount">0 items</span>
                                 </div>
                             </div>
-                            <button type="button" class="panel-action-btn load-btn" onclick="loadDatasetsWithElements()">
-                                Load Datasets
-                            </button>
                             <input type="text" class="search-box" id="availableSearch" placeholder="Search available items..." onkeyup="filterAvailableItems()" style="display: none;">
                             <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="display: none;" id="addAllBtn">
                                 Add All
