@@ -200,17 +200,17 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label">DHIS2 Instance URL</label>
-                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://mdrsl.chaiprod.com/" readonly>
+                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://sl.dhis2.org/hmis23" readonly>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" class="form-input readonly-input" id="username" value="NMCP" readonly>
+                    <input type="text" class="form-input readonly-input" id="username" value="musa-sillahkanu" readonly>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-input readonly-input" id="password" value="NmcpMDR@2025" readonly>
+                    <input type="password" class="form-input readonly-input" id="password" value="Navigator/2024!" readonly>
                 </div>
 
                 <button type="submit" class="btn-primary">Connect to DHIS2</button>
@@ -918,11 +918,13 @@
                 levelCounts[level] = orgUnitsData.filter(ou => ou.level === level).length;
             });
             
-            select.innerHTML = levels.map(level => 
-                `<option value="${level}" ${level === facilityLevel ? 'selected' : ''}>
-                    Level ${level} (${levelCounts[level]} units)
-                </option>`
-            ).join('');
+            let optionsHtml = '';
+            levels.forEach(level => {
+                const selected = level === facilityLevel ? 'selected' : '';
+                optionsHtml += `<option value="${level}" ${selected}>Level ${level} (${levelCounts[level]} units)</option>`;
+            });
+            
+            select.innerHTML = optionsHtml;
         }
 
         function updateFacilityLevel() {
