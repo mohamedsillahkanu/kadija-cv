@@ -200,7 +200,7 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label">DHIS2 Instance URL</label>
-                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://mdrsl.chaiprod.com" readonly>
+                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://mdrsl.chaiprod.com/" readonly>
                 </div>
 
                 <div class="form-group">
@@ -256,9 +256,11 @@
                                 </div>
                             </div>
                             <input type="text" class="search-box" id="availableSearch" placeholder="Search available items..." onkeyup="debouncedFilterAvailable()" style="display: none;">
-                            <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="display: none;" id="addAllBtn">
-                                Add All
-                            </button>
+                            <div style="display: none; padding: 5px 10px; background: #f0f0f0; border-bottom: 1px solid #ddd;" id="datasetControlBtns">
+                                <button type="button" class="control-btn expand" onclick="expandAllDatasets()" style="padding: 4px 10px; font-size: 11px;">Expand All</button>
+                                <button type="button" class="control-btn clear" onclick="collapseAllDatasets()" style="padding: 4px 10px; font-size: 11px;">Collapse All</button>
+                                <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="width: auto; padding: 4px 10px; font-size: 11px; display: inline-block;">Add All</button>
+                            </div>
                             <div class="panel-content" id="availablePanel">
                                 <p style="color: #666; text-align: center; padding: 20px;">Click "Load Datasets" to fetch data elements...</p>
                             </div>
@@ -302,7 +304,7 @@
                             </select>
                         </div>
                         <div class="info-text">
-                            The facility level is auto-detected as the lowest level that appears consistently across all hierarchy branches (marked with ★). Levels that only appear under some parent units are excluded. You can change this if needed.
+                            Only organisation units at the selected level can be selected for data download. Higher hierarchy levels are shown for navigation but are not selectable.
                         </div>
                     </div>
 
@@ -446,6 +448,7 @@
         let selectedGroupOptions = new Set();
         let facilityLevel = 4; // Default facility level (will be auto-detected)
         let maxOrgUnitLevel = 1;
+        let expandedDatasets = new Set(); // Track which datasets are expanded
 
         // Determine the facility level - finds the lowest level that appears universally
         // (not just the absolute lowest level which may only exist under some parents)
@@ -455,38 +458,9 @@
             if (levels.length === 0) return 1;
             if (levels.length === 1) return levels[0];
             
-            // Method 1: Find the level with the most leaf nodes (org units without children)
-            // This works because the "universal" facility level will have the most units
-            const leafCountByLevel = {};
-            const totalCountByLevel = {};
-            
-            levels.forEach(level => {
-                const unitsAtLevel = orgUnitsData.filter(ou => ou.level === level);
-                totalCountByLevel[level] = unitsAtLevel.length;
-                
-                // Count units that have no children in our data
-                const leafsAtLevel = unitsAtLevel.filter(ou => {
-                    // Check if this unit has any children in our dataset
-                    const hasChildren = orgUnitsData.some(child => child.parent && child.parent.id === ou.id);
-                    return !hasChildren;
-                });
-                leafCountByLevel[level] = leafsAtLevel.length;
-            });
-            
-            // Method 2: Also check coverage - what % of parents at level N-1 have children at level N
-            // The facility level is where coverage drops significantly
-            let facilityLevelByLeafs = levels[levels.length - 1];
-            let maxLeafs = 0;
-            
-            levels.forEach(level => {
-                if (leafCountByLevel[level] > maxLeafs) {
-                    maxLeafs = leafCountByLevel[level];
-                    facilityLevelByLeafs = level;
-                }
-            });
-            
-            // Method 3: Find where coverage drops below threshold
-            let facilityLevelByCoverage = levels[levels.length - 1];
+            // Find where coverage drops below threshold
+            // The facility level is the deepest level where coverage remains high
+            let facilityLevel = levels[levels.length - 1];
             
             for (let i = 1; i < levels.length; i++) {
                 const currentLevel = levels[i];
@@ -508,22 +482,14 @@
                 
                 // If coverage is high (>= 80%), this level is "universal"
                 if (coverage >= 0.8) {
-                    facilityLevelByCoverage = currentLevel;
+                    facilityLevel = currentLevel;
                 } else if (coverage < 0.5) {
                     // Coverage dropped significantly - previous level was the facility level
                     break;
                 }
             }
             
-            // Use the level with most leaf nodes, but validate with coverage method
-            // If they differ significantly, prefer the coverage-based method
-            const finalLevel = facilityLevelByCoverage;
-            
-            log(`Auto-detected facility level: Level ${finalLevel}`, 'info');
-            log(`  - Level with most leaf nodes: ${facilityLevelByLeafs} (${maxLeafs} leaves)`, 'info');
-            log(`  - Level by coverage analysis: ${facilityLevelByCoverage}`, 'info');
-            
-            return finalLevel;
+            return facilityLevel;
         }
 
         function makeProxyRequest(targetUrl, options = {}) {
@@ -618,7 +584,7 @@
                 btn.textContent = 'Loading... 95%';
                 renderSelectedItems();
                 document.getElementById('availableSearch').style.display = 'block';
-                document.getElementById('addAllBtn').style.display = 'block';
+                document.getElementById('datasetControlBtns').style.display = 'block';
                 
                 log(`Loaded ${data.dataSets.length} datasets`, 'success');
                 showNotification(`Loaded ${data.dataSets.length} datasets`, 'success');
@@ -658,13 +624,15 @@
             const fragment = document.createDocumentFragment();
             
             datasetInfo.forEach(({ ds, availableElements }) => {
+                const isExpanded = expandedDatasets.has(ds.id); // Check if this dataset was expanded
+                
                 const datasetDiv = document.createElement('div');
                 datasetDiv.className = 'dataset-item';
                 datasetDiv.dataset.id = ds.id;
                 
                 const toggle = document.createElement('span');
                 toggle.className = 'item-toggle';
-                toggle.textContent = '▶';
+                toggle.textContent = isExpanded ? '▼' : '▶'; // Preserve expanded state
                 toggle.onclick = (e) => { e.stopPropagation(); toggleDatasetExpand(ds.id); };
                 
                 const nameSpan = document.createElement('span');
@@ -678,7 +646,7 @@
                 fragment.appendChild(datasetDiv);
                 
                 const elementsContainer = document.createElement('div');
-                elementsContainer.className = 'data-elements-container';
+                elementsContainer.className = 'data-elements-container' + (isExpanded ? ' expanded' : ''); // Preserve expanded state
                 elementsContainer.id = `elements-${ds.id}`;
                 
                 availableElements.forEach(dse => {
@@ -722,11 +690,34 @@
                 if (elementsContainer.classList.contains('expanded')) {
                     elementsContainer.classList.remove('expanded');
                     toggle.textContent = '▶';
+                    expandedDatasets.delete(datasetId); // Track collapsed state
                 } else {
                     elementsContainer.classList.add('expanded');
                     toggle.textContent = '▼';
+                    expandedDatasets.add(datasetId); // Track expanded state
                 }
             }
+        }
+
+        function expandAllDatasets() {
+            document.querySelectorAll('.data-elements-container').forEach(container => {
+                container.classList.add('expanded');
+                const datasetId = container.id.replace('elements-', '');
+                expandedDatasets.add(datasetId);
+            });
+            document.querySelectorAll('.dataset-item .item-toggle').forEach(toggle => {
+                toggle.textContent = '▼';
+            });
+        }
+
+        function collapseAllDatasets() {
+            document.querySelectorAll('.data-elements-container').forEach(container => {
+                container.classList.remove('expanded');
+            });
+            expandedDatasets.clear();
+            document.querySelectorAll('.dataset-item .item-toggle').forEach(toggle => {
+                toggle.textContent = '▶';
+            });
         }
 
         function renderSelectedItems() {
@@ -850,7 +841,7 @@
                 const datasetName = datasetDiv.querySelector('.item-name').textContent.toLowerCase();
                 if (datasetName.includes(searchTerm) || hasVisibleElements) {
                     datasetDiv.style.display = 'flex';
-                    if (hasVisibleElements && searchTerm) { elementsContainer.classList.add('expanded'); const toggle = datasetDiv.querySelector('.item-toggle'); if (toggle) toggle.textContent = '▼'; }
+                    // Removed auto-expand - user controls expand/collapse manually
                 } else { datasetDiv.style.display = 'none'; }
             });
         }
@@ -921,31 +912,17 @@
             const select = document.getElementById('facilityLevelSelect');
             const levels = [...new Set(orgUnitsData.map(ou => ou.level))].sort((a, b) => a - b);
             
-            // Calculate stats for each level
-            const levelStats = {};
+            // Count org units at each level
+            const levelCounts = {};
             levels.forEach(level => {
-                const unitsAtLevel = orgUnitsData.filter(ou => ou.level === level);
-                const leafsAtLevel = unitsAtLevel.filter(ou => {
-                    const hasChildren = orgUnitsData.some(child => child.parent && child.parent.id === ou.id);
-                    return !hasChildren;
-                });
-                levelStats[level] = {
-                    total: unitsAtLevel.length,
-                    leafs: leafsAtLevel.length,
-                    percentLeaf: Math.round((leafsAtLevel.length / unitsAtLevel.length) * 100)
-                };
+                levelCounts[level] = orgUnitsData.filter(ou => ou.level === level).length;
             });
             
-            select.innerHTML = levels.map(level => {
-                const stats = levelStats[level];
-                const isRecommended = level === facilityLevel;
-                const recommendedText = isRecommended ? ' ★ RECOMMENDED' : '';
-                const leafInfo = stats.percentLeaf > 50 ? ` - ${stats.percentLeaf}% are facilities` : '';
-                
-                return `<option value="${level}" ${isRecommended ? 'selected' : ''}>
-                    Level ${level} (${stats.total} units${leafInfo})${recommendedText}
-                </option>`;
-            }).join('');
+            select.innerHTML = levels.map(level => 
+                `<option value="${level}" ${level === facilityLevel ? 'selected' : ''}>
+                    Level ${level} (${levelCounts[level]} units)
+                </option>`
+            ).join('');
         }
 
         function updateFacilityLevel() {
@@ -1075,6 +1052,13 @@
                     const groupNames = Array.from(selectedGroupOptions).map(id => orgUnitGroups[id] || id).join(', ');
                     log(`Filtered to ${orgUnitsData.length} org units matching: ${groupNames}`, 'info');
                     showNotification(`Filtered to ${orgUnitsData.length} organisation units`, 'success');
+                }
+                
+                // Re-detect facility level and update dropdown after filtering
+                if (orgUnitsData.length > 0) {
+                    maxOrgUnitLevel = Math.max(...orgUnitsData.map(ou => ou.level));
+                    facilityLevel = determineFacilityLevel();
+                    populateFacilityLevelSelector();
                 }
                 
                 selectedOrgUnits.clear();
