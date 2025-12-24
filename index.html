@@ -200,7 +200,7 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label">DHIS2 Instance URL</label>
-                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://mdrsl.chaiprod.com/" readonly>
+                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://mdrsl.chaiprod.com" readonly>
                 </div>
 
                 <div class="form-group">
@@ -235,9 +235,55 @@
 
             <div class="content-card">
                 <div class="content-inner">
-                    <!-- Organisation Units Section -->
+                    <!-- Data Elements Section -->
                     <div class="section-header">
                         <span class="section-icon">1</span>
+                        <span class="section-title">SELECT DATA ELEMENTS</span>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <button type="button" class="btn-secondary" onclick="loadDatasetsWithElements()" style="width: auto;">
+                            Load Datasets
+                        </button>
+                    </div>
+
+                    <div class="dual-panel-container">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title">
+                                    Available Items
+                                    <span class="panel-count" id="availableCount">0 items</span>
+                                </div>
+                            </div>
+                            <input type="text" class="search-box" id="availableSearch" placeholder="Search available items..." onkeyup="debouncedFilterAvailable()" style="display: none;">
+                            <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="display: none;" id="addAllBtn">
+                                Add All
+                            </button>
+                            <div class="panel-content" id="availablePanel">
+                                <p style="color: #666; text-align: center; padding: 20px;">Click "Load Datasets" to fetch data elements...</p>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title">
+                                    Selected Items
+                                    <span class="panel-count" id="selectedCount">0 items</span>
+                                </div>
+                            </div>
+                            <input type="text" class="search-box" id="selectedSearch" placeholder="Search selected items..." onkeyup="debouncedFilterSelected()">
+                            <button type="button" class="panel-action-btn clear-all-btn" onclick="clearAllItems()">
+                                Clear All
+                            </button>
+                            <div class="panel-content" id="selectedPanel">
+                                <p style="color: #666; text-align: center; padding: 20px;">No items selected yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Organisation Units Section -->
+                    <div class="section-header" style="margin-top: 30px;">
+                        <span class="section-icon">2</span>
                         <span class="section-title">SELECT ORGANISATION UNITS</span>
                     </div>
 
@@ -286,52 +332,6 @@
                         <button type="button" class="control-btn clear" onclick="collapseAllOrgUnits()">Collapse All</button>
                         <button type="button" class="control-btn select-all" onclick="selectAllFacilities()">Select All Facilities</button>
                         <button type="button" class="control-btn clear" onclick="clearAllOrgUnits()">Clear All</button>
-                    </div>
-
-                    <!-- Data Elements Section -->
-                    <div class="section-header" style="margin-top: 30px;">
-                        <span class="section-icon">2</span>
-                        <span class="section-title">SELECT DATA ELEMENTS</span>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <button type="button" class="btn-secondary" onclick="loadDatasetsWithElements()" style="width: auto;">
-                            Load Datasets
-                        </button>
-                    </div>
-
-                    <div class="dual-panel-container">
-                        <div class="panel">
-                            <div class="panel-header">
-                                <div class="panel-title">
-                                    Available Items
-                                    <span class="panel-count" id="availableCount">0 items</span>
-                                </div>
-                            </div>
-                            <input type="text" class="search-box" id="availableSearch" placeholder="Search available items..." onkeyup="debouncedFilterAvailable()" style="display: none;">
-                            <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="display: none;" id="addAllBtn">
-                                Add All
-                            </button>
-                            <div class="panel-content" id="availablePanel">
-                                <p style="color: #666; text-align: center; padding: 20px;">Click "Load Datasets" to fetch data elements...</p>
-                            </div>
-                        </div>
-
-                        <div class="panel">
-                            <div class="panel-header">
-                                <div class="panel-title">
-                                    Selected Items
-                                    <span class="panel-count" id="selectedCount">0 items</span>
-                                </div>
-                            </div>
-                            <input type="text" class="search-box" id="selectedSearch" placeholder="Search selected items..." onkeyup="debouncedFilterSelected()">
-                            <button type="button" class="panel-action-btn clear-all-btn" onclick="clearAllItems()">
-                                Clear All
-                            </button>
-                            <div class="panel-content" id="selectedPanel">
-                                <p style="color: #666; text-align: center; padding: 20px;">No items selected yet</p>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Period Section -->
