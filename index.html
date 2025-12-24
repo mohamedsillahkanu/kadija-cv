@@ -45,6 +45,8 @@
         .btn-gold:hover { background: #e0a800; border-color: #e0a800; }
         .btn-gold:disabled { background: #e9ecef; color: #666; border-color: #ccc; cursor: wait; }
         .btn-gold:disabled::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 8px; border: 2px solid #666; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .btn-reset { padding: 14px 30px; background: #ffffff; color: #dc3545; border: 2px solid #dc3545; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
+        .btn-reset:hover { background: #dc3545; color: #ffffff; }
         
         /* Main Content */
         .main-content { display: none; padding: 20px; }
@@ -416,9 +418,12 @@
                     </div>
 
                     <!-- Download Button -->
-                    <div style="text-align: center; margin-top: 30px;">
+                    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
                         <button type="button" class="btn-gold" id="downloadDatasetsBtn" onclick="executeDownloadDatasets()" style="padding: 16px 40px; font-size: 16px;">
                             DOWNLOAD DATASET DATA
+                        </button>
+                        <button type="button" class="btn-reset" onclick="resetAllSelections()">
+                            RESET ALL
                         </button>
                     </div>
                 </div>
@@ -819,6 +824,65 @@
             selectedDataElements.clear(); 
             renderAvailableItems(datasetsData); 
             renderSelectedItems(); 
+        }
+
+        function resetAllSelections() {
+            // Clear selected data elements
+            selectedDataElements.clear();
+            expandedDatasets.clear();
+            if (datasetsData.length > 0) {
+                renderAvailableItems(datasetsData);
+                renderSelectedItems();
+            }
+            
+            // Clear search boxes
+            const availableSearch = document.getElementById('availableSearch');
+            const selectedSearch = document.getElementById('selectedSearch');
+            if (availableSearch) availableSearch.value = '';
+            if (selectedSearch) selectedSearch.value = '';
+            
+            // Clear selected org units
+            selectedOrgUnits.clear();
+            document.querySelectorAll('.org-unit-item').forEach(item => {
+                item.classList.remove('selected');
+                const checkbox = item.querySelector('.org-unit-checkbox');
+                if (checkbox) checkbox.checked = false;
+            });
+            
+            // Reset facility type filter
+            selectedGroupOptions.clear();
+            const groupSetSelect = document.getElementById('groupSetSelect');
+            if (groupSetSelect) groupSetSelect.value = '';
+            const groupOptionsContainer = document.getElementById('groupOptionsContainer');
+            if (groupOptionsContainer) groupOptionsContainer.style.display = 'none';
+            document.querySelectorAll('#groupOptionsList input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            // Reset to all org units if filter was applied
+            if (allOrgUnitsData.length > 0 && orgUnitsData.length !== allOrgUnitsData.length) {
+                orgUnitsData = [...allOrgUnitsData];
+                maxOrgUnitLevel = Math.max(...orgUnitsData.map(ou => ou.level));
+                facilityLevel = determineFacilityLevel();
+                populateFacilityLevelSelector();
+                const tree = buildOrgUnitTree(orgUnitsData);
+                renderOrgUnitTree(tree);
+            }
+            
+            // Reset period inputs
+            document.getElementById('periodMonth').value = '';
+            document.getElementById('periodStart').value = '';
+            document.getElementById('periodEnd').value = '';
+            document.getElementById('quarterYear').value = '2025';
+            document.getElementById('quarter').value = 'Q1';
+            document.getElementById('startYear').value = '';
+            document.getElementById('endYear').value = '';
+            
+            // Reset progress section
+            document.getElementById('progressSection').classList.remove('active');
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressFill').textContent = '0%';
+            document.getElementById('logContainer').innerHTML = '';
+            
+            showNotification('All selections have been reset', 'info');
         }
 
         const debouncedFilterAvailable = debounce(filterAvailableItems, 150);
