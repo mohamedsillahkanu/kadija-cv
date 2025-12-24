@@ -1377,7 +1377,10 @@
                 log('Building organisation unit hierarchy...', 'info');
                 setProgress(40);
                 
-                orgUnitsData.forEach(ou => {
+                // Use allOrgUnitsData to build hierarchy so we have all parent levels
+                // Fall back to orgUnitsData if allOrgUnitsData is empty
+                const hierarchySource = allOrgUnitsData.length > 0 ? allOrgUnitsData : orgUnitsData;
+                hierarchySource.forEach(ou => {
                     orgUnitMap[ou.id] = ou.displayName;
                     orgUnitHierarchy[ou.id] = { id: ou.id, name: ou.displayName, level: ou.level, parent: ou.parent ? ou.parent.id : null };
                 });
@@ -1471,8 +1474,8 @@
             Object.values(grouped).forEach(row => { Object.keys(row.values).forEach(col => allColumns.add(col)); });
             const sortedColumns = Array.from(allColumns).sort();
             
-            let maxLevel = 0;
-            Object.values(orgUnitHierarchy).forEach(ou => { if (ou.level > maxLevel) maxLevel = ou.level; });
+            // Use the selected facility level for hierarchy columns (Level 1 to facilityLevel)
+            const maxLevel = facilityLevel;
             const hierarchyHeaders = [];
             for (let i = 1; i <= maxLevel; i++) { hierarchyHeaders.push(`Level ${i}`); }
             
