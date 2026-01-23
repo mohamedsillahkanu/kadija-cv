@@ -1,1565 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DHIS2 Dataset Download</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { margin: 0; padding: 0; background-color: #f0f4f8; font-family: 'Oswald', Arial, sans-serif; color: #000000; font-weight: 500; min-height: 100vh; }
-        
-        /* Logo Box */
-        .logo-box { background: #f8f9fa; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid #004080; }
-        .logo-box img { width: 80px; height: auto; border-radius: 6px; }
-        
-        /* Login Screen */
-        .login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background: linear-gradient(135deg, #004080 0%, #0066cc 100%); }
-        .login-card { background: #ffffff; border-radius: 12px; padding: 40px; max-width: 450px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); border: 4px double #004080; }
-        .logo-container { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; }
-        .login-header { text-align: center; margin-bottom: 30px; }
-        .login-header h1 { color: #004080; font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
-        .login-header p { color: #666; font-size: 14px; font-weight: 500; }
-        .readonly-input { background: #e9ecef !important; color: #495057 !important; cursor: not-allowed; }
-        
-        /* Form Elements */
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; color: #004080; font-size: 14px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .required { color: #dc3545; }
-        .form-input, .form-select { width: 100%; padding: 12px 15px; border: 2px solid #004080; border-radius: 6px; font-size: 14px; font-family: 'Oswald', Arial, sans-serif; font-weight: 500; color: #000; background: #ffffff; transition: all 0.3s; }
-        .form-input:focus, .form-select:focus { outline: none; border-color: #0056b3; box-shadow: 0 0 0 3px rgba(0, 64, 128, 0.1); }
-        .form-input::placeholder { color: #999; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        /* Buttons */
-        .btn-primary { width: 100%; padding: 14px 24px; background: #004080; color: #ffffff; border: 2px solid #004080; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
-        .btn-primary:hover { background: #0056b3; border-color: #0056b3; }
-        .btn-primary:disabled { background: #6c757d; border-color: #6c757d; cursor: wait; opacity: 0.9; }
-        .btn-primary:disabled::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 8px; border: 2px solid #ffffff; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        .btn-secondary { padding: 12px 20px; background: #ffffff; color: #004080; border: 2px solid #004080; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
-        .btn-secondary:hover { background: #004080; color: #ffffff; }
-        .btn-secondary:disabled { background: #e9ecef; color: #004080; cursor: wait; }
-        .btn-secondary:disabled::after { content: ''; display: inline-block; width: 12px; height: 12px; margin-left: 8px; border: 2px solid #004080; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .btn-gold { padding: 14px 24px; background: #ffc107; color: #000000; border: 2px solid #ffc107; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
-        .btn-gold:hover { background: #e0a800; border-color: #e0a800; }
-        .btn-gold:disabled { background: #e9ecef; color: #666; border-color: #ccc; cursor: wait; }
-        .btn-gold:disabled::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 8px; border: 2px solid #666; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        .btn-reset { padding: 14px 30px; background: #ffffff; color: #dc3545; border: 2px solid #dc3545; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-family: 'Oswald', Arial, sans-serif; transition: all 0.3s; }
-        .btn-reset:hover { background: #dc3545; color: #ffffff; }
-        
-        /* Main Content */
-        .main-content { display: none; padding: 20px; }
-        .main-content.active { display: block; }
-        .page-container { width: 100%; max-width: 1400px; margin: 0 auto; }
-        
-        .page-header { background-color: #004080; color: #ffffff; padding: 25px 30px; text-align: center; margin-bottom: 15px; border-radius: 8px 8px 0 0; }
-        .logo-row { display: flex; justify-content: center; align-items: center; gap: 30px; margin-bottom: 15px; }
-        .page-header .logo-box { background: #ffffff; border: none; }
-        .page-header h3 { margin: 12px 0 5px; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: #ffffff; }
-        .page-header .tagline { margin: 0; font-size: 10px; font-weight: 500; color: #ffffff; }
-        .page-header h1 { margin: 20px 0 10px; font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: 1px; }
-        .page-header .subtitle { font-size: 14px; color: #ffffff; font-weight: 500; }
-        
-        .content-card { border: 4px double #004080; border-radius: 12px; padding: 12px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin-bottom: 15px; }
-        .content-inner { padding: 25px; }
-        
-        .section-header { background-color: #004080; color: #ffffff; padding: 15px 20px; margin-bottom: 20px; border-radius: 6px; display: flex; align-items: center; gap: 15px; }
-        .section-icon { background: #ffffff; color: #004080; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
-        .section-title { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
-        
-        /* Dual Panel Container */
-        .dual-panel-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
-        .panel { background: #f8f9fa; border: 2px solid #004080; border-radius: 8px; overflow: hidden; }
-        .panel-header { background: #004080; color: white; padding: 12px 15px; }
-        .panel-title { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        .panel-count { background: #ffffff; color: #004080; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
-        .panel-action-btn { width: 100%; padding: 10px; border: none; font-family: 'Oswald', Arial, sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s; }
-        .load-btn { background: #ffc107; color: #000; }
-        .load-btn:hover { background: #e0a800; }
-        .add-all-btn { background: #28a745; color: white; }
-        .add-all-btn:hover { background: #218838; }
-        .clear-all-btn { background: #dc3545; color: white; }
-        .clear-all-btn:hover { background: #c82333; }
-        .search-box { width: 100%; padding: 10px 15px; border: none; border-bottom: 2px solid #004080; font-family: 'Oswald', Arial, sans-serif; font-size: 13px; }
-        .search-box:focus { outline: none; background: #e7f3ff; }
-        .panel-content { max-height: 350px; overflow-y: auto; padding: 10px; }
-        
-        /* Dataset and Element Items */
-        .dataset-item { padding: 10px 12px; margin: 4px 0; background: #004080; color: white; border-radius: 4px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-        .dataset-item:hover { background: #0056b3; }
-        .item-toggle { width: 20px; text-align: center; font-weight: bold; }
-        .item-name { flex: 1; }
-        .data-elements-container { display: none; margin-left: 15px; border-left: 2px solid #004080; padding-left: 10px; }
-        .data-elements-container.expanded { display: block; }
-        .data-element-item { padding: 8px 12px; margin: 4px 0; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-        .data-element-item:hover { background: #e7f3ff; border-color: #004080; }
-        .add-btn { background: #28a745; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; font-family: 'Oswald', Arial, sans-serif; }
-        .add-btn:hover { background: #218838; }
-        .selected-item { padding: 8px 12px; margin: 4px 0; background: #d4edda; border: 1px solid #28a745; border-radius: 4px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .remove-btn { background: #dc3545; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 14px; line-height: 1; }
-        .remove-btn:hover { background: #c82333; }
-        
-        /* Organisation Unit Tree */
-        .org-unit-tree { background: #f8f9fa; border: 2px solid #004080; border-radius: 8px; padding: 15px; max-height: 350px; overflow-y: auto; margin-bottom: 15px; }
-        
-        /* Facility Level Selector */
-        .facility-level-selector { background: #fff3cd; border: 2px solid #ffc107; border-radius: 6px; padding: 15px; margin-bottom: 15px; display: none; }
-        .facility-level-selector.active { display: block; }
-        .facility-level-selector .selector-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .facility-level-selector label { font-weight: 700; color: #856404; white-space: nowrap; }
-        .facility-level-selector select { padding: 8px 15px; border: 2px solid #004080; border-radius: 4px; font-family: 'Oswald', Arial, sans-serif; font-size: 13px; min-width: 250px; }
-        .facility-level-selector .info-text { font-size: 12px; color: #856404; margin-top: 10px; padding: 8px; background: #ffeeba; border-radius: 4px; }
-        
-        /* Org Unit Items - Facility Level (Clickable) */
-        .org-unit-item { padding: 6px 10px; margin: 2px 0; border-radius: 4px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        .org-unit-item.facility-level { cursor: pointer; background: #ffffff; border: 1px solid #ddd; }
-        .org-unit-item.facility-level:hover { background: #e7f3ff; border-color: #004080; }
-        .org-unit-item.facility-level.selected { background: #d4edda; border-color: #28a745; }
-        .org-unit-item.facility-level .org-unit-checkbox { accent-color: #004080; cursor: pointer; }
-        
-        /* Org Unit Items - Hierarchy Level (Disabled/Gray) */
-        .org-unit-item.hierarchy-level { cursor: default; background: #e9ecef; color: #6c757d; border: 1px solid #dee2e6; }
-        .org-unit-item.hierarchy-level .org-unit-checkbox { display: none; }
-        .org-unit-item.hierarchy-level .level-badge { background: #6c757d; color: white; padding: 1px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px; }
-        
-        .org-unit-toggle { width: 20px; text-align: center; font-weight: bold; color: #004080; cursor: pointer; }
-        .org-unit-label { flex: 1; }
-        .org-unit-children { margin-left: 25px; display: none; }
-        .org-unit-children.expanded { display: block; }
-        .control-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-        .control-btn { padding: 8px 16px; border: 2px solid #004080; border-radius: 4px; font-family: 'Oswald', Arial, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; background: white; color: #004080; }
-        .control-btn:hover { background: #004080; color: white; }
-        .control-btn.expand { border-color: #17a2b8; color: #17a2b8; }
-        .control-btn.expand:hover { background: #17a2b8; color: white; }
-        .control-btn.select-all { border-color: #28a745; color: #28a745; }
-        .control-btn.select-all:hover { background: #28a745; color: white; }
-        .control-btn.clear { border-color: #dc3545; color: #dc3545; }
-        .control-btn.clear:hover { background: #dc3545; color: white; }
-        
-        /* Period Selector */
-        .period-selector { background: #f8f9fa; border: 2px solid #004080; border-radius: 8px; padding: 20px; margin: 20px 0; }
-        .period-type-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .period-tab { padding: 10px 20px; background: white; border: 2px solid #004080; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; }
-        .period-tab:hover { background: #e7f3ff; }
-        .period-tab.active { background: #004080; color: white; }
-        .period-inputs { display: none; }
-        .period-inputs.active { display: block; }
-        
-        /* Progress Section */
-        .progress-section { display: none; background: #f8f9fa; border: 2px solid #004080; border-radius: 8px; padding: 20px; margin: 20px 0; }
-        .progress-section.active { display: block; }
-        .progress-bar { height: 25px; background: #e9ecef; border-radius: 6px; overflow: hidden; border: 2px solid #004080; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #004080, #0066cc); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 700; }
-        .log-container { margin-top: 15px; max-height: 200px; overflow-y: auto; background: #1a1a2e; border-radius: 6px; padding: 15px; font-family: 'Courier New', monospace; font-size: 12px; }
-        .log-entry { padding: 4px 0; border-bottom: 1px solid #333; }
-        .log-entry.info { color: #17a2b8; }
-        .log-entry.success { color: #28a745; }
-        .log-entry.error { color: #dc3545; }
-        .log-entry.warning { color: #ffc107; }
-        
-        /* Notification */
-        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 8px; font-weight: 600; z-index: 2000; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .notification.success { background: #d4edda; color: #155724; border: 2px solid #28a745; display: block; }
-        .notification.error { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; display: block; }
-        .notification.info { background: #e7f3ff; color: #004080; border: 2px solid #004080; display: block; }
-        
-        /* Footer */
-        .page-footer { background-color: #004080; color: #ffffff; padding: 20px 30px; text-align: center; font-size: 13px; line-height: 1.7; font-weight: 500; border-radius: 0 0 8px 8px; }
-        .page-footer p { margin: 6px 0 0; font-size: 12px; color: #ffffff; }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #004080; border-radius: 4px; }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dual-panel-container { grid-template-columns: 1fr; }
-            .form-row { grid-template-columns: 1fr; }
-            .period-type-tabs { flex-direction: column; }
-            .control-buttons { justify-content: center; }
-            .facility-level-selector .selector-row { flex-direction: column; align-items: flex-start; }
-            .facility-level-selector select { min-width: 100%; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khadija Sankoh - Resume</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    @media print {
+      body { margin: 0; padding: 0; }
+      .no-print { display: none; }
+      @page { margin: 0.5cm; }
+    }
+    
+    .section-line {
+      border-bottom: 2px solid #2563eb;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.25rem;
+    }
+  </style>
 </head>
-<body>
-    <!-- Login Screen -->
-    <div class="login-screen" id="loginScreen">
-        <div class="login-card">
-            <div class="logo-container">
-                <div class="logo-box">
-                    <img src="https://github.com/mohamedsillahkanu/gdp-dashboard-2/raw/6c7463b0d5c3be150aafae695a4bcbbd8aeb1499/ICF-SL.jpg" alt="ICF-SL Logo" class="logo-img" style="width: 100px;">
-                </div>
-            </div>
-
-            <div class="login-header">
-                <h1>DHIS2 DATASET DOWNLOAD</h1>
-                <p>Export Dataset Data in Wide CSV Format</p>
-            </div>
-
-            <form id="loginForm">
-                <div class="form-group">
-                    <label class="form-label">DHIS2 Instance URL</label>
-                    <input type="url" class="form-input readonly-input" id="instanceUrl" value="https://mdrsl.chaiprod.com" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Username</label>
-                    <input type="text" class="form-input readonly-input" id="username" value="NMCP" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input readonly-input" id="password" value="NmcpMDR@2025" readonly>
-                </div>
-
-                <button type="submit" class="btn-primary">Connect to DHIS2</button>
-            </form>
+<body class="bg-gray-50">
+  <div class="container mx-auto px-4 py-6" style="max-width: 210mm;">
+    <!-- Header -->
+    <div class="bg-blue-700 text-white p-6 rounded-t-lg shadow-lg">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold mb-2">KHADIJA SANKOH</h1>
+        <div class="flex flex-wrap justify-center items-center gap-4 text-sm">
+          <p class="flex items-center gap-2">
+            <i class="fas fa-phone"></i>
+            <a href="tel:9296132227" class="text-blue-200 hover:text-white transition">929 613 2227</a>
+          </p>
+          <span class="hidden sm:inline">|</span>
+          <p class="flex items-center gap-2">
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:ksankoh1@umbc.edu" class="text-blue-200 hover:text-white transition">ksankoh1@umbc.edu</a>
+          </p>
+          <span class="hidden sm:inline">|</span>
+          <p class="flex items-center gap-2">
+            <i class="fab fa-linkedin"></i>
+            <a href="https://www.linkedin.com/in/khadija-sankoh-3966" class="text-blue-200 hover:text-white transition" target="_blank">LinkedIn Profile</a>
+          </p>
         </div>
+      </div>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="page-container">
-            <div class="page-header">
-                <div class="logo-row">
-                    <div class="logo-box">
-                        <img src="https://github.com/mohamedsillahkanu/gdp-dashboard-2/raw/6c7463b0d5c3be150aafae695a4bcbbd8aeb1499/ICF-SL.jpg" alt="ICF-SL Logo" class="logo-img" style="width: 100px;">
-                    </div>
-                </div>
-                <h3>Informatics Consultancy Firm-Sierra Leone (ICF-SL)</h3>
-                <p class="tagline"><em>Driving Data-Driven Solutions for Health and Development</em></p>
-                <h1>DHIS2 DATASET DOWNLOAD TOOL</h1>
-                <p class="subtitle">Export Datasets with Data Values in Excel-Ready Wide CSV Format</p>
+    <div class="bg-white shadow-lg rounded-b-lg p-6">
+      
+      <!-- Education Section -->
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-blue-700 section-line flex items-center gap-2">
+          <i class="fas fa-graduation-cap"></i> EDUCATION
+        </h2>
+        
+        <div class="mt-4 space-y-4">
+          <div>
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h3 class="text-lg font-bold text-blue-600">University of Maryland, Baltimore County</h3>
+                <p class="text-gray-700 font-medium">Master's in Biotechnology</p>
+                <p class="text-sm text-gray-600">Baltimore, MD</p>
+              </div>
+              <div class="text-right ml-4">
+                <p class="font-semibold text-gray-700">GPA: 3.0</p>
+                <p class="text-sm text-gray-600 whitespace-nowrap">Expected: May 2026</p>
+              </div>
             </div>
-
-            <div class="content-card">
-                <div class="content-inner">
-                    <!-- Data Elements Section -->
-                    <div class="section-header">
-                        <span class="section-icon">1</span>
-                        <span class="section-title">SELECT DATA ELEMENTS</span>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <button type="button" class="btn-secondary" onclick="loadDatasetsWithElements()" style="width: auto;">
-                            Load Datasets
-                        </button>
-                    </div>
-
-                    <div class="dual-panel-container">
-                        <div class="panel">
-                            <div class="panel-header">
-                                <div class="panel-title">
-                                    Available Items
-                                    <span class="panel-count" id="availableCount">0 items</span>
-                                </div>
-                            </div>
-                            <input type="text" class="search-box" id="availableSearch" placeholder="Search available items..." onkeyup="debouncedFilterAvailable()" style="display: none;">
-                            <div style="display: none; padding: 5px 10px; background: #f0f0f0; border-bottom: 1px solid #ddd;" id="datasetControlBtns">
-                                <button type="button" class="control-btn expand" onclick="expandAllDatasets()" style="padding: 4px 10px; font-size: 11px;">Expand All</button>
-                                <button type="button" class="control-btn clear" onclick="collapseAllDatasets()" style="padding: 4px 10px; font-size: 11px;">Collapse All</button>
-                                <button type="button" class="panel-action-btn add-all-btn" onclick="addAllItems()" style="width: auto; padding: 4px 10px; font-size: 11px; display: inline-block;">Add All</button>
-                            </div>
-                            <div class="panel-content" id="availablePanel">
-                                <p style="color: #666; text-align: center; padding: 20px;">Click "Load Datasets" to fetch data elements...</p>
-                            </div>
-                        </div>
-
-                        <div class="panel">
-                            <div class="panel-header">
-                                <div class="panel-title">
-                                    Selected Items
-                                    <span class="panel-count" id="selectedCount">0 items</span>
-                                </div>
-                            </div>
-                            <input type="text" class="search-box" id="selectedSearch" placeholder="Search selected items..." onkeyup="debouncedFilterSelected()">
-                            <button type="button" class="panel-action-btn clear-all-btn" onclick="clearAllItems()">
-                                Clear All
-                            </button>
-                            <div class="panel-content" id="selectedPanel">
-                                <p style="color: #666; text-align: center; padding: 20px;">No items selected yet</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Organisation Units Section -->
-                    <div class="section-header" style="margin-top: 30px;">
-                        <span class="section-icon">2</span>
-                        <span class="section-title">SELECT ORGANISATION UNITS</span>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <button type="button" class="btn-secondary" onclick="loadOrgUnitsTree()" style="width: auto;">
-                            Load Organisation Units
-                        </button>
-                    </div>
-
-                    <!-- Facility Level Selector -->
-                    <div class="facility-level-selector" id="facilityLevelSelector">
-                        <div class="selector-row">
-                            <label>Health Facility Level:</label>
-                            <select id="facilityLevelSelect" onchange="updateFacilityLevel()">
-                                <!-- Options populated dynamically -->
-                            </select>
-                        </div>
-                        <div class="info-text">
-                            Only organisation units at the selected level can be selected for data download. Higher hierarchy levels are shown for navigation but are not selectable.
-                        </div>
-                    </div>
-
-                    <!-- Organisation Unit Group Sets (Facility Types) -->
-                    <div id="groupSetsContainer" style="display: none; margin-bottom: 15px;">
-                        <label class="form-label">Filter by Facility Type (Optional)</label>
-                        <div style="margin-bottom: 10px;">
-                            <select class="form-select" id="groupSetSelect" onchange="loadGroupSetOptions()">
-                                <option value="">-- Select a Group Set --</option>
-                            </select>
-                        </div>
-                        <div id="groupOptionsContainer" style="display: none; background: #f8f9fa; border: 2px solid #004080; border-radius: 8px; padding: 15px; max-height: 200px; overflow-y: auto;">
-                            <div style="margin-bottom: 10px;">
-                                <button type="button" class="control-btn select-all" onclick="selectAllGroupOptions()" style="padding: 5px 10px; font-size: 11px;">Select All</button>
-                                <button type="button" class="control-btn clear" onclick="clearAllGroupOptions()" style="padding: 5px 10px; font-size: 11px;">Clear All</button>
-                                <button type="button" class="btn-secondary" onclick="applyFacilityTypeFilter()" style="padding: 5px 15px; font-size: 11px; margin-left: 10px;">Apply Filter</button>
-                            </div>
-                            <div id="groupOptionsList"></div>
-                        </div>
-                    </div>
-
-                    <div class="org-unit-tree" id="orgUnitTree">
-                        <p style="color: #666; text-align: center;">Click "Load Organisation Units" to fetch...</p>
-                    </div>
-                    <div class="control-buttons">
-                        <button type="button" class="control-btn expand" onclick="expandAllOrgUnits()">Expand All</button>
-                        <button type="button" class="control-btn clear" onclick="collapseAllOrgUnits()">Collapse All</button>
-                        <button type="button" class="control-btn select-all" onclick="selectAllFacilities()">Select All Facilities</button>
-                        <button type="button" class="control-btn clear" onclick="clearAllOrgUnits()">Clear All</button>
-                    </div>
-
-                    <!-- Period Section -->
-                    <div class="section-header" style="margin-top: 30px;">
-                        <span class="section-icon">3</span>
-                        <span class="section-title">SELECT PERIOD</span>
-                    </div>
-
-                    <div class="period-selector">
-                        <label class="form-label">Select Period Type</label>
-                        <div class="period-type-tabs">
-                            <div class="period-tab active" onclick="selectPeriodType('monthly')">Monthly</div>
-                            <div class="period-tab" onclick="selectPeriodType('range')">Date Range</div>
-                            <div class="period-tab" onclick="selectPeriodType('quarterly')">Quarterly</div>
-                            <div class="period-tab" onclick="selectPeriodType('yearly')">Yearly</div>
-                        </div>
-
-                        <div class="period-inputs active" id="monthly-inputs">
-                            <div class="form-group">
-                                <label class="form-label">Year-Month</label>
-                                <input type="month" class="form-input" name="period" id="periodMonth">
-                            </div>
-                        </div>
-
-                        <div class="period-inputs" id="range-inputs">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Start Month</label>
-                                    <input type="month" class="form-input" name="periodStart" id="periodStart">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">End Month</label>
-                                    <input type="month" class="form-input" name="periodEnd" id="periodEnd">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="period-inputs" id="quarterly-inputs">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Year</label>
-                                    <input type="number" class="form-input" name="year" id="quarterYear" min="2000" max="2030" value="2025">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Quarter</label>
-                                    <select class="form-select" name="quarter" id="quarter">
-                                        <option value="Q1">Q1 (Jan-Mar)</option>
-                                        <option value="Q2">Q2 (Apr-Jun)</option>
-                                        <option value="Q3">Q3 (Jul-Sep)</option>
-                                        <option value="Q4">Q4 (Oct-Dec)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="period-inputs" id="yearly-inputs">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label">Start Year</label>
-                                    <input type="number" class="form-input" name="startYear" id="startYear" min="2000" max="2030" placeholder="Start Year">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">End Year</label>
-                                    <input type="number" class="form-input" name="endYear" id="endYear" min="2000" max="2030" placeholder="End Year">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Progress Section -->
-                    <div class="progress-section" id="progressSection">
-                        <div class="section-header">
-                            <span class="section-icon">4</span>
-                            <span class="section-title">DOWNLOAD PROGRESS</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
-                        </div>
-                        <div class="log-container" id="logContainer"></div>
-                    </div>
-
-                    <!-- Download Button -->
-                    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                        <button type="button" class="btn-gold" id="downloadDatasetsBtn" onclick="executeDownloadDatasets()" style="padding: 16px 40px; font-size: 16px;">
-                            DOWNLOAD DATASET DATA
-                        </button>
-                        <button type="button" class="btn-reset" onclick="resetAllSelections()">
-                            RESET ALL
-                        </button>
-                    </div>
-                </div>
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h3 class="text-lg font-bold text-blue-600">University of Sierra Leone</h3>
+                <p class="text-gray-700 font-medium">Bachelor of Science with Honors in Biological Sciences</p>
+                <p class="text-sm text-gray-600">Freetown, Sierra Leone</p>
+              </div>
+              <div class="text-right ml-4">
+                <p class="font-semibold text-gray-700">GPA: 3.3</p>
+              </div>
             </div>
-
-            <div class="page-footer">
-                <p style="margin: 0; font-weight: 700;">Informatics Consultancy Firm-Sierra Leone (ICF-SL)</p>
-                <p>Driving Data-Driven Solutions for Health and Development</p>
-                <p style="font-size: 10px;">© 2025 Informatics Consultancy Firm-Sierra Leone (ICF-SL)</p>
-            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Experience Section -->
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-blue-700 section-line flex items-center gap-2">
+          <i class="fas fa-briefcase"></i> EXPERIENCE
+        </h2>
+        
+        <div class="mt-4 space-y-5">
+          <!-- Genentech -->
+          <div class="border-l-4 border-blue-500 pl-4">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-800">Genentech Cell Therapy Manufacturing Intern</h3>
+                <p class="text-gray-600 font-medium">Hillsboro (HIT)</p>
+              </div>
+              <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium ml-4 whitespace-nowrap">June 2025 - Sept 2025</span>
+            </div>
+            <ul class="list-disc list-inside text-gray-700 space-y-1 ml-2">
+              <li>Gained experience in cutting edge cell therapies</li>
+              <li>Received hands-on training from the HIT manufacturing team</li>
+              <li>Ownership of challenging and impactful business-critical projects</li>
+              <li>Worked with some of the most talented people in the biotechnology industry</li>
+            </ul>
+          </div>
+
+          <!-- Aptagen -->
+          <div class="border-l-4 border-blue-500 pl-4">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-800">Aptagen's Bio-Track Research Intern</h3>
+                <p class="text-gray-600 font-medium">Aptagen LLC, York, Pennsylvania</p>
+              </div>
+              <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium ml-4 whitespace-nowrap">Sept 2023 - Dec 2023</span>
+            </div>
+            <ul class="list-disc list-inside text-gray-700 space-y-1 ml-2">
+              <li>Developed aptamers using molecular biological methods, including qPCR, Microplate Assays, and DNA/RNA extraction</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Development Section -->
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-blue-700 section-line flex items-center gap-2">
+          <i class="fas fa-certificate"></i> PROFESSIONAL DEVELOPMENT
+        </h2>
+        
+        <div class="mt-4 space-y-2">
+          <div class="flex items-start gap-2">
+            <i class="fas fa-check-circle text-blue-600 mt-1"></i>
+            <p class="text-gray-700"><span class="font-semibold">ISPE Aseptic 101 Workshop</span> - North Bethesda (2023)</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <i class="fas fa-check-circle text-blue-600 mt-1"></i>
+            <p class="text-gray-700"><span class="font-semibold">Bioinformatics for Genomics of Infectious Diseases Workshop</span> - Freetown (2021)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects Section -->
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-blue-700 section-line flex items-center gap-2">
+          <i class="fas fa-project-diagram"></i> PROJECTS
+        </h2>
+        
+        <div class="mt-4 space-y-3">
+          <div class="border-l-4 border-gray-300 pl-4">
+            <h3 class="font-bold text-gray-800">Good Manufacturing Practices in Bioprocesses <span class="text-sm text-gray-600">(Spring 2023)</span></h3>
+            <p class="text-gray-700 mt-1">Documented SOP for preventive maintenance of packaging machines</p>
+          </div>
+          
+          <div class="border-l-4 border-gray-300 pl-4">
+            <h3 class="font-bold text-gray-800">Cell and Gene Therapy <span class="text-sm text-gray-600">(Spring 2023)</span></h3>
+            <p class="text-gray-700 mt-1">Designed a technical operation team for SMA, researched demographics, and developed a tech transfer plan</p>
+          </div>
+          
+          <div class="border-l-4 border-gray-300 pl-4">
+            <h3 class="font-bold text-gray-800">Business of Biotech <span class="text-sm text-gray-600">(Fall 2022)</span></h3>
+            <p class="text-gray-700 mt-1">Prepared a startup pitch, business plan, and financial projections</p>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="notification" id="notification"></div>
+    <!-- Referees Section -->
+    <div class="mt-4 bg-blue-800 text-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold mb-4 text-center">REFEREES</h2>
+      <div class="text-center">
+        <p class="text-lg font-medium">Available Upon Request</p>
+      </div>
+    </div>
 
-    <script>
-        // Google Apps Script Proxy for CORS bypass
-        const GOOGLE_APPS_SCRIPT_PROXY = 'https://script.google.com/macros/s/AKfycbyRXc68PYSmDSCYPakAS8Gc9R00kRjmsMYoDujPYMItyquXfwMAJUtRqXLiDlNWbSfDQQ/exec';
-        const state = { config: null, isLoggedIn: false };
-        let datasetsData = [];
-        let selectedDataElements = new Map();
-        let orgUnitsData = [];
-        let allOrgUnitsData = [];
-        let selectedOrgUnits = new Set();
-        let orgUnitGroupSets = [];
-        let orgUnitGroups = {};
-        let selectedGroupOptions = new Set();
-        let facilityLevel = 4; // Default facility level (will be auto-detected)
-        let maxOrgUnitLevel = 1;
-        let expandedDatasets = new Set(); // Track which datasets are expanded
-
-        // Determine the facility level - finds the lowest level that appears universally
-        // (not just the absolute lowest level which may only exist under some parents)
-        function determineFacilityLevel() {
-            const levels = [...new Set(orgUnitsData.map(ou => ou.level))].sort((a, b) => a - b);
-            
-            if (levels.length === 0) return 1;
-            if (levels.length === 1) return levels[0];
-            
-            // Find where coverage drops below threshold
-            // The facility level is the deepest level where coverage remains high
-            let facilityLevel = levels[levels.length - 1];
-            
-            for (let i = 1; i < levels.length; i++) {
-                const currentLevel = levels[i];
-                const parentLevel = levels[i - 1];
-                
-                const parentsAtPrevLevel = orgUnitsData.filter(ou => ou.level === parentLevel);
-                const unitsAtCurrentLevel = orgUnitsData.filter(ou => ou.level === currentLevel);
-                
-                // Get unique parent IDs of units at current level
-                const parentIdsWithChildren = new Set(
-                    unitsAtCurrentLevel
-                        .filter(ou => ou.parent && ou.parent.id)
-                        .map(ou => ou.parent.id)
-                );
-                
-                const coverage = parentsAtPrevLevel.length > 0 
-                    ? parentIdsWithChildren.size / parentsAtPrevLevel.length 
-                    : 0;
-                
-                // If coverage is high (>= 80%), this level is "universal"
-                if (coverage >= 0.8) {
-                    facilityLevel = currentLevel;
-                } else if (coverage < 0.5) {
-                    // Coverage dropped significantly - previous level was the facility level
-                    break;
-                }
-            }
-            
-            return facilityLevel;
-        }
-
-        function makeProxyRequest(targetUrl, options = {}) {
-            let proxyUrl = `${GOOGLE_APPS_SCRIPT_PROXY}?url=${encodeURIComponent(targetUrl)}`;
-            if (options.headers && options.headers.Authorization) {
-                proxyUrl += `&Authorization=${encodeURIComponent(options.headers.Authorization)}`;
-            }
-            return fetch(proxyUrl, { method: options.method || 'GET', body: options.body });
-        }
-
-        async function fetchWithAuth(url, options = {}) {
-            if (!state.config) throw new Error('Not authenticated');
-            const authHeader = 'Basic ' + btoa(`${state.config.username}:${state.config.password}`);
-            return makeProxyRequest(url, { ...options, headers: { 'Authorization': authHeader, 'Content-Type': 'application/json', ...options.headers } });
-        }
-
-        function showNotification(message, type) {
-            const notification = document.getElementById('notification');
-            if (!notification) return;
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            setTimeout(() => { notification.className = 'notification'; }, 4000);
-        }
-
-        function setProgress(percent) {
-            const progressFill = document.getElementById('progressFill');
-            if (progressFill) {
-                progressFill.style.width = percent + '%';
-                progressFill.textContent = percent + '%';
-            }
-        }
-
-        function showProgress() {
-            const progressSection = document.getElementById('progressSection');
-            if (progressSection) progressSection.classList.add('active');
-        }
-
-        function log(message, type = 'info') {
-            const container = document.getElementById('logContainer');
-            if (!container) return;
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}`;
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            container.appendChild(entry);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function clearLogs() {
-            const container = document.getElementById('logContainer');
-            if (container) container.innerHTML = '';
-        }
-
-        function selectPeriodType(type) {
-            document.querySelectorAll('.period-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.period-inputs').forEach(input => input.classList.remove('active'));
-            event.target.classList.add('active');
-            const targetInput = document.getElementById(`${type}-inputs`);
-            if (targetInput) targetInput.classList.add('active');
-        }
-
-        async function loadDatasetsWithElements() {
-            const btn = document.querySelector('button[onclick="loadDatasetsWithElements()"]');
-            const originalText = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Loading... 0%';
-            
-            try {
-                btn.textContent = 'Loading... 10%';
-                log('Fetching datasets from DHIS2...', 'info');
-                showNotification('Loading datasets...', 'info');
-                
-                btn.textContent = 'Loading... 20%';
-                const url = `${state.config.instanceUrl}/api/dataSets.json?fields=id,displayName,name,periodType,dataSetElements[dataElement[id,displayName,name]]&paging=false`;
-                const response = await fetchWithAuth(url);
-                
-                btn.textContent = 'Loading... 50%';
-                if (!response.ok) throw new Error(`Failed to fetch datasets: ${response.status}`);
-                const data = await response.json();
-                
-                btn.textContent = 'Loading... 70%';
-                if (!data.dataSets || !Array.isArray(data.dataSets)) {
-                    showNotification('No datasets found in response', 'error');
-                    btn.disabled = false;
-                    btn.textContent = originalText;
-                    return;
-                }
-                datasetsData = data.dataSets;
-                
-                btn.textContent = 'Loading... 85%';
-                renderAvailableItems(datasetsData);
-                
-                btn.textContent = 'Loading... 95%';
-                renderSelectedItems();
-                document.getElementById('availableSearch').style.display = 'block';
-                document.getElementById('datasetControlBtns').style.display = 'block';
-                
-                log(`Loaded ${data.dataSets.length} datasets`, 'success');
-                showNotification(`Loaded ${data.dataSets.length} datasets`, 'success');
-                
-                btn.textContent = 'Done!';
-                setTimeout(() => { btn.textContent = originalText; }, 1000);
-            } catch (error) {
-                log(`Error: ${error.message}`, 'error');
-                showNotification(`Failed to load datasets: ${error.message}`, 'error');
-                btn.textContent = originalText;
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        function renderAvailableItems(datasets) {
-            const container = document.getElementById('availablePanel');
-            let totalElements = 0;
-            
-            const datasetInfo = datasets.map(ds => {
-                if (!ds.dataSetElements || ds.dataSetElements.length === 0) return null;
-                const availableElements = ds.dataSetElements.filter(dse => {
-                    if (!dse.dataElement) return false;
-                    return !selectedDataElements.has(dse.dataElement.id);
-                });
-                if (availableElements.length === 0) return null;
-                totalElements += availableElements.length;
-                return { ds, availableElements };
-            }).filter(Boolean);
-            
-            if (totalElements === 0) {
-                container.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">All items have been selected!</div>';
-                document.getElementById('availableCount').textContent = '0 items';
-                return;
-            }
-            
-            const fragment = document.createDocumentFragment();
-            
-            datasetInfo.forEach(({ ds, availableElements }) => {
-                const isExpanded = expandedDatasets.has(ds.id); // Check if this dataset was expanded
-                
-                const datasetDiv = document.createElement('div');
-                datasetDiv.className = 'dataset-item';
-                datasetDiv.dataset.id = ds.id;
-                
-                const toggle = document.createElement('span');
-                toggle.className = 'item-toggle';
-                toggle.textContent = isExpanded ? '▼' : '▶'; // Preserve expanded state
-                toggle.onclick = (e) => { e.stopPropagation(); toggleDatasetExpand(ds.id); };
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'item-name';
-                const periodType = ds.periodType ? ` (${ds.periodType})` : '';
-                nameSpan.textContent = `${ds.displayName || ds.name || ds.id}${periodType} - ${availableElements.length} elements`;
-                
-                datasetDiv.appendChild(toggle);
-                datasetDiv.appendChild(nameSpan);
-                datasetDiv.onclick = (e) => { if (!e.target.classList.contains('item-toggle')) toggleDatasetExpand(ds.id); };
-                fragment.appendChild(datasetDiv);
-                
-                const elementsContainer = document.createElement('div');
-                elementsContainer.className = 'data-elements-container' + (isExpanded ? ' expanded' : ''); // Preserve expanded state
-                elementsContainer.id = `elements-${ds.id}`;
-                
-                availableElements.forEach(dse => {
-                    const elementDiv = document.createElement('div');
-                    elementDiv.className = 'data-element-item';
-                    elementDiv.dataset.id = dse.dataElement.id;
-                    elementDiv.dataset.datasetId = ds.id;
-                    elementDiv.dataset.datasetName = ds.displayName || ds.name || ds.id;
-                    elementDiv.dataset.name = (dse.dataElement.displayName || dse.dataElement.name || '').toLowerCase();
-                    
-                    const elNameSpan = document.createElement('span');
-                    elNameSpan.className = 'item-name';
-                    elNameSpan.textContent = dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id;
-                    
-                    const addBtn = document.createElement('button');
-                    addBtn.className = 'add-btn';
-                    addBtn.textContent = '+ Add';
-                    addBtn.onclick = (e) => { 
-                        e.stopPropagation(); 
-                        addItem(dse.dataElement.id, ds.id, ds.displayName || ds.name, dse.dataElement.displayName || dse.dataElement.name); 
-                    };
-                    
-                    elementDiv.onclick = () => addItem(dse.dataElement.id, ds.id, ds.displayName || ds.name, dse.dataElement.displayName || dse.dataElement.name);
-                    elementDiv.appendChild(elNameSpan);
-                    elementDiv.appendChild(addBtn);
-                    elementsContainer.appendChild(elementDiv);
-                });
-                
-                fragment.appendChild(elementsContainer);
-            });
-            
-            container.innerHTML = '';
-            container.appendChild(fragment);
-            document.getElementById('availableCount').textContent = `${totalElements} items`;
-        }
-
-        function toggleDatasetExpand(datasetId) {
-            const elementsContainer = document.getElementById(`elements-${datasetId}`);
-            const toggle = document.querySelector(`.dataset-item[data-id="${datasetId}"] .item-toggle`);
-            if (elementsContainer && toggle) {
-                if (elementsContainer.classList.contains('expanded')) {
-                    elementsContainer.classList.remove('expanded');
-                    toggle.textContent = '▶';
-                    expandedDatasets.delete(datasetId); // Track collapsed state
-                } else {
-                    elementsContainer.classList.add('expanded');
-                    toggle.textContent = '▼';
-                    expandedDatasets.add(datasetId); // Track expanded state
-                }
-            }
-        }
-
-        function expandAllDatasets() {
-            document.querySelectorAll('.data-elements-container').forEach(container => {
-                container.classList.add('expanded');
-                const datasetId = container.id.replace('elements-', '');
-                expandedDatasets.add(datasetId);
-            });
-            document.querySelectorAll('.dataset-item .item-toggle').forEach(toggle => {
-                toggle.textContent = '▼';
-            });
-        }
-
-        function collapseAllDatasets() {
-            document.querySelectorAll('.data-elements-container').forEach(container => {
-                container.classList.remove('expanded');
-            });
-            expandedDatasets.clear();
-            document.querySelectorAll('.dataset-item .item-toggle').forEach(toggle => {
-                toggle.textContent = '▶';
-            });
-        }
-
-        function renderSelectedItems() {
-            const container = document.getElementById('selectedPanel');
-            
-            if (selectedDataElements.size === 0) {
-                container.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No items selected yet</p>';
-                document.getElementById('selectedCount').textContent = '0 items';
-                return;
-            }
-            
-            const selectedItems = Array.from(selectedDataElements.entries()).map(([id, info]) => ({
-                id,
-                name: info.elementName,
-                datasetId: info.datasetId,
-                datasetName: info.datasetName
-            }));
-            
-            selectedItems.sort((a, b) => {
-                const dsCompare = a.datasetName.localeCompare(b.datasetName);
-                if (dsCompare !== 0) return dsCompare;
-                return a.name.localeCompare(b.name);
-            });
-            
-            const fragment = document.createDocumentFragment();
-            let currentDataset = '';
-            
-            selectedItems.forEach(item => {
-                if (item.datasetName !== currentDataset) {
-                    currentDataset = item.datasetName;
-                    const headerDiv = document.createElement('div');
-                    headerDiv.className = 'selected-dataset-header';
-                    headerDiv.style.cssText = 'background: #004080; color: white; padding: 8px 12px; margin: 8px 0 4px 0; border-radius: 4px; font-size: 12px; font-weight: 600;';
-                    headerDiv.textContent = item.datasetName;
-                    fragment.appendChild(headerDiv);
-                }
-                
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'selected-item';
-                itemDiv.dataset.id = item.id;
-                itemDiv.dataset.name = item.name.toLowerCase();
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'item-name';
-                nameSpan.textContent = item.name;
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.textContent = '×';
-                removeBtn.onclick = (e) => { e.stopPropagation(); removeItem(item.id); };
-                itemDiv.appendChild(nameSpan);
-                itemDiv.appendChild(removeBtn);
-                fragment.appendChild(itemDiv);
-            });
-            
-            container.innerHTML = '';
-            container.appendChild(fragment);
-            document.getElementById('selectedCount').textContent = `${selectedItems.length} items`;
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-
-        function addItem(itemId, datasetId, datasetName, elementName) { 
-            if (selectedDataElements.has(itemId)) return;
-            selectedDataElements.set(itemId, { datasetId, datasetName, elementName });
-            renderAvailableItems(datasetsData);
-            renderSelectedItems();
-        }
-        
-        function removeItem(itemId) { 
-            selectedDataElements.delete(itemId); 
-            renderAvailableItems(datasetsData); 
-            renderSelectedItems(); 
-        }
-        
-        function addAllItems() { 
-            datasetsData.forEach(ds => { 
-                if (ds.dataSetElements) { 
-                    ds.dataSetElements.forEach(dse => { 
-                        if (dse.dataElement && !selectedDataElements.has(dse.dataElement.id)) {
-                            selectedDataElements.set(dse.dataElement.id, {
-                                datasetId: ds.id,
-                                datasetName: ds.displayName || ds.name || ds.id,
-                                elementName: dse.dataElement.displayName || dse.dataElement.name || dse.dataElement.id
-                            });
-                        }
-                    }); 
-                } 
-            }); 
-            renderAvailableItems(datasetsData); 
-            renderSelectedItems(); 
-        }
-        
-        function clearAllItems() { 
-            selectedDataElements.clear(); 
-            renderAvailableItems(datasetsData); 
-            renderSelectedItems(); 
-        }
-
-        function resetAllSelections() {
-            // Clear selected data elements
-            selectedDataElements.clear();
-            expandedDatasets.clear();
-            if (datasetsData.length > 0) {
-                renderAvailableItems(datasetsData);
-                renderSelectedItems();
-            }
-            
-            // Clear search boxes
-            const availableSearch = document.getElementById('availableSearch');
-            const selectedSearch = document.getElementById('selectedSearch');
-            if (availableSearch) availableSearch.value = '';
-            if (selectedSearch) selectedSearch.value = '';
-            
-            // Clear selected org units
-            selectedOrgUnits.clear();
-            document.querySelectorAll('.org-unit-item').forEach(item => {
-                item.classList.remove('selected');
-                const checkbox = item.querySelector('.org-unit-checkbox');
-                if (checkbox) checkbox.checked = false;
-            });
-            
-            // Reset facility type filter
-            selectedGroupOptions.clear();
-            const groupSetSelect = document.getElementById('groupSetSelect');
-            if (groupSetSelect) groupSetSelect.value = '';
-            const groupOptionsContainer = document.getElementById('groupOptionsContainer');
-            if (groupOptionsContainer) groupOptionsContainer.style.display = 'none';
-            document.querySelectorAll('#groupOptionsList input[type="checkbox"]').forEach(cb => cb.checked = false);
-            
-            // Reset to all org units if filter was applied
-            if (allOrgUnitsData.length > 0 && orgUnitsData.length !== allOrgUnitsData.length) {
-                orgUnitsData = [...allOrgUnitsData];
-                maxOrgUnitLevel = Math.max(...orgUnitsData.map(ou => ou.level));
-                facilityLevel = determineFacilityLevel();
-                populateFacilityLevelSelector();
-                const tree = buildOrgUnitTree(orgUnitsData);
-                renderOrgUnitTree(tree);
-            }
-            
-            // Reset period inputs
-            document.getElementById('periodMonth').value = '';
-            document.getElementById('periodStart').value = '';
-            document.getElementById('periodEnd').value = '';
-            document.getElementById('quarterYear').value = '2025';
-            document.getElementById('quarter').value = 'Q1';
-            document.getElementById('startYear').value = '';
-            document.getElementById('endYear').value = '';
-            
-            // Reset progress section
-            document.getElementById('progressSection').classList.remove('active');
-            document.getElementById('progressFill').style.width = '0%';
-            document.getElementById('progressFill').textContent = '0%';
-            document.getElementById('logContainer').innerHTML = '';
-            
-            showNotification('All selections have been reset', 'info');
-        }
-
-        const debouncedFilterAvailable = debounce(filterAvailableItems, 150);
-        const debouncedFilterSelected = debounce(filterSelectedItems, 150);
-
-        function filterAvailableItems() {
-            const searchTerm = document.getElementById('availableSearch').value.toLowerCase();
-            const datasets = document.querySelectorAll('#availablePanel .dataset-item');
-            datasets.forEach(datasetDiv => {
-                const datasetId = datasetDiv.dataset.id;
-                const elementsContainer = document.getElementById(`elements-${datasetId}`);
-                if (!elementsContainer) return;
-                const elements = elementsContainer.querySelectorAll('.data-element-item');
-                let hasVisibleElements = false;
-                elements.forEach(element => {
-                    const name = element.dataset.name;
-                    if (name && name.includes(searchTerm)) { element.style.display = 'flex'; hasVisibleElements = true; } 
-                    else { element.style.display = 'none'; }
-                });
-                const datasetName = datasetDiv.querySelector('.item-name').textContent.toLowerCase();
-                if (datasetName.includes(searchTerm) || hasVisibleElements) {
-                    datasetDiv.style.display = 'flex';
-                    // Removed auto-expand - user controls expand/collapse manually
-                } else { datasetDiv.style.display = 'none'; }
-            });
-        }
-
-        function filterSelectedItems() {
-            const searchTerm = document.getElementById('selectedSearch').value.toLowerCase();
-            document.querySelectorAll('#selectedPanel .selected-item').forEach(item => {
-                const name = item.dataset.name;
-                item.style.display = name.includes(searchTerm) ? 'flex' : 'none';
-            });
-        }
-
-        async function loadOrgUnitsTree() {
-            const btn = document.querySelector('button[onclick="loadOrgUnitsTree()"]');
-            const originalText = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Loading... 0%';
-            
-            try {
-                btn.textContent = 'Loading... 10%';
-                log('Fetching organisation units...', 'info');
-                showNotification('Loading organisation units...', 'info');
-                
-                btn.textContent = 'Loading... 20%';
-                const url = `${state.config.instanceUrl}/api/organisationUnits.json?fields=id,displayName,level,parent[id],children[id],organisationUnitGroups[id,name]&paging=false`;
-                const response = await fetchWithAuth(url);
-                
-                btn.textContent = 'Loading... 50%';
-                if (!response.ok) throw new Error('Failed to fetch organisation units');
-                const data = await response.json();
-                
-                btn.textContent = 'Loading... 70%';
-                orgUnitsData = data.organisationUnits;
-                allOrgUnitsData = [...orgUnitsData];
-                
-                // Determine max level and detect the appropriate facility level
-                maxOrgUnitLevel = Math.max(...orgUnitsData.map(ou => ou.level));
-                facilityLevel = determineFacilityLevel(); // Auto-detect the universal lowest level
-                
-                // Populate facility level selector
-                populateFacilityLevelSelector();
-                document.getElementById('facilityLevelSelector').classList.add('active');
-                
-                btn.textContent = 'Loading... 80%';
-                const tree = buildOrgUnitTree(orgUnitsData);
-                
-                btn.textContent = 'Loading... 90%';
-                renderOrgUnitTree(tree);
-                
-                log(`Loaded ${orgUnitsData.length} organisation units`, 'success');
-                showNotification(`Loaded ${orgUnitsData.length} organisation units`, 'success');
-                
-                btn.textContent = 'Loading Groups...';
-                await loadOrgUnitGroupSets();
-                
-                btn.textContent = 'Done!';
-                setTimeout(() => { btn.textContent = originalText; }, 1000);
-            } catch (error) {
-                log(`Error: ${error.message}`, 'error');
-                showNotification('Failed to load organisation units', 'error');
-                btn.textContent = originalText;
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        function populateFacilityLevelSelector() {
-            const select = document.getElementById('facilityLevelSelect');
-            const levels = [...new Set(orgUnitsData.map(ou => ou.level))].sort((a, b) => a - b);
-            
-            // Count org units at each level
-            const levelCounts = {};
-            levels.forEach(level => {
-                levelCounts[level] = orgUnitsData.filter(ou => ou.level === level).length;
-            });
-            
-            let optionsHtml = '';
-            levels.forEach(level => {
-                const selected = level === facilityLevel ? 'selected' : '';
-                optionsHtml += `<option value="${level}" ${selected}>Level ${level} (${levelCounts[level]} units)</option>`;
-            });
-            
-            select.innerHTML = optionsHtml;
-        }
-
-        function updateFacilityLevel() {
-            facilityLevel = parseInt(document.getElementById('facilityLevelSelect').value);
-            selectedOrgUnits.clear(); // Clear selections when level changes
-            const tree = buildOrgUnitTree(orgUnitsData);
-            renderOrgUnitTree(tree);
-            log(`Facility level changed to Level ${facilityLevel}`, 'info');
-            showNotification(`Facility level set to Level ${facilityLevel}`, 'info');
-        }
-
-        async function loadOrgUnitGroupSets() {
-            try {
-                log('Fetching organisation unit group sets...', 'info');
-                const url = `${state.config.instanceUrl}/api/organisationUnitGroupSets.json?fields=id,displayName,name,organisationUnitGroups[id,displayName,name]&paging=false`;
-                const response = await fetchWithAuth(url);
-                if (!response.ok) throw new Error('Failed to fetch group sets');
-                const data = await response.json();
-                orgUnitGroupSets = data.organisationUnitGroupSets || [];
-                
-                if (orgUnitGroupSets.length > 0) {
-                    const select = document.getElementById('groupSetSelect');
-                    select.innerHTML = '<option value="">-- Select a Group Set (e.g., Facility Type) --</option>';
-                    orgUnitGroupSets.forEach(gs => {
-                        const option = document.createElement('option');
-                        option.value = gs.id;
-                        option.textContent = gs.displayName || gs.name;
-                        select.appendChild(option);
-                    });
-                    
-                    orgUnitGroupSets.forEach(gs => {
-                        if (gs.organisationUnitGroups) {
-                            gs.organisationUnitGroups.forEach(g => {
-                                orgUnitGroups[g.id] = g.displayName || g.name;
-                            });
-                        }
-                    });
-                    
-                    document.getElementById('groupSetsContainer').style.display = 'block';
-                    log(`Loaded ${orgUnitGroupSets.length} group sets`, 'success');
-                }
-            } catch (error) {
-                log(`Warning: Could not load group sets: ${error.message}`, 'warning');
-            }
-        }
-
-        function loadGroupSetOptions() {
-            const select = document.getElementById('groupSetSelect');
-            const selectedId = select.value;
-            const container = document.getElementById('groupOptionsContainer');
-            const list = document.getElementById('groupOptionsList');
-            
-            if (!selectedId) {
-                container.style.display = 'none';
-                return;
-            }
-            
-            const groupSet = orgUnitGroupSets.find(gs => gs.id === selectedId);
-            if (!groupSet || !groupSet.organisationUnitGroups) {
-                container.style.display = 'none';
-                return;
-            }
-            
-            list.innerHTML = '';
-            selectedGroupOptions.clear();
-            
-            groupSet.organisationUnitGroups.forEach(group => {
-                const div = document.createElement('div');
-                div.style.cssText = 'padding: 6px 10px; margin: 2px 0; display: flex; align-items: center; gap: 8px;';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `group-${group.id}`;
-                checkbox.dataset.id = group.id;
-                checkbox.style.accentColor = '#004080';
-                checkbox.onchange = () => {
-                    if (checkbox.checked) {
-                        selectedGroupOptions.add(group.id);
-                    } else {
-                        selectedGroupOptions.delete(group.id);
-                    }
-                };
-                
-                const label = document.createElement('label');
-                label.htmlFor = `group-${group.id}`;
-                label.textContent = group.displayName || group.name;
-                label.style.cursor = 'pointer';
-                
-                div.appendChild(checkbox);
-                div.appendChild(label);
-                list.appendChild(div);
-            });
-            
-            container.style.display = 'block';
-        }
-
-        function selectAllGroupOptions() {
-            document.querySelectorAll('#groupOptionsList input[type="checkbox"]').forEach(cb => {
-                cb.checked = true;
-                selectedGroupOptions.add(cb.dataset.id);
-            });
-        }
-
-        function clearAllGroupOptions() {
-            document.querySelectorAll('#groupOptionsList input[type="checkbox"]').forEach(cb => {
-                cb.checked = false;
-            });
-            selectedGroupOptions.clear();
-        }
-
-        function applyFacilityTypeFilter() {
-            const btn = document.querySelector('button[onclick="applyFacilityTypeFilter()"]');
-            const originalText = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = 'Filtering...';
-            
-            setTimeout(() => {
-                if (selectedGroupOptions.size === 0) {
-                    orgUnitsData = [...allOrgUnitsData];
-                    showNotification('No filter applied - showing all organisation units', 'info');
-                } else {
-                    orgUnitsData = allOrgUnitsData.filter(ou => {
-                        if (!ou.organisationUnitGroups) return false;
-                        return ou.organisationUnitGroups.some(g => selectedGroupOptions.has(g.id));
-                    });
-                    
-                    const groupNames = Array.from(selectedGroupOptions).map(id => orgUnitGroups[id] || id).join(', ');
-                    log(`Filtered to ${orgUnitsData.length} org units matching: ${groupNames}`, 'info');
-                    showNotification(`Filtered to ${orgUnitsData.length} organisation units`, 'success');
-                }
-                
-                // Re-detect facility level and update dropdown after filtering
-                if (orgUnitsData.length > 0) {
-                    maxOrgUnitLevel = Math.max(...orgUnitsData.map(ou => ou.level));
-                    facilityLevel = determineFacilityLevel();
-                    populateFacilityLevelSelector();
-                }
-                
-                selectedOrgUnits.clear();
-                const tree = buildOrgUnitTree(orgUnitsData);
-                renderOrgUnitTree(tree);
-                
-                btn.textContent = 'Done!';
-                setTimeout(() => { 
-                    btn.disabled = false;
-                    btn.textContent = originalText; 
-                }, 500);
-            }, 100);
-        }
-
-        function buildOrgUnitTree(orgUnits) {
-            const orgUnitMap = {};
-            const rootUnits = [];
-            
-            orgUnits.forEach(ou => { orgUnitMap[ou.id] = { ...ou, children: [] }; });
-            
-            orgUnits.forEach(ou => {
-                if (ou.parent && orgUnitMap[ou.parent.id]) { 
-                    orgUnitMap[ou.parent.id].children.push(orgUnitMap[ou.id]); 
-                } else if (!ou.parent) {
-                    rootUnits.push(orgUnitMap[ou.id]);
-                } else {
-                    rootUnits.push(orgUnitMap[ou.id]);
-                }
-            });
-            
-            const sortChildren = (node) => {
-                if (node.children && node.children.length > 0) {
-                    node.children.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || ''));
-                    node.children.forEach(sortChildren);
-                }
-            };
-            rootUnits.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || ''));
-            rootUnits.forEach(sortChildren);
-            
-            return rootUnits;
-        }
-
-        function renderOrgUnitTree(tree) {
-            const container = document.getElementById('orgUnitTree');
-            const fragment = document.createDocumentFragment();
-            tree.forEach(ou => fragment.appendChild(createOrgUnitNode(ou)));
-            container.innerHTML = '';
-            container.appendChild(fragment);
-        }
-
-        function createOrgUnitNode(orgUnit) {
-            const div = document.createElement('div');
-            const itemDiv = document.createElement('div');
-            
-            const isFacilityLevel = orgUnit.level === facilityLevel;
-            itemDiv.className = `org-unit-item ${isFacilityLevel ? 'facility-level' : 'hierarchy-level'}`;
-            itemDiv.dataset.id = orgUnit.id;
-            itemDiv.dataset.level = orgUnit.level;
-            
-            // Toggle for expand/collapse
-            const toggle = document.createElement('span');
-            toggle.className = 'org-unit-toggle';
-            if (orgUnit.children && orgUnit.children.length > 0) { 
-                toggle.textContent = '▶'; 
-                toggle.onclick = (e) => { e.stopPropagation(); toggleOrgUnit(orgUnit.id); }; 
-            } else { 
-                toggle.textContent = '  '; 
-                toggle.style.cursor = 'default'; 
-            }
-            
-            itemDiv.appendChild(toggle);
-            
-            if (isFacilityLevel) {
-                // Facility level - clickable with checkbox
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'org-unit-checkbox';
-                checkbox.dataset.id = orgUnit.id;
-                checkbox.checked = selectedOrgUnits.has(orgUnit.id);
-                checkbox.onchange = (e) => { e.stopPropagation(); toggleOrgUnitSelection(orgUnit.id, e.target.checked); };
-                itemDiv.appendChild(checkbox);
-                
-                const label = document.createElement('span');
-                label.className = 'org-unit-label';
-                label.textContent = orgUnit.displayName;
-                label.onclick = () => { checkbox.checked = !checkbox.checked; toggleOrgUnitSelection(orgUnit.id, checkbox.checked); };
-                itemDiv.appendChild(label);
-                
-                if (selectedOrgUnits.has(orgUnit.id)) {
-                    itemDiv.classList.add('selected');
-                }
-            } else {
-                // Hierarchy level - disabled/gray with level badge
-                const badge = document.createElement('span');
-                badge.className = 'level-badge';
-                badge.textContent = `L${orgUnit.level}`;
-                itemDiv.appendChild(badge);
-                
-                const label = document.createElement('span');
-                label.className = 'org-unit-label';
-                label.textContent = orgUnit.displayName;
-                itemDiv.appendChild(label);
-            }
-            
-            div.appendChild(itemDiv);
-            
-            if (orgUnit.children && orgUnit.children.length > 0) {
-                const childrenDiv = document.createElement('div');
-                childrenDiv.className = 'org-unit-children';
-                childrenDiv.id = `children-${orgUnit.id}`;
-                orgUnit.children.forEach(child => { childrenDiv.appendChild(createOrgUnitNode(child)); });
-                div.appendChild(childrenDiv);
-            }
-            return div;
-        }
-
-        function toggleOrgUnit(id) {
-            const childrenDiv = document.getElementById(`children-${id}`);
-            const toggle = document.querySelector(`[data-id="${id}"] .org-unit-toggle`);
-            if (childrenDiv.classList.contains('expanded')) { 
-                childrenDiv.classList.remove('expanded'); 
-                toggle.textContent = '▶'; 
-            } else { 
-                childrenDiv.classList.add('expanded'); 
-                toggle.textContent = '▼'; 
-            }
-        }
-
-        function toggleOrgUnitSelection(id, selected) {
-            const item = document.querySelector(`.org-unit-item[data-id="${id}"]`);
-            // Only allow selection of facility level items
-            if (!item || !item.classList.contains('facility-level')) return;
-            
-            if (selected) { 
-                selectedOrgUnits.add(id); 
-                item.classList.add('selected');
-            } else { 
-                selectedOrgUnits.delete(id); 
-                item.classList.remove('selected');
-            }
-        }
-
-        function expandAllOrgUnits() { 
-            document.querySelectorAll('.org-unit-children').forEach(div => div.classList.add('expanded')); 
-            document.querySelectorAll('.org-unit-toggle').forEach(toggle => { if (toggle.textContent === '▶') toggle.textContent = '▼'; }); 
-        }
-        
-        function collapseAllOrgUnits() { 
-            document.querySelectorAll('.org-unit-children').forEach(div => div.classList.remove('expanded')); 
-            document.querySelectorAll('.org-unit-toggle').forEach(toggle => { if (toggle.textContent === '▼') toggle.textContent = '▶'; }); 
-        }
-        
-        function selectAllFacilities() { 
-            // Only select items at the facility level
-            document.querySelectorAll('.org-unit-item.facility-level').forEach(item => {
-                const id = item.dataset.id;
-                selectedOrgUnits.add(id);
-                item.classList.add('selected');
-                const checkbox = item.querySelector('.org-unit-checkbox');
-                if (checkbox) checkbox.checked = true;
-            });
-            showNotification(`Selected ${selectedOrgUnits.size} facilities at Level ${facilityLevel}`, 'info');
-        }
-        
-        function clearAllOrgUnits() { 
-            document.querySelectorAll('.org-unit-checkbox').forEach(checkbox => checkbox.checked = false); 
-            selectedOrgUnits.clear(); 
-            document.querySelectorAll('.org-unit-item').forEach(item => item.classList.remove('selected')); 
-        }
-
-        // FIXED: Date range now properly includes the end month
-        function getPeriodFromForm() {
-            const activeTab = document.querySelector('.period-tab.active');
-            if (!activeTab) return '';
-            const tabText = activeTab.textContent.trim().toLowerCase();
-            
-            if (tabText === 'monthly') {
-                const periodInput = document.querySelector('#monthly-inputs input[name="period"]');
-                const period = periodInput?.value;
-                if (period) return `period=${period.replace('-', '')}`;
-            } else if (tabText === 'date range') {
-                const startInput = document.querySelector('#range-inputs input[name="periodStart"]');
-                const endInput = document.querySelector('#range-inputs input[name="periodEnd"]');
-                const start = startInput?.value;
-                const end = endInput?.value;
-                
-                if (start && end) {
-                    // Parse start and end as year-month
-                    const [startYear, startMonth] = start.split('-').map(Number);
-                    const [endYear, endMonth] = end.split('-').map(Number);
-                    
-                    // Calculate end date - last day of end month
-                    // Get the last day of the end month
-                    const lastDayOfEndMonth = new Date(endYear, endMonth, 0).getDate();
-                    
-                    // Format: startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
-                    const startDate = `${startYear}-${String(startMonth).padStart(2, '0')}-01`;
-                    const endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-${lastDayOfEndMonth}`;
-                    
-                    return `startDate=${startDate}&endDate=${endDate}`;
-                }
-            } else if (tabText === 'quarterly') {
-                const yearInput = document.querySelector('#quarterly-inputs input[name="year"]');
-                const quarterSelect = document.querySelector('#quarterly-inputs select[name="quarter"]');
-                const year = yearInput?.value;
-                const quarter = quarterSelect?.value;
-                if (year && quarter) return `period=${year}${quarter}`;
-            } else if (tabText === 'yearly') {
-                const startYearInput = document.querySelector('#yearly-inputs input[name="startYear"]');
-                const endYearInput = document.querySelector('#yearly-inputs input[name="endYear"]');
-                const startYear = startYearInput?.value;
-                const endYear = endYearInput?.value;
-                if (startYear && endYear) return `startDate=${startYear}-01-01&endDate=${endYear}-12-31`;
-                else if (startYear) return `period=${startYear}`;
-            }
-            return '';
-        }
-
-        async function executeDownloadDatasets() {
-            const selectedDataElementIds = Array.from(selectedDataElements.keys());
-            const selectedOrgUnitIds = Array.from(selectedOrgUnits);
-            
-            if (selectedDataElementIds.length === 0) { 
-                showNotification('Please select at least one data element', 'error'); 
-                return; 
-            }
-            if (selectedOrgUnitIds.length === 0) { 
-                showNotification('Please select at least one health facility', 'error'); 
-                return; 
-            }
-            
-            const downloadBtn = document.getElementById('downloadDatasetsBtn');
-            if (downloadBtn) { downloadBtn.disabled = true; downloadBtn.textContent = 'Processing...'; }
-            showProgress();
-            clearLogs();
-            setProgress(0);
-            
-            try {
-                log(`Processing ${selectedDataElementIds.length} selected data elements...`, 'info');
-                setProgress(20);
-                
-                const dataElementMap = {};
-                selectedDataElements.forEach((info, id) => {
-                    dataElementMap[id] = info.elementName;
-                });
-                log(`Prepared ${Object.keys(dataElementMap).length} data elements for export`, 'success');
-                
-                const orgUnitMap = {};
-                const orgUnitHierarchy = {};
-                log('Building organisation unit hierarchy...', 'info');
-                setProgress(40);
-                
-                // Use allOrgUnitsData to build hierarchy so we have all parent levels
-                // Fall back to orgUnitsData if allOrgUnitsData is empty
-                const hierarchySource = allOrgUnitsData.length > 0 ? allOrgUnitsData : orgUnitsData;
-                hierarchySource.forEach(ou => {
-                    orgUnitMap[ou.id] = ou.displayName;
-                    orgUnitHierarchy[ou.id] = { id: ou.id, name: ou.displayName, level: ou.level, parent: ou.parent ? ou.parent.id : null };
-                });
-                
-                const period = getPeriodFromForm();
-                if (!period) { 
-                    showNotification('Please select a period', 'error'); 
-                    if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.textContent = 'DOWNLOAD DATASET DATA'; } 
-                    return; 
-                }
-                
-                log('Fetching data values...', 'info');
-                log(`  Data Elements: ${selectedDataElementIds.length}`, 'info');
-                log(`  Health Facilities: ${selectedOrgUnitIds.length}`, 'info');
-                log(`  Period: ${period}`, 'info');
-                setProgress(60);
-                
-                const dataUrl = `${state.config.instanceUrl}/api/dataValueSets.json?dataElement=${selectedDataElementIds.join(',')}&orgUnit=${selectedOrgUnitIds.join(',')}&${period}`;
-                const dataResponse = await fetchWithAuth(dataUrl);
-                if (!dataResponse.ok) throw new Error('Failed to fetch data values');
-                const dataValues = await dataResponse.json();
-                const numValues = dataValues.dataValues?.length || 0;
-                log(`Retrieved ${numValues} data values`, 'success');
-                setProgress(80);
-                
-                const allPeriods = new Set();
-                if (dataValues.dataValues) {
-                    dataValues.dataValues.forEach(dv => allPeriods.add(dv.period));
-                }
-                const periodsArray = Array.from(allPeriods).sort();
-                
-                if (numValues === 0) {
-                    showNotification('No data values found for selected criteria', 'info');
-                    log('No data found. This could mean:', 'info');
-                    log('   - No data entered for this period', 'info');
-                    log('   - Selected facilities have no data', 'info');
-                    log('   - Data elements are not used in this period', 'info');
-                    if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.textContent = 'DOWNLOAD DATASET DATA'; }
-                    return;
-                }
-                
-                log('Fetching category option combos...', 'info');
-                const categoryOptionComboMap = {};
-                const cocUrl = `${state.config.instanceUrl}/api/categoryOptionCombos.json?fields=id,displayName,name&paging=false`;
-                const cocResponse = await fetchWithAuth(cocUrl);
-                if (cocResponse.ok) {
-                    const cocData = await cocResponse.json();
-                    cocData.categoryOptionCombos?.forEach(coc => { categoryOptionComboMap[coc.id] = coc.displayName || coc.name || coc.id; });
-                    log(`  Found ${Object.keys(categoryOptionComboMap).length} category combos`, 'info');
-                }
-                
-                log('Converting to wide format CSV...', 'info');
-                const csvData = convertToWideFormatCSV(dataValues.dataValues, dataElementMap, orgUnitMap, categoryOptionComboMap, orgUnitHierarchy, selectedOrgUnitIds, periodsArray);
-                const blob = new Blob([csvData], { type: 'text/csv' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `dataset-export-${new Date().toISOString().split('T')[0]}.csv`;
-                link.click();
-                setProgress(100);
-                
-                log('═══════════════════════════════════════', 'success');
-                log('DOWNLOAD COMPLETE!', 'success');
-                log('═══════════════════════════════════════', 'success');
-                log(`  ${numValues} data values exported`, 'success');
-                log(`  ${selectedDataElementIds.length} data elements`, 'success');
-                log(`  ${selectedOrgUnitIds.length} health facilities`, 'success');
-                showNotification('Dataset data downloaded successfully!', 'success');
-            } catch (error) {
-                log(`ERROR: ${error.message}`, 'error');
-                showNotification(`Error: ${error.message}`, 'error');
-            } finally {
-                if (downloadBtn) { downloadBtn.disabled = false; downloadBtn.textContent = 'DOWNLOAD DATASET DATA'; }
-            }
-        }
-
-        function convertToWideFormatCSV(dataValues, dataElementMap, orgUnitMap, categoryOptionComboMap, orgUnitHierarchy, selectedOrgUnitIds, periodsArray) {
-            log(`Converting ${dataValues.length} data values to wide format...`, 'info');
-            
-            const grouped = {};
-            dataValues.forEach(dv => {
-                const key = `${dv.orgUnit}|${dv.period}`;
-                if (!grouped[key]) { grouped[key] = { orgUnit: dv.orgUnit, period: dv.period, values: {} }; }
-                const deName = dataElementMap[dv.dataElement] || dv.dataElement;
-                const cocName = categoryOptionComboMap[dv.categoryOptionCombo] || dv.categoryOptionCombo || 'default';
-                let fullKey = deName;
-                if (cocName !== 'default' && cocName !== dv.categoryOptionCombo) { fullKey = `${deName} (${cocName})`; }
-                grouped[key].values[fullKey] = dv.value;
-            });
-            
-            const allColumns = new Set();
-            Object.values(grouped).forEach(row => { Object.keys(row.values).forEach(col => allColumns.add(col)); });
-            const sortedColumns = Array.from(allColumns).sort();
-            
-            // Use the selected facility level for hierarchy columns (Level 1 to facilityLevel)
-            const maxLevel = facilityLevel;
-            const hierarchyHeaders = [];
-            for (let i = 1; i <= maxLevel; i++) { hierarchyHeaders.push(`Level ${i}`); }
-            
-            const headers = [...hierarchyHeaders, 'Period', ...sortedColumns];
-            let csv = headers.join(',') + '\n';
-            
-            selectedOrgUnitIds.forEach(ouId => {
-                periodsArray.forEach(period => {
-                    const key = `${ouId}|${period}`;
-                    const rowData = grouped[key] || { orgUnit: ouId, period: period, values: {} };
-                    const csvRow = [];
-                    const hierarchy = getOrgUnitHierarchy(ouId, orgUnitHierarchy);
-                    for (let i = 0; i < maxLevel; i++) { csvRow.push(escapeCSV(hierarchy[i] || '')); }
-                    csvRow.push(escapeCSV(period));
-                    sortedColumns.forEach(col => { csvRow.push(escapeCSV(rowData.values[col] || '')); });
-                    csv += csvRow.join(',') + '\n';
-                });
-            });
-            
-            log('Wide format CSV conversion complete', 'success');
-            return csv;
-        }
-
-        function getOrgUnitHierarchy(orgUnitId, orgUnitHierarchy) {
-            const hierarchy = [];
-            let current = orgUnitHierarchy[orgUnitId];
-            while (current) { hierarchy.unshift(current.name); current = current.parent ? orgUnitHierarchy[current.parent] : null; }
-            return hierarchy;
-        }
-
-        function escapeCSV(value) {
-            if (value === null || value === undefined) return '';
-            const stringValue = String(value);
-            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) { return '"' + stringValue.replace(/"/g, '""') + '"'; }
-            return stringValue;
-        }
-
-        // Login Form Handler
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const instanceUrl = document.getElementById('instanceUrl').value.trim().replace(/\/$/, '');
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            const submitBtn = e.target.querySelector('.btn-primary');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Connecting... 0%';
-            
-            const config = { instanceUrl, username, password };
-            try {
-                submitBtn.textContent = 'Connecting... 30%';
-                showNotification('Connecting via proxy...', 'info');
-                const testUrl = `${instanceUrl}/api/me`;
-                const authHeader = 'Basic ' + btoa(`${username}:${password}`);
-                
-                submitBtn.textContent = 'Connecting... 60%';
-                const response = await makeProxyRequest(testUrl, { method: 'GET', headers: { 'Authorization': authHeader } });
-                
-                submitBtn.textContent = 'Connecting... 90%';
-                if (response.ok) {
-                    const userData = await response.json();
-                    state.config = config;
-                    state.isLoggedIn = true;
-                    submitBtn.textContent = 'Connected!';
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('mainContent').classList.add('active');
-                    const firstName = userData.firstName || '';
-                    const surname = userData.surname || '';
-                    const fullName = `${firstName} ${surname}`.trim() || 'User';
-                    showNotification(`Connected successfully! Welcome ${fullName}`, 'success');
-                } else if (response.status === 401) {
-                    showNotification('Invalid username or password', 'error');
-                } else if (response.status === 403) {
-                    showNotification('Access forbidden', 'error');
-                } else {
-                    showNotification(`Authentication failed (${response.status})`, 'error');
-                }
-            } catch (error) {
-                showNotification(`Connection failed: ${error.message}`, 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Connect to DHIS2';
-            }
-        });
-    </script>
+  </div>
 </body>
 </html>
